@@ -2,19 +2,15 @@ import { GPUBufferSpec, GPUKernel, GPUKernelSource } from './types';
 import { GPUBufferCollection } from './internal-types';
 import parseKernel from './parse-kernel';
 
-export default class GPUInterface<
-  TName extends string,
-  T extends GPUBufferSpec<TName>
-> {
+export default class GPUInterface<TBufferName extends string> {
   private device: GPUDevice;
   private gpuBuffers: GPUBufferCollection = {};
   private bindGroupLayout: GPUBindGroupLayout;
   private bindGroup: GPUBindGroup;
 
-  static async createInterface<
-    TName extends string,
-    T extends GPUBufferSpec<TName>
-  >(gpuArraySpecs: T[]): Promise<GPUInterface<TName, T>> {
+  static async createInterface<TBufferName extends string>(
+    gpuArraySpecs: GPUBufferSpec<TBufferName>[]
+  ): Promise<GPUInterface<TBufferName>> {
     const entry = navigator.gpu;
     const adapter = await entry.requestAdapter();
     if (!adapter) throw new Error('No GPU adapter found');
@@ -23,7 +19,10 @@ export default class GPUInterface<
     return new GPUInterface(device, gpuArraySpecs);
   }
 
-  private constructor(device: GPUDevice, gpuArraySpecs: T[]) {
+  private constructor(
+    device: GPUDevice,
+    gpuArraySpecs: GPUBufferSpec<TBufferName>[]
+  ) {
     this.device = device;
 
     // Create GPU buffers for each array
@@ -82,7 +81,7 @@ export default class GPUInterface<
     this.device.queue.writeBuffer(this.gpuBuffers[name].buffer, 0, data);
   }
 
-  createKernel(kernel: GPUKernelSource<T['name']>): GPUKernel {
+  createKernel(kernel: GPUKernelSource<TBufferName>): GPUKernel {
     const shaderSource = parseKernel(kernel, this.gpuBuffers);
 
     const shaderModule = this.device.createShaderModule({
@@ -112,7 +111,7 @@ export default class GPUInterface<
     return { run: runKernel };
   }
 
-  async readBuffer(name: T['name']): Promise<Float32Array> {
+  async readBuffer(name: TBufferName): Promise<Float32Array> {
     const buffer = this.gpuBuffers[name];
     if (!buffer.readBuffer) throw new Error('Buffer not marked as readable');
 
