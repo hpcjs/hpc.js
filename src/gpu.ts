@@ -2,15 +2,19 @@ import { GPUBufferSpec, GPUKernel, GPUKernelSource } from './types';
 import { GPUBufferCollection } from './internal-types';
 import parseKernel from './parse-kernel';
 
-export default class GPUInterface {
+export default class GPUInterface<
+  TName extends string,
+  T extends GPUBufferSpec<TName>
+> {
   private device: GPUDevice;
   private gpuBuffers: GPUBufferCollection = {};
   private bindGroupLayout: GPUBindGroupLayout;
   private bindGroup: GPUBindGroup;
 
-  static async createInterface(
-    gpuArraySpecs: GPUBufferSpec[]
-  ): Promise<GPUInterface> {
+  static async createInterface<
+    TName extends string,
+    T extends GPUBufferSpec<TName>
+  >(gpuArraySpecs: T[]): Promise<GPUInterface<TName, T>> {
     const entry = navigator.gpu;
     const adapter = await entry.requestAdapter();
     if (!adapter) throw new Error('No GPU adapter found');
@@ -19,7 +23,7 @@ export default class GPUInterface {
     return new GPUInterface(device, gpuArraySpecs);
   }
 
-  private constructor(device: GPUDevice, gpuArraySpecs: GPUBufferSpec[]) {
+  private constructor(device: GPUDevice, gpuArraySpecs: T[]) {
     this.device = device;
 
     // Create GPU buffers for each array
@@ -46,7 +50,7 @@ export default class GPUInterface {
         });
       }
 
-      this.gpuBuffers[name] = { buffer, id: i, readBuffer };
+      this.gpuBuffers[name] = { buffer, id: i, readBuffer, size };
     }
 
     const bindGroupLayoutEntries: GPUBindGroupLayoutEntry[] = gpuArraySpecs.map(
@@ -78,21 +82,7 @@ export default class GPUInterface {
     this.device.queue.writeBuffer(this.gpuBuffers[name].buffer, 0, data);
   }
 
-  createKernel(kernel: GPUKernelSource): GPUKernel {
-    // parse shader using acorn
-    // const shaderSource = /* wgsl */ `
-    //   struct Data {
-    //     data : array<f32>
-    //   }
-
-    //   @group(0) @binding(0) var<storage, read_write> data1 : Data;
-
-    //   @compute @workgroup_size(1, 1)
-    //   fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
-    //     let num = data1.data[global_id.x];
-    //     data1.data[global_id.x] = num * 2;
-    //   }
-    // `;
+  createKernel(kernel: GPUKernelSource<T['name']>): GPUKernel {
     const shaderSource = parseKernel(kernel, this.gpuBuffers);
 
     const shaderModule = this.device.createShaderModule({
@@ -122,7 +112,7 @@ export default class GPUInterface {
     return { run: runKernel };
   }
 
-  async readBuffer(name: string): Promise<Float32Array> {
+  async readBuffer(name: T['name']): Promise<Float32Array> {
     const buffer = this.gpuBuffers[name];
     if (!buffer.readBuffer) throw new Error('Buffer not marked as readable');
 
