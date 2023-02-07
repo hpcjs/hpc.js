@@ -43,6 +43,9 @@ const processors = {
 
     return text;
   },
+  wrapIfSingleLine(text: string) {
+    return text.includes('\n') ? text : `{ ${text}; }`;
+  },
 };
 
 const handlers = {
@@ -120,7 +123,7 @@ const handlers = {
     declaration += state.currentExpression;
 
     c(node.init, state);
-    declaration += `: f32 = ${state.currentExpression}`;
+    declaration += `: f32 = f32(${state.currentExpression})`;
     state.currentExpression = declaration;
   },
   ForStatement(node: any, state: WalkerState, c: any) {
@@ -136,7 +139,7 @@ const handlers = {
     forStatement += `${state.currentExpression}) `;
 
     c(node.body, state);
-    forStatement += `${state.currentExpression}`;
+    forStatement += processors.wrapIfSingleLine(state.currentExpression);
     state.currentExpression = forStatement;
   },
   BinaryExpression(node: any, state: WalkerState, c: any) {
@@ -170,7 +173,7 @@ const handlers = {
     whileStatement += `while (${state.currentExpression}) `;
 
     c(node.body, state);
-    whileStatement += `${state.currentExpression}`;
+    whileStatement += processors.wrapIfSingleLine(state.currentExpression);
     state.currentExpression = whileStatement;
   },
   IfStatement(node: any, state: WalkerState, c: any) {
@@ -180,7 +183,7 @@ const handlers = {
     ifStatement += `if (${state.currentExpression}) `;
 
     c(node.consequent, state);
-    ifStatement += `${state.currentExpression}`;
+    ifStatement += processors.wrapIfSingleLine(state.currentExpression);
 
     if (node.alternate) {
       ifStatement += ' else ';
