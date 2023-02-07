@@ -192,8 +192,8 @@ const handlers = {
   },
 };
 
-export default function parseKernel<TBufferName extends string>(
-  func: GPUKernelSource<TBufferName>,
+export default function parseKernel<TGPUKernelBuffersInterface>(
+  func: GPUKernelSource<TGPUKernelBuffersInterface>,
   gpuBuffers: GPUBufferCollection
 ) {
   const src = func.toString();

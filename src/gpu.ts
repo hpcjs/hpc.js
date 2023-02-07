@@ -1,33 +1,37 @@
 import { GPUBufferSpec, GPUKernel, GPUKernelSource } from './types';
-import { GPUBufferCollection } from './internal-types';
+import { GPUBufferCollection, GPUBufferSizeToBuffer } from './internal-types';
 import parseKernel from './parse-kernel';
 
-export default class GPUInterface<TBufferName extends string> {
-  private device: GPUDevice;
+export default class GPUInterface<
+  TBufferName extends string,
+  TBuffers extends GPUBufferSpec<TBufferName>,
+  TGPUKernelBuffersInterface = {
+    [K in TBuffers['name']]: TBuffers extends { name: K }
+      ? GPUBufferSizeToBuffer<TBuffers['size']>
+      : never;
+  }
+> {
+  private device?: GPUDevice;
+  private bindGroup?: GPUBindGroup;
+  private bindGroupLayout?: GPUBindGroupLayout;
   private gpuBuffers: GPUBufferCollection = {};
-  private bindGroupLayout: GPUBindGroupLayout;
-  private bindGroup: GPUBindGroup;
+  private gpuArraySpecs: TBuffers[];
 
-  static async createInterface<TBufferName extends string>(
-    gpuArraySpecs: GPUBufferSpec<TBufferName>[]
-  ): Promise<GPUInterface<TBufferName>> {
+  constructor(gpuArraySpecs: TBuffers[]) {
+    this.gpuArraySpecs = gpuArraySpecs;
+  }
+
+  async initialize() {
     const entry = navigator.gpu;
     const adapter = await entry.requestAdapter();
     if (!adapter) throw new Error('No GPU adapter found');
 
     const device = await adapter.requestDevice();
-    return new GPUInterface(device, gpuArraySpecs);
-  }
-
-  private constructor(
-    device: GPUDevice,
-    gpuArraySpecs: GPUBufferSpec<TBufferName>[]
-  ) {
     this.device = device;
 
     // Create GPU buffers for each array
-    for (let i = 0; i < gpuArraySpecs.length; i++) {
-      const { name, size, readable, initialData } = gpuArraySpecs[i];
+    for (let i = 0; i < this.gpuArraySpecs.length; i++) {
+      const { name, size, readable, initialData } = this.gpuArraySpecs[i];
       const buffer = this.device.createBuffer({
         size: size.reduce((a, b) => a * b, 1) * 4,
         usage:
@@ -35,9 +39,26 @@ export default class GPUInterface<TBufferName extends string> {
         mappedAtCreation: initialData ? true : false,
       });
       if (initialData) {
+        const flattened: number[] = [];
+        for (const entry1 of initialData) {
+          if (typeof entry1 !== 'number') {
+            for (const entry2 of entry1) {
+              if (typeof entry2 !== 'number') {
+                for (const entry3 of entry2) {
+                  flattened.push(entry3);
+                }
+              } else {
+                flattened.push(entry2);
+              }
+            }
+          } else {
+            flattened.push(entry1);
+          }
+        }
+
         const arrayBuffer = buffer.getMappedRange();
         const dataView = new Float32Array(arrayBuffer);
-        dataView.set(initialData);
+        dataView.set(flattened);
         buffer.unmap();
       }
 
@@ -52,20 +73,19 @@ export default class GPUInterface<TBufferName extends string> {
       this.gpuBuffers[name] = { buffer, id: i, readBuffer, size };
     }
 
-    const bindGroupLayoutEntries: GPUBindGroupLayoutEntry[] = gpuArraySpecs.map(
-      (_, i) => ({
+    const bindGroupLayoutEntries: GPUBindGroupLayoutEntry[] =
+      this.gpuArraySpecs.map((_, i) => ({
         binding: i,
         visibility: GPUShaderStage.COMPUTE,
         buffer: {
           type: 'storage',
         },
-      })
-    );
+      }));
     this.bindGroupLayout = this.device.createBindGroupLayout({
       entries: bindGroupLayoutEntries,
     });
 
-    const bindGroupEntries = gpuArraySpecs.map((spec, i) => ({
+    const bindGroupEntries = this.gpuArraySpecs.map((spec, i) => ({
       binding: i,
       resource: {
         buffer: this.gpuBuffers[spec.name].buffer,
@@ -78,10 +98,15 @@ export default class GPUInterface<TBufferName extends string> {
   }
 
   setData(name: string, data: Float32Array) {
+    if (!this.device) throw new Error('GPUInterface not initialized');
+
     this.device.queue.writeBuffer(this.gpuBuffers[name].buffer, 0, data);
   }
 
-  createKernel(kernel: GPUKernelSource<TBufferName>): GPUKernel {
+  createKernel(kernel: GPUKernelSource<TGPUKernelBuffersInterface>): GPUKernel {
+    if (!this.device || !this.bindGroupLayout)
+      throw new Error('GPUInterface not initialized');
+
     const shaderSource = parseKernel(kernel, this.gpuBuffers);
 
     const shaderModule = this.device.createShaderModule({
@@ -98,6 +123,9 @@ export default class GPUInterface<TBufferName extends string> {
     });
 
     const runKernel = (x: number, y: number = 1, z: number = 1) => {
+      if (!this.device || !this.bindGroup)
+        throw new Error('GPUInterface not initialized');
+
       const commandEncoder = this.device.createCommandEncoder();
       const passEncoder = commandEncoder.beginComputePass();
       passEncoder.setPipeline(computePipeline);
@@ -111,7 +139,9 @@ export default class GPUInterface<TBufferName extends string> {
     return { run: runKernel };
   }
 
-  async readBuffer(name: TBufferName): Promise<Float32Array> {
+  async readBuffer(name: TBuffers['name']): Promise<Float32Array> {
+    if (!this.device) throw new Error('GPUInterface not initialized');
+
     const buffer = this.gpuBuffers[name];
     if (!buffer.readBuffer) throw new Error('Buffer not marked as readable');
 

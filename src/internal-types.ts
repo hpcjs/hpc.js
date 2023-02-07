@@ -15,3 +15,9 @@ export type WalkerState = {
   memberExpressionDepth: number;
   gpuBuffers: GPUBufferCollection;
 };
+
+export type GPUBufferSizeToBuffer<TSize> = TSize extends [number]
+  ? number[]
+  : TSize extends [number, number]
+  ? number[][]
+  : number[][][];
