@@ -29,7 +29,6 @@ export default class GPUInterface<
     const device = await adapter.requestDevice();
     this.device = device;
 
-    // Create GPU buffers for each array
     for (let i = 0; i < this.gpuArraySpecs.length; i++) {
       const { name, size, readable, initialData } = this.gpuArraySpecs[i];
       const buffer = this.device.createBuffer({
@@ -70,7 +69,13 @@ export default class GPUInterface<
         });
       }
 
-      this.gpuBuffers[name] = { buffer, id: i, readBuffer, size };
+      this.gpuBuffers[name] = {
+        buffer,
+        id: i,
+        readBuffer,
+        size,
+        mapped: false,
+      };
     }
 
     const bindGroupLayoutEntries: GPUBindGroupLayoutEntry[] =
@@ -125,6 +130,8 @@ export default class GPUInterface<
     const runKernel = (x: number, y: number = 1, z: number = 1) => {
       if (!this.device || !this.bindGroup)
         throw new Error('GPUInterface not initialized');
+      if (Object.values(this.gpuBuffers).some(buffer => buffer.mapped))
+        throw new Error('Buffer is mapped');
 
       const commandEncoder = this.device.createCommandEncoder();
       const passEncoder = commandEncoder.beginComputePass();
@@ -157,7 +164,19 @@ export default class GPUInterface<
     this.device.queue.submit([gpuCommands]);
 
     await buffer.readBuffer.mapAsync(GPUMapMode.READ);
+    buffer.mapped = true;
+
     const readBuffer = buffer.readBuffer.getMappedRange();
-    return new Float32Array(readBuffer);
+    const dataView = new Float32Array(readBuffer);
+    return dataView;
+  }
+
+  unmapBuffer(name: TBuffers['name']) {
+    const buffer = this.gpuBuffers[name];
+    if (!buffer.readBuffer) throw new Error('Buffer not marked as readable');
+    if (!buffer.mapped) throw new Error('Buffer not mapped');
+
+    buffer.readBuffer.unmap();
+    buffer.mapped = false;
   }
 }

@@ -5,6 +5,7 @@ export type GPUBufferWithInfo = {
   buffer: GPUBuffer;
   id: number;
   readBuffer?: GPUBuffer;
+  mapped: boolean;
 };
 export type GPUBufferCollection = {
   [name: string]: GPUBufferWithInfo;
