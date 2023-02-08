@@ -1,24 +1,47 @@
-import { GPUBufferSpec, GPUKernel, GPUKernelSource } from './types';
-import { GPUBufferCollection, GPUBufferSizeToBuffer } from './internal-types';
+import {
+  GPUBufferSpec,
+  GPUKernel,
+  GPUKernelSource,
+  GPUUniformSpec,
+} from './types';
+import {
+  GPUBufferCollection,
+  GPUBufferSizeToBuffer,
+  GPUUniformCollection,
+} from './internal-types';
 import parseKernel from './parse-kernel';
 
 export default class GPUInterface<
   TBufferName extends string,
   TBuffers extends GPUBufferSpec<TBufferName>,
+  TUniformName extends string,
   TGPUKernelBuffersInterface = {
     [K in TBuffers['name']]: TBuffers extends { name: K }
       ? GPUBufferSizeToBuffer<TBuffers['size']>
       : never;
-  }
+  },
+  TGPUKernelUniformsInterface = { [K in TUniformName]: number }
 > {
   private device?: GPUDevice;
   private bindGroup?: GPUBindGroup;
   private bindGroupLayout?: GPUBindGroupLayout;
-  private gpuBuffers: GPUBufferCollection = {};
   private gpuArraySpecs: TBuffers[];
+  private gpuBuffers: GPUBufferCollection<TBufferName> = {} as any;
+  private gpuUniforms: GPUUniformCollection<TUniformName> = {} as any;
+  private uniformBuffer?: GPUBuffer;
 
-  constructor(gpuArraySpecs: TBuffers[]) {
+  constructor(
+    gpuArraySpecs: TBuffers[],
+    gpuUniformSpecs: GPUUniformSpec<TUniformName>
+  ) {
     this.gpuArraySpecs = gpuArraySpecs;
+    this.gpuUniforms = Object.keys(gpuUniformSpecs).reduce((res, key, i) => {
+      res[key as TUniformName] = {
+        id: i,
+        value: gpuUniformSpecs[key as TUniformName],
+      };
+      return res;
+    }, {} as any);
   }
 
   async initialize() {
@@ -78,41 +101,75 @@ export default class GPUInterface<
       };
     }
 
-    const bindGroupLayoutEntries: GPUBindGroupLayoutEntry[] =
-      this.gpuArraySpecs.map((_, i) => ({
+    this.uniformBuffer = this.device.createBuffer({
+      size: Object.keys(this.gpuUniforms).length * 4,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+      mappedAtCreation: true,
+    });
+    const uniformArrayBuffer = this.uniformBuffer.getMappedRange();
+    const uniformDataView = new Float32Array(uniformArrayBuffer);
+    for (const uniform in this.gpuUniforms) {
+      const id = this.gpuUniforms[uniform].id;
+      uniformDataView[id] = this.gpuUniforms[uniform].value;
+    }
+    this.uniformBuffer.unmap();
+
+    const bindGroupLayoutEntries = this.gpuArraySpecs
+      .map((_, i) => ({
         binding: i,
         visibility: GPUShaderStage.COMPUTE,
         buffer: {
           type: 'storage',
         },
-      }));
+      }))
+      .concat([
+        {
+          binding: this.gpuArraySpecs.length,
+          visibility: GPUShaderStage.COMPUTE,
+          buffer: { type: 'uniform' },
+        },
+      ]) as GPUBindGroupLayoutEntry[];
     this.bindGroupLayout = this.device.createBindGroupLayout({
       entries: bindGroupLayoutEntries,
     });
 
-    const bindGroupEntries = this.gpuArraySpecs.map((spec, i) => ({
-      binding: i,
-      resource: {
-        buffer: this.gpuBuffers[spec.name].buffer,
-      },
-    }));
+    const bindGroupEntries = this.gpuArraySpecs
+      .map((spec, i) => ({
+        binding: i,
+        resource: {
+          buffer: this.gpuBuffers[spec.name].buffer,
+        },
+      }))
+      .concat([
+        {
+          binding: this.gpuArraySpecs.length,
+          resource: {
+            buffer: this.uniformBuffer,
+          },
+        },
+      ]);
     this.bindGroup = this.device.createBindGroup({
       layout: this.bindGroupLayout,
       entries: bindGroupEntries,
     });
   }
 
-  setData(name: string, data: Float32Array) {
-    if (!this.device) throw new Error('GPUInterface not initialized');
+  // setData(name: string, data: Float32Array) {
+  //   if (!this.device) throw new Error('GPUInterface not initialized');
 
-    this.device.queue.writeBuffer(this.gpuBuffers[name].buffer, 0, data);
-  }
+  //   this.device.queue.writeBuffer(this.gpuBuffers[name].buffer, 0, data);
+  // }
 
-  createKernel(kernel: GPUKernelSource<TGPUKernelBuffersInterface>): GPUKernel {
+  createKernel(
+    kernel: GPUKernelSource<
+      TGPUKernelBuffersInterface,
+      TGPUKernelUniformsInterface
+    >
+  ): GPUKernel {
     if (!this.device || !this.bindGroupLayout)
       throw new Error('GPUInterface not initialized');
 
-    const shaderSource = parseKernel(kernel, this.gpuBuffers);
+    const shaderSource = parseKernel(kernel, this.gpuBuffers, this.gpuUniforms);
 
     const shaderModule = this.device.createShaderModule({
       code: shaderSource,
@@ -130,7 +187,11 @@ export default class GPUInterface<
     const runKernel = (x: number, y: number = 1, z: number = 1) => {
       if (!this.device || !this.bindGroup)
         throw new Error('GPUInterface not initialized');
-      if (Object.values(this.gpuBuffers).some(buffer => buffer.mapped))
+      if (
+        Object.keys(this.gpuBuffers).some(
+          key => this.gpuBuffers[key as TBufferName].mapped
+        )
+      )
         throw new Error('Buffer is mapped');
 
       const commandEncoder = this.device.createCommandEncoder();
@@ -178,5 +239,21 @@ export default class GPUInterface<
 
     buffer.readBuffer.unmap();
     buffer.mapped = false;
+  }
+
+  setUniforms(uniforms: { [K in TUniformName]?: number }) {
+    if (!this.device || !this.uniformBuffer)
+      throw new Error('GPUInterface not initialized');
+
+    Object.assign(this.gpuUniforms, uniforms);
+
+    const uniformDataBuffer = new Float32Array(
+      Object.keys(this.gpuUniforms).length
+    );
+    for (const uniform in this.gpuUniforms) {
+      const id = this.gpuUniforms[uniform].id;
+      uniformDataBuffer[id] = this.gpuUniforms[uniform].value;
+    }
+    this.device.queue.writeBuffer(this.uniformBuffer, 0, uniformDataBuffer);
   }
 }

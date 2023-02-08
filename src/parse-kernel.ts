@@ -1,4 +1,8 @@
-import { GPUBufferCollection, WalkerState } from './internal-types';
+import {
+  GPUBufferCollection,
+  GPUUniformCollection,
+  WalkerState,
+} from './internal-types';
 import { GPUKernelSource } from './types';
 import * as acorn from 'acorn';
 import * as walk from 'acorn-walk';
@@ -12,17 +16,20 @@ const processors = {
 
     return text;
   },
-  gpuBuffer: (text: string, gpuBuffers: GPUBufferCollection) => {
+  gpuBuffer: <TBufferName extends string>(
+    text: string,
+    gpuBuffers: GPUBufferCollection<TBufferName>
+  ) => {
     const match =
       /^inputs\[buffers\]\[([a-zA-Z0-9_]+)\](?:\[(.+?)\])(?:\[(.+?)\])?(?:\[(.+?)\])?$/.exec(
         text
       );
     if (match) {
-      if (!gpuBuffers[match[1]]) {
+      if (!(match[1] in gpuBuffers)) {
         throw new Error('Invalid buffer name');
       }
 
-      const buffer = gpuBuffers[match[1]];
+      const buffer = gpuBuffers[match[1] as TBufferName];
       let index = `i32(${match[2]})`;
       if (match[3]) {
         if (buffer.size.length < 2) {
@@ -43,13 +50,32 @@ const processors = {
 
     return text;
   },
+  gpuUniform: <TUniformName extends string>(
+    text: string,
+    gpuUniforms: GPUUniformCollection<TUniformName>
+  ) => {
+    const match = /^inputs\[uniforms\]\[([a-zA-Z0-9_]+)\]/.exec(text);
+    if (match) {
+      if (!(match[1] in gpuUniforms)) {
+        throw new Error('Invalid uniform name');
+      }
+
+      return `uniforms.${match[1]}`;
+    }
+
+    return text;
+  },
   wrapIfSingleLine(text: string) {
     return text.includes('\n') ? text : `{ ${text}; }`;
   },
 };
 
 const handlers = {
-  BlockStatement(node: any, state: WalkerState, c: any) {
+  BlockStatement<TBufferName extends string, TUniformName extends string>(
+    node: any,
+    state: WalkerState<TBufferName, TUniformName>,
+    c: any
+  ) {
     let statement = '{\n';
 
     for (const child of node.body) {
@@ -66,10 +92,18 @@ const handlers = {
     statement += '}';
     state.currentExpression = statement;
   },
-  ExpressionStatement(node: any, state: WalkerState, c: any) {
+  ExpressionStatement<TBufferName extends string, TUniformName extends string>(
+    node: any,
+    state: WalkerState<TBufferName, TUniformName>,
+    c: any
+  ) {
     c(node.expression, state);
   },
-  AssignmentExpression(node: any, state: WalkerState, c: any) {
+  AssignmentExpression<TBufferName extends string, TUniformName extends string>(
+    node: any,
+    state: WalkerState<TBufferName, TUniformName>,
+    c: any
+  ) {
     let expression = '';
 
     c(node.left, state);
@@ -79,7 +113,11 @@ const handlers = {
     expression += ` ${node.operator} ${state.currentExpression}`;
     state.currentExpression = expression;
   },
-  MemberExpression(node: any, state: WalkerState, c: any) {
+  MemberExpression<TBufferName extends string, TUniformName extends string>(
+    node: any,
+    state: WalkerState<TBufferName, TUniformName>,
+    c: any
+  ) {
     let memberExpression = '';
 
     state.memberExpressionDepth++;
@@ -90,6 +128,10 @@ const handlers = {
     c(node.property, state);
     memberExpression += `[${state.currentExpression}]`;
     state.currentExpression = processors.threadId(memberExpression);
+    state.currentExpression = processors.gpuUniform(
+      state.currentExpression,
+      state.gpuUniforms
+    );
     if (state.memberExpressionDepth === 0) {
       state.currentExpression = processors.gpuBuffer(
         state.currentExpression,
@@ -97,13 +139,23 @@ const handlers = {
       );
     }
   },
-  Identifier(node: any, state: WalkerState) {
+  Identifier<TBufferName extends string, TUniformName extends string>(
+    node: any,
+    state: WalkerState<TBufferName, TUniformName>
+  ) {
     state.currentExpression = node.name;
   },
-  Literal(node: any, state: WalkerState) {
+  Literal<TBufferName extends string, TUniformName extends string>(
+    node: any,
+    state: WalkerState<TBufferName, TUniformName>
+  ) {
     state.currentExpression = `${node.value}`;
   },
-  VariableDeclaration(node: any, state: WalkerState, c: any) {
+  VariableDeclaration<TBufferName extends string, TUniformName extends string>(
+    node: any,
+    state: WalkerState<TBufferName, TUniformName>,
+    c: any
+  ) {
     let declarations = '';
 
     const kind = node.kind === 'const' ? 'let' : 'var';
@@ -116,7 +168,11 @@ const handlers = {
 
     state.currentExpression = declarations.slice(0, -2);
   },
-  VariableDeclarator(node: any, state: WalkerState, c: any) {
+  VariableDeclarator<TBufferName extends string, TUniformName extends string>(
+    node: any,
+    state: WalkerState<TBufferName, TUniformName>,
+    c: any
+  ) {
     let declaration = '';
 
     c(node.id, state);
@@ -126,7 +182,11 @@ const handlers = {
     declaration += `: f32 = f32(${state.currentExpression})`;
     state.currentExpression = declaration;
   },
-  ForStatement(node: any, state: WalkerState, c: any) {
+  ForStatement<TBufferName extends string, TUniformName extends string>(
+    node: any,
+    state: WalkerState<TBufferName, TUniformName>,
+    c: any
+  ) {
     let forStatement = '';
 
     c(node.init, state);
@@ -142,7 +202,11 @@ const handlers = {
     forStatement += processors.wrapIfSingleLine(state.currentExpression);
     state.currentExpression = forStatement;
   },
-  BinaryExpression(node: any, state: WalkerState, c: any) {
+  BinaryExpression<TBufferName extends string, TUniformName extends string>(
+    node: any,
+    state: WalkerState<TBufferName, TUniformName>,
+    c: any
+  ) {
     let expression = '';
 
     c(node.left, state);
@@ -152,7 +216,11 @@ const handlers = {
     expression += ` ${node.operator} ${state.currentExpression}`;
     state.currentExpression = expression;
   },
-  UpdateExpression(node: any, state: WalkerState, c: any) {
+  UpdateExpression<TBufferName extends string, TUniformName extends string>(
+    node: any,
+    state: WalkerState<TBufferName, TUniformName>,
+    c: any
+  ) {
     let expression = '';
 
     c(node.argument, state);
@@ -166,7 +234,11 @@ const handlers = {
 
     state.currentExpression = expression;
   },
-  WhileStatement(node: any, state: WalkerState, c: any) {
+  WhileStatement<TBufferName extends string, TUniformName extends string>(
+    node: any,
+    state: WalkerState<TBufferName, TUniformName>,
+    c: any
+  ) {
     let whileStatement = '';
 
     c(node.test, state);
@@ -176,7 +248,11 @@ const handlers = {
     whileStatement += processors.wrapIfSingleLine(state.currentExpression);
     state.currentExpression = whileStatement;
   },
-  IfStatement(node: any, state: WalkerState, c: any) {
+  IfStatement<TBufferName extends string, TUniformName extends string>(
+    node: any,
+    state: WalkerState<TBufferName, TUniformName>,
+    c: any
+  ) {
     let ifStatement = '';
 
     c(node.test, state);
@@ -195,26 +271,45 @@ const handlers = {
   },
 };
 
-export default function parseKernel<TGPUKernelBuffersInterface>(
-  func: GPUKernelSource<TGPUKernelBuffersInterface>,
-  gpuBuffers: GPUBufferCollection
+export default function parseKernel<
+  TGPUKernelBuffersInterface,
+  TGPUKernelUniformsInterface,
+  TBufferName extends string,
+  TUniformName extends string
+>(
+  func: GPUKernelSource<
+    TGPUKernelBuffersInterface,
+    TGPUKernelUniformsInterface
+  >,
+  gpuBuffers: GPUBufferCollection<TBufferName>,
+  gpuUniforms: GPUUniformCollection<TUniformName>
 ) {
   const src = func.toString();
   const ast = acorn.parse(src, { ecmaVersion: 2022 }) as any;
   const funcBody = ast.body[0].expression.body;
 
-  let wgsl = 'struct Data {\n  data : array<f32>\n}\n\n';
-  for (const name in gpuBuffers) {
-    wgsl += `@group(0) @binding(${gpuBuffers[name].id}) var<storage, read_write> data_${name} : Data;\n`;
+  let wgsl = 'struct Data {\n    data: array<f32>\n}\n\n';
+  wgsl += 'struct Uniforms {\n';
+
+  for (const name in gpuUniforms) {
+    wgsl += `    ${name}: f32,\n`;
   }
+  wgsl += '}\n\n';
+  for (const name in gpuBuffers) {
+    wgsl += `@group(0) @binding(${gpuBuffers[name].id}) var<storage, read_write> data_${name}: Data;\n`;
+  }
+  wgsl += `@group(0) @binding(${
+    Object.keys(gpuBuffers).length
+  }) var<uniform> uniforms: Uniforms;\n\n`;
 
   wgsl +=
-    '\n@compute @workgroup_size(1, 1)\nfn main(@builtin(global_invocation_id) global_id : vec3<u32>) ';
+    '@compute @workgroup_size(1, 1)\nfn main(@builtin(global_invocation_id) global_id: vec3<u32>) ';
 
-  const walkerState: WalkerState = {
+  const walkerState = {
     currentExpression: '',
     memberExpressionDepth: 0,
     gpuBuffers,
+    gpuUniforms,
   };
   walk.recursive(funcBody, walkerState, handlers);
   wgsl += walkerState.currentExpression;

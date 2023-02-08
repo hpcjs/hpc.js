@@ -7,14 +7,25 @@ export type GPUBufferWithInfo = {
   readBuffer?: GPUBuffer;
   mapped: boolean;
 };
-export type GPUBufferCollection = {
-  [name: string]: GPUBufferWithInfo;
+export type GPUUniformInfo = {
+  id: number;
+  value: number;
+};
+export type GPUBufferCollection<TName extends string> = {
+  [K in TName]: GPUBufferWithInfo;
+};
+export type GPUUniformCollection<TName extends string> = {
+  [K in TName]: GPUUniformInfo;
 };
 
-export type WalkerState = {
+export type WalkerState<
+  TBufferName extends string,
+  TUniformName extends string
+> = {
   currentExpression: string;
   memberExpressionDepth: number;
-  gpuBuffers: GPUBufferCollection;
+  gpuBuffers: GPUBufferCollection<TBufferName>;
+  gpuUniforms: GPUUniformCollection<TUniformName>;
 };
 
 export type GPUBufferSizeToBuffer<TSize> = TSize extends [number]
