@@ -110,7 +110,7 @@ const handlers = {
     expression += state.currentExpression;
 
     c(node.right, state);
-    expression += ` ${node.operator} ${state.currentExpression}`;
+    expression += ` ${node.operator} f32(${state.currentExpression})`;
     state.currentExpression = expression;
   },
   MemberExpression<TBufferName extends string, TUniformName extends string>(
@@ -268,6 +268,51 @@ const handlers = {
     }
 
     state.currentExpression = ifStatement;
+  },
+  LogicalExpression<TBufferName extends string, TUniformName extends string>(
+    node: any,
+    state: WalkerState<TBufferName, TUniformName>,
+    c: any
+  ) {
+    let expression = '';
+
+    c(node.left, state);
+    expression += `bool(${state.currentExpression})`;
+
+    c(node.right, state);
+    expression += ` ${node.operator} bool(${state.currentExpression})`;
+    state.currentExpression = expression;
+  },
+  ReturnStatement<TBufferName extends string, TUniformName extends string>(
+    node: any,
+    state: WalkerState<TBufferName, TUniformName>,
+    c: any
+  ) {
+    let returnStatement = 'return';
+
+    if (node.argument) {
+      c(node.argument, state);
+      returnStatement += ` ${state.currentExpression}`;
+    }
+
+    state.currentExpression = returnStatement;
+  },
+  ConditionalExpression<
+    TBufferName extends string,
+    TUniformName extends string
+  >(node: any, state: WalkerState<TBufferName, TUniformName>, c: any) {
+    let expression = 'select(';
+
+    c(node.alternate, state);
+    expression += `${state.currentExpression}, `;
+
+    c(node.consequent, state);
+    expression += `${state.currentExpression}, `;
+
+    c(node.test, state);
+    expression += `${state.currentExpression})`;
+
+    state.currentExpression = expression;
   },
 };
 

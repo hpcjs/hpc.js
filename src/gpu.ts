@@ -29,6 +29,11 @@ export default class GPUInterface<
   private gpuBuffers: GPUBufferCollection<TBufferName> = {} as any;
   private gpuUniforms: GPUUniformCollection<TUniformName> = {} as any;
   private uniformBuffer?: GPUBuffer;
+  private initialized: boolean = false;
+
+  get isInitialized() {
+    return this.initialized;
+  }
 
   constructor(
     gpuArraySpecs: TBuffers[],
@@ -152,6 +157,8 @@ export default class GPUInterface<
       layout: this.bindGroupLayout,
       entries: bindGroupEntries,
     });
+
+    this.initialized = true;
   }
 
   // setData(name: string, data: Float32Array) {
@@ -245,7 +252,9 @@ export default class GPUInterface<
     if (!this.device || !this.uniformBuffer)
       throw new Error('GPUInterface not initialized');
 
-    Object.assign(this.gpuUniforms, uniforms);
+    for (const uniform in uniforms) {
+      this.gpuUniforms[uniform].value = uniforms[uniform] as number;
+    }
 
     const uniformDataBuffer = new Float32Array(
       Object.keys(this.gpuUniforms).length
