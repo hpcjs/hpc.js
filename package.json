@@ -1,24 +1,30 @@
 {
-  "name": "webgpu-js-translator",
-  "version": "1.0.2",
-  "description": "",
+  "name": "hpc.js",
+  "version": "0.1.0",
+  "description": "High Performance Computing in JavaScript",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "gpu",
+    "gpgpu",
+    "webgpu",
+    "hpc",
+    "parallel"
+  ],
+  "author": "Ethan Lipson",
   "license": "ISC",
   "dependencies": {
-    "@webgpu/types": "^0.1.24",
     "acorn": "^8.8.2",
     "acorn-walk": "^8.2.0"
   },
   "devDependencies": {
     "@types/node": "^18.11.19",
     "tsup": "^6.5.0",
-    "typescript": "^4.9.4"
+    "typescript": "^4.9.4",
+    "@webgpu/types": "^0.1.24"
   }
 }
