@@ -10,6 +10,7 @@ import {
   GPUUniformCollection,
 } from './internal-types';
 import parseKernel from './parse-kernel';
+import { getFragmentSource, getVertexSource } from './wgsl-code';
 
 export default class GPUInterface<
   TBufferName extends string,
@@ -29,7 +30,12 @@ export default class GPUInterface<
   private gpuBuffers: GPUBufferCollection<TBufferName> = {} as any;
   private gpuUniforms: GPUUniformCollection<TUniformName> = {} as any;
   private uniformBuffer?: GPUBuffer;
+  private pixelBuffer?: GPUBuffer;
   private initialized: boolean = false;
+  private canvas?: HTMLCanvasElement;
+  private context?: GPUCanvasContext;
+  private renderPipeline?: GPURenderPipeline;
+  private vertexBuffer?: GPUBuffer;
 
   get isInitialized() {
     return this.initialized;
@@ -37,7 +43,8 @@ export default class GPUInterface<
 
   constructor(
     gpuArraySpecs: TBuffers[],
-    gpuUniformSpecs: GPUUniformSpec<TUniformName>
+    gpuUniformSpecs: GPUUniformSpec<TUniformName>,
+    canvas?: HTMLCanvasElement
   ) {
     this.gpuArraySpecs = gpuArraySpecs;
     this.gpuUniforms = Object.keys(gpuUniformSpecs).reduce((res, key, i) => {
@@ -47,22 +54,46 @@ export default class GPUInterface<
       };
       return res;
     }, {} as any);
+
+    if (canvas) {
+      this.canvas = canvas;
+    }
   }
 
   async initialize() {
+    await this.initDevice();
+    this.initBuffers();
+    if (this.canvas) this.initDraw();
+
+    this.initialized = true;
+  }
+
+  // setData(name: string, data: Float32Array) {
+  //   if (!this.device) throw new Error('GPUInterface not initialized');
+
+  //   this.device.queue.writeBuffer(this.gpuBuffers[name].buffer, 0, data);
+  // }
+
+  private async initDevice() {
     const entry = navigator.gpu;
     const adapter = await entry.requestAdapter();
     if (!adapter) throw new Error('No GPU adapter found');
 
     const device = await adapter.requestDevice();
     this.device = device;
+  }
+
+  private initBuffers() {
+    if (!this.device) throw new Error('GPUInterface not initialized');
 
     for (let i = 0; i < this.gpuArraySpecs.length; i++) {
-      const { name, size, readable, initialData } = this.gpuArraySpecs[i];
+      const { name, size, initialData } = this.gpuArraySpecs[i];
       const buffer = this.device.createBuffer({
         size: size.reduce((a, b) => a * b, 1) * 4,
         usage:
-          GPUBufferUsage.STORAGE | (readable ? GPUBufferUsage.COPY_SRC : 0),
+          GPUBufferUsage.STORAGE |
+          GPUBufferUsage.COPY_SRC |
+          GPUBufferUsage.COPY_DST,
         mappedAtCreation: initialData ? true : false,
       });
       if (initialData) {
@@ -89,18 +120,10 @@ export default class GPUInterface<
         buffer.unmap();
       }
 
-      let readBuffer: GPUBuffer | undefined = undefined;
-      if (readable) {
-        readBuffer = this.device.createBuffer({
-          size: size.reduce((a, b) => a * b, 1) * 4,
-          usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
-        });
-      }
-
       this.gpuBuffers[name] = {
         buffer,
         id: i,
-        readBuffer,
+        readBuffer: undefined,
         size,
         mapped: false,
       };
@@ -119,6 +142,23 @@ export default class GPUInterface<
     }
     this.uniformBuffer.unmap();
 
+    if (this.canvas) {
+      this.pixelBuffer = this.device.createBuffer({
+        size: this.canvas.width * this.canvas.height * 4 * 4,
+        usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC,
+        mappedAtCreation: true,
+      });
+      const pixelArrayBuffer = this.pixelBuffer.getMappedRange();
+      const pixelDataView = new Float32Array(pixelArrayBuffer);
+      for (let i = 0; i < this.canvas.width * this.canvas.height * 4; i++) {
+        pixelDataView[i * 4] = 0;
+        pixelDataView[i * 4 + 1] = 0;
+        pixelDataView[i * 4 + 2] = 0;
+        pixelDataView[i * 4 + 3] = 1;
+      }
+      this.pixelBuffer.unmap();
+    }
+
     const bindGroupLayoutEntries = this.gpuArraySpecs
       .map((_, i) => ({
         binding: i,
@@ -134,6 +174,12 @@ export default class GPUInterface<
           buffer: { type: 'uniform' },
         },
       ]) as GPUBindGroupLayoutEntry[];
+    if (this.canvas)
+      bindGroupLayoutEntries.push({
+        binding: this.gpuArraySpecs.length + 1,
+        visibility: GPUShaderStage.COMPUTE | GPUShaderStage.FRAGMENT,
+        buffer: { type: 'storage' },
+      });
     this.bindGroupLayout = this.device.createBindGroupLayout({
       entries: bindGroupLayoutEntries,
     });
@@ -153,19 +199,91 @@ export default class GPUInterface<
           },
         },
       ]);
+    if (this.canvas && this.pixelBuffer)
+      bindGroupEntries.push({
+        binding: this.gpuArraySpecs.length + 1,
+        resource: {
+          buffer: this.pixelBuffer,
+        },
+      });
     this.bindGroup = this.device.createBindGroup({
       layout: this.bindGroupLayout,
       entries: bindGroupEntries,
     });
-
-    this.initialized = true;
   }
 
-  // setData(name: string, data: Float32Array) {
-  //   if (!this.device) throw new Error('GPUInterface not initialized');
+  private initDraw() {
+    if (!this.device || !this.canvas || !this.bindGroupLayout)
+      throw new Error('GPUInterface not initialized');
 
-  //   this.device.queue.writeBuffer(this.gpuBuffers[name].buffer, 0, data);
-  // }
+    const context = this.canvas.getContext('webgpu');
+    if (!context) throw new Error('Could not get WebGPU context');
+    this.context = context;
+    this.context.configure({
+      device: this.device,
+      format: 'bgra8unorm',
+      alphaMode: 'opaque',
+      usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
+    });
+
+    const vertices = new Float32Array([
+      -1, -1, 1, -1, 1, 1, -1, -1, -1, 1, 1, 1,
+    ]);
+
+    this.vertexBuffer = this.device.createBuffer({
+      size: vertices.byteLength,
+      usage: GPUBufferUsage.VERTEX,
+      mappedAtCreation: true,
+    });
+    const vertexArrayBuffer = this.vertexBuffer.getMappedRange();
+    const vertexDataView = new Float32Array(vertexArrayBuffer);
+    vertexDataView.set(vertices);
+    this.vertexBuffer.unmap();
+
+    const vertexModule = this.device.createShaderModule({
+      code: getVertexSource(),
+    });
+    const fragmentModule = this.device.createShaderModule({
+      code: getFragmentSource(
+        Object.keys(this.gpuBuffers).length + 1,
+        this.canvas.width
+      ),
+    });
+
+    const vertexAttribDesc: GPUVertexAttribute = {
+      shaderLocation: 0,
+      offset: 0,
+      format: 'float32x2',
+    };
+    const vertexBufferDesc: GPUVertexBufferLayout = {
+      attributes: [vertexAttribDesc],
+      arrayStride: 2 * 4,
+      stepMode: 'vertex',
+    };
+
+    const colorState: GPUColorTargetState = {
+      format: 'bgra8unorm',
+    };
+
+    this.renderPipeline = this.device.createRenderPipeline({
+      layout: this.device.createPipelineLayout({
+        bindGroupLayouts: [this.bindGroupLayout],
+      }),
+      vertex: {
+        module: vertexModule,
+        entryPoint: 'main',
+        buffers: [vertexBufferDesc],
+      },
+      fragment: {
+        module: fragmentModule,
+        entryPoint: 'main',
+        targets: [colorState],
+      },
+      primitive: {
+        topology: 'triangle-list',
+      },
+    });
+  }
 
   createKernel(
     kernel: GPUKernelSource<
@@ -176,7 +294,12 @@ export default class GPUInterface<
     if (!this.device || !this.bindGroupLayout)
       throw new Error('GPUInterface not initialized');
 
-    const shaderSource = parseKernel(kernel, this.gpuBuffers, this.gpuUniforms);
+    const shaderSource = parseKernel(
+      kernel,
+      this.gpuBuffers,
+      this.gpuUniforms,
+      this.canvas ? [this.canvas.width, this.canvas.height] : undefined
+    );
 
     const shaderModule = this.device.createShaderModule({
       code: shaderSource,
@@ -214,11 +337,36 @@ export default class GPUInterface<
     return { run: runKernel };
   }
 
+  copyBuffer(src: TBuffers['name'], dst: TBuffers['name']) {
+    if (!this.device) throw new Error('GPUInterface not initialized');
+    const srcBuffer = this.gpuBuffers[src];
+    const dstBuffer = this.gpuBuffers[dst];
+
+    if (srcBuffer.buffer.size != dstBuffer.buffer.size)
+      throw new Error('Buffer size mismatch');
+
+    const commandEncoder = this.device.createCommandEncoder();
+    commandEncoder.copyBufferToBuffer(
+      srcBuffer.buffer,
+      0,
+      dstBuffer.buffer,
+      0,
+      srcBuffer.buffer.size
+    );
+    const gpuCommands = commandEncoder.finish();
+    this.device.queue.submit([gpuCommands]);
+  }
+
   async readBuffer(name: TBuffers['name']): Promise<Float32Array> {
     if (!this.device) throw new Error('GPUInterface not initialized');
 
     const buffer = this.gpuBuffers[name];
-    if (!buffer.readBuffer) throw new Error('Buffer not marked as readable');
+    if (!buffer.readBuffer) {
+      buffer.readBuffer = this.device.createBuffer({
+        size: buffer.size.reduce((a, b) => a * b, 1) * 4,
+        usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+      });
+    }
 
     const commandEncoder = this.device.createCommandEncoder();
     commandEncoder.copyBufferToBuffer(
@@ -241,8 +389,8 @@ export default class GPUInterface<
 
   unmapBuffer(name: TBuffers['name']) {
     const buffer = this.gpuBuffers[name];
-    if (!buffer.readBuffer) throw new Error('Buffer not marked as readable');
-    if (!buffer.mapped) throw new Error('Buffer not mapped');
+    if (!buffer.readBuffer || !buffer.mapped)
+      throw new Error('Buffer not mapped');
 
     buffer.readBuffer.unmap();
     buffer.mapped = false;
@@ -264,5 +412,41 @@ export default class GPUInterface<
       uniformDataBuffer[id] = this.gpuUniforms[uniform].value;
     }
     this.device.queue.writeBuffer(this.uniformBuffer, 0, uniformDataBuffer);
+  }
+
+  updateCanvas() {
+    if (
+      !this.device ||
+      !this.context ||
+      !this.renderPipeline ||
+      !this.vertexBuffer ||
+      !this.bindGroup
+    )
+      throw new Error('GPUInterface not initialized');
+
+    const colorTexture = this.context.getCurrentTexture();
+    const colorTextureView = colorTexture.createView();
+
+    const colorAttachment: GPURenderPassColorAttachment = {
+      view: colorTextureView,
+      clearValue: { r: 0, g: 0, b: 0, a: 1 },
+      loadOp: 'clear',
+      storeOp: 'store',
+    };
+
+    const renderPassDesc: GPURenderPassDescriptor = {
+      colorAttachments: [colorAttachment],
+    };
+
+    const commandEncoder = this.device.createCommandEncoder();
+    const passEncoder = commandEncoder.beginRenderPass(renderPassDesc);
+    passEncoder.setPipeline(this.renderPipeline);
+    passEncoder.setVertexBuffer(0, this.vertexBuffer);
+    passEncoder.setBindGroup(0, this.bindGroup);
+    passEncoder.draw(6);
+    passEncoder.end();
+
+    const gpuCommands = commandEncoder.finish();
+    this.device.queue.submit([gpuCommands]);
   }
 }

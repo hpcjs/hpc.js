@@ -6,12 +6,13 @@ import {
 import { GPUKernelSource } from './types';
 import * as acorn from 'acorn';
 import * as walk from 'acorn-walk';
+import { getSetPixelSource } from './wgsl-code';
 
 const processors = {
   threadId: (text: string) => {
     const match = /^inputs\[threadId\]\[([xyz])\]$/.exec(text);
     if (match) {
-      return `global_id.${match[1]}`;
+      return `f32(global_id.${match[1]})`;
     }
 
     return text;
@@ -67,6 +68,18 @@ const processors = {
   },
   wrapIfSingleLine(text: string) {
     return text.includes('\n') ? text : `{ ${text}; }`;
+  },
+  gpuFunction: (text: string) => {
+    const match = /^inputs\[funcs\]\[([a-zA-Z0-9_]+)\]$/.exec(text);
+    if (match) {
+      if (!['setPixel'].includes(match[1])) {
+        throw new Error('Invalid function name');
+      }
+
+      return match[1];
+    }
+
+    return text;
   },
 };
 
@@ -128,6 +141,7 @@ const handlers = {
     c(node.property, state);
     memberExpression += `[${state.currentExpression}]`;
     state.currentExpression = processors.threadId(memberExpression);
+    state.currentExpression = processors.gpuFunction(state.currentExpression);
     state.currentExpression = processors.gpuUniform(
       state.currentExpression,
       state.gpuUniforms
@@ -314,6 +328,26 @@ const handlers = {
 
     state.currentExpression = expression;
   },
+  CallExpression<TBufferName extends string, TUniformName extends string>(
+    node: any,
+    state: WalkerState<TBufferName, TUniformName>,
+    c: any
+  ) {
+    let expression = '';
+
+    c(node.callee, state);
+    expression += state.currentExpression;
+
+    expression += '(';
+    for (const arg of node.arguments) {
+      c(arg, state);
+      expression += `${state.currentExpression}, `;
+    }
+    expression = expression.slice(0, -2);
+    expression += ')';
+
+    state.currentExpression = expression;
+  },
 };
 
 export default function parseKernel<
@@ -327,13 +361,15 @@ export default function parseKernel<
     TGPUKernelUniformsInterface
   >,
   gpuBuffers: GPUBufferCollection<TBufferName>,
-  gpuUniforms: GPUUniformCollection<TUniformName>
+  gpuUniforms: GPUUniformCollection<TUniformName>,
+  canvasSize?: [number, number]
 ) {
   const src = func.toString();
   const ast = acorn.parse(src, { ecmaVersion: 2022 }) as any;
   const funcBody = ast.body[0].expression.body;
 
   let wgsl = 'struct Data {\n    data: array<f32>\n}\n\n';
+  wgsl += `struct PixelData {\n    data: array<vec3<f32>>\n}\n\n`;
   wgsl += 'struct Uniforms {\n';
 
   for (const name in gpuUniforms) {
@@ -345,7 +381,14 @@ export default function parseKernel<
   }
   wgsl += `@group(0) @binding(${
     Object.keys(gpuBuffers).length
-  }) var<uniform> uniforms: Uniforms;\n\n`;
+  }) var<uniform> uniforms: Uniforms;\n`;
+  wgsl += `@group(0) @binding(${
+    Object.keys(gpuBuffers).length + 1
+  }) var<storage, read_write> pixels: PixelData;\n\n`;
+
+  if (canvasSize) {
+    wgsl += `${getSetPixelSource(canvasSize[0], canvasSize[1])}\n\n`;
+  }
 
   wgsl +=
     '@compute @workgroup_size(1, 1)\nfn main(@builtin(global_invocation_id) global_id: vec3<u32>) ';

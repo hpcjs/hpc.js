@@ -6,19 +6,16 @@ export type GPUBufferSpec<TName extends string> =
   | {
       name: TName;
       size: [number];
-      readable: boolean;
       initialData?: number[];
     }
   | {
       name: TName;
       size: [number, number];
-      readable: boolean;
       initialData?: number[][];
     }
   | {
       name: TName;
       size: [number, number, number];
-      readable: boolean;
       initialData?: number[][][];
     };
 export type GPUUniformSpec<TName extends string> = { [K in TName]: number };
@@ -34,6 +31,9 @@ export type GPUKernelInputs<
   threadId: GPUVec3;
   buffers: TGPUKernelBuffersInterface;
   uniforms: TGPUKernelUniformsInterface;
+  funcs: {
+    setPixel: (x: number, y: number, r: number, g: number, b: number) => void;
+  };
 };
 export type GPUKernelSource<
   TGPUKernelBuffersInterface,
