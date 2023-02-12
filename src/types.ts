@@ -47,3 +47,13 @@ export type GPUKernelSource<
 export type GPUKernel = {
   run: (x: number, y?: number, z?: number) => void;
 };
+
+export interface GPUInterfaceConstructorParams<
+  TBufferName extends string,
+  TBuffers extends GPUBufferSpec<TBufferName>,
+  TUniformName extends string
+> {
+  buffers?: TBuffers[];
+  uniforms?: GPUUniformSpec<TUniformName>;
+  canvas?: HTMLCanvasElement;
+}

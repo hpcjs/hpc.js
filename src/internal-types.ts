@@ -2,7 +2,7 @@ import { GPUBufferSize } from './types';
 
 export type GPUBufferWithInfo = {
   size: GPUBufferSize;
-  buffer: GPUBuffer;
+  resource: GPUBuffer;
   id: number;
   readBuffer?: GPUBuffer;
   mapped: boolean;
@@ -24,8 +24,8 @@ export type WalkerState<
 > = {
   currentExpression: string;
   memberExpressionDepth: number;
-  gpuBuffers: GPUBufferCollection<TBufferName>;
-  gpuUniforms: GPUUniformCollection<TUniformName>;
+  gpuBuffers?: GPUBufferCollection<TBufferName>;
+  gpuUniforms?: GPUUniformCollection<TUniformName>;
 };
 
 export type GPUBufferSizeToBuffer<TSize> = TSize extends [number]

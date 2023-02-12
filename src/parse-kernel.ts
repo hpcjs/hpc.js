@@ -19,13 +19,17 @@ const processors = {
   },
   gpuBuffer: <TBufferName extends string>(
     text: string,
-    gpuBuffers: GPUBufferCollection<TBufferName>
+    gpuBuffers?: GPUBufferCollection<TBufferName>
   ) => {
     const match =
       /^inputs\[buffers\]\[([a-zA-Z0-9_]+)\](?:\[(.+?)\])(?:\[(.+?)\])?(?:\[(.+?)\])?$/.exec(
         text
       );
     if (match) {
+      if (!gpuBuffers) {
+        throw new Error('Invalid buffer name');
+      }
+
       if (!(match[1] in gpuBuffers)) {
         throw new Error('Invalid buffer name');
       }
@@ -53,10 +57,14 @@ const processors = {
   },
   gpuUniform: <TUniformName extends string>(
     text: string,
-    gpuUniforms: GPUUniformCollection<TUniformName>
+    gpuUniforms?: GPUUniformCollection<TUniformName>
   ) => {
     const match = /^inputs\[uniforms\]\[([a-zA-Z0-9_]+)\]/.exec(text);
     if (match) {
+      if (!gpuUniforms) {
+        throw new Error('Invalid uniform name');
+      }
+
       if (!(match[1] in gpuUniforms)) {
         throw new Error('Invalid uniform name');
       }
@@ -311,10 +319,12 @@ const handlers = {
 
     state.currentExpression = returnStatement;
   },
-  ConditionalExpression<
-    TBufferName extends string,
-    TUniformName extends string
-  >(node: any, state: WalkerState<TBufferName, TUniformName>, c: any) {
+  // when prettier formats the generics here, it breaks
+  // the color coding for the rest of the file in my vscode
+  // prettier-ignore
+  ConditionalExpression<TBufferName extends string, TUniformName extends string>(
+    node: any, state: WalkerState<TBufferName, TUniformName>, c: any
+  ) {
     let expression = 'select(';
 
     c(node.alternate, state);
@@ -360,34 +370,43 @@ export default function parseKernel<
     TGPUKernelBuffersInterface,
     TGPUKernelUniformsInterface
   >,
-  gpuBuffers: GPUBufferCollection<TBufferName>,
-  gpuUniforms: GPUUniformCollection<TUniformName>,
-  canvasSize?: [number, number]
+  gpuBuffers?: GPUBufferCollection<TBufferName>,
+  gpuUniforms?: GPUUniformCollection<TUniformName>,
+  canvas?: HTMLCanvasElement
 ) {
   const src = func.toString();
   const ast = acorn.parse(src, { ecmaVersion: 2022 }) as any;
   const funcBody = ast.body[0].expression.body;
 
-  let wgsl = 'struct Data {\n    data: array<f32>\n}\n\n';
-  wgsl += `struct PixelData {\n    data: array<vec3<f32>>\n}\n\n`;
-  wgsl += 'struct Uniforms {\n';
+  let wgsl = '';
 
-  for (const name in gpuUniforms) {
-    wgsl += `    ${name}: f32,\n`;
+  if (gpuBuffers) {
+    wgsl += 'struct Data {\n    data: array<f32>\n}\n\n';
+    for (const name in gpuBuffers) {
+      wgsl += `@group(0) @binding(${gpuBuffers[name].id}) var<storage, read_write> data_${name}: Data;\n`;
+    }
+    wgsl += '\n';
   }
-  wgsl += '}\n\n';
-  for (const name in gpuBuffers) {
-    wgsl += `@group(0) @binding(${gpuBuffers[name].id}) var<storage, read_write> data_${name}: Data;\n`;
-  }
-  wgsl += `@group(0) @binding(${
-    Object.keys(gpuBuffers).length
-  }) var<uniform> uniforms: Uniforms;\n`;
-  wgsl += `@group(0) @binding(${
-    Object.keys(gpuBuffers).length + 1
-  }) var<storage, read_write> pixels: PixelData;\n\n`;
 
-  if (canvasSize) {
-    wgsl += `${getSetPixelSource(canvasSize[0], canvasSize[1])}\n\n`;
+  if (gpuUniforms) {
+    wgsl += 'struct Uniforms {\n';
+    for (const name in gpuUniforms) {
+      wgsl += `    ${name}: f32,\n`;
+    }
+
+    wgsl += `}\n\n@group(0) @binding(${
+      gpuBuffers ? Object.keys(gpuBuffers).length : 0
+    }) var<uniform> uniforms: Uniforms;\n\n`;
+  }
+
+  if (canvas) {
+    wgsl += `struct PixelData {\n    data: array<vec3<f32>>\n}\n\n`;
+
+    wgsl += `@group(0) @binding(${
+      (gpuBuffers ? Object.keys(gpuBuffers).length : 0) + (gpuUniforms ? 1 : 0)
+    }) var<storage, read_write> pixels: PixelData;\n\n`;
+
+    wgsl += `${getSetPixelSource(canvas.width, canvas.height)}\n\n`;
   }
 
   wgsl +=
