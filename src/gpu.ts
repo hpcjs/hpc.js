@@ -451,6 +451,15 @@ export default class GPUInterface<
     )
       throw new Error('GPUInterface not initialized');
 
+    // this makes the error go away
+    // is it slower? I don't know
+    this.context.configure({
+      device: this.device,
+      format: 'bgra8unorm',
+      alphaMode: 'opaque',
+      usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
+    });
+
     const colorTexture = this.context.getCurrentTexture();
     const colorTextureView = colorTexture.createView();
 
