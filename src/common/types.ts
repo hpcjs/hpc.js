@@ -57,3 +57,9 @@ export interface GPUInterfaceConstructorParams<
   uniforms?: GPUUniformSpec<TUniformName>;
   canvas?: HTMLCanvasElement;
 }
+
+export type GPUBufferSizeToBuffer<TSize> = TSize extends [number]
+  ? number[]
+  : TSize extends [number, number]
+  ? number[][]
+  : number[][][];

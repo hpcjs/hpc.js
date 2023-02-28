@@ -1,4 +1,4 @@
-import { GPUBufferSize } from './types';
+import { GPUBufferSize } from '../common/types';
 
 export type GPUBufferWithInfo = {
   size: GPUBufferSize;
@@ -11,6 +11,7 @@ export type GPUUniformInfo = {
   id: number;
   value: number;
 };
+
 export type GPUBufferCollection<TName extends string> = {
   [K in TName]: GPUBufferWithInfo;
 };
@@ -18,7 +19,7 @@ export type GPUUniformCollection<TName extends string> = {
   [K in TName]: GPUUniformInfo;
 };
 
-export type WalkerState<
+export type GPUWalkerState<
   TBufferName extends string,
   TUniformName extends string
 > = {
@@ -27,9 +28,3 @@ export type WalkerState<
   gpuBuffers?: GPUBufferCollection<TBufferName>;
   gpuUniforms?: GPUUniformCollection<TUniformName>;
 };
-
-export type GPUBufferSizeToBuffer<TSize> = TSize extends [number]
-  ? number[]
-  : TSize extends [number, number]
-  ? number[][]
-  : number[][][];
