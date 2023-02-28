@@ -24,7 +24,7 @@ export type GPUWalkerState<
   TUniformName extends string
 > = {
   currentExpression: string;
-  parentIsLeftOfMemberExpression: boolean;
-  gpuBuffers?: GPUBufferCollection<TBufferName>;
-  gpuUniforms?: GPUUniformCollection<TUniformName>;
+  currentNodeIsLeftOfMemberExpression: boolean;
+  buffers?: GPUBufferCollection<TBufferName>;
+  uniforms?: GPUUniformCollection<TUniformName>;
 };

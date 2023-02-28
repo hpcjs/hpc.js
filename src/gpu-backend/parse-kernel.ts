@@ -9,32 +9,51 @@ import {
 import { getSetPixelSource } from './wgsl-code';
 
 const processors = {
-  threadId: (text: string) => {
-    const match = /^inputs\[threadId\]\[([xyz])\]$/.exec(text);
+  misc: (text: string) => {
+    let match = /^inputs\[threadId\]\[([xyz])\]$/.exec(text);
     if (match) {
-      return `f32(global_id.${match[1]})`;
+      return { processed: `f32(global_id.${match[1]})`, matched: true };
     }
 
-    return text;
+    match = /^inputs\[funcs\]\[(setPixel)\]$/.exec(text);
+    if (match) {
+      return { processed: match[1], matched: true };
+    }
+
+    match =
+      /^Math\[(abs|acos|acosh|asin|asinh|atan|atanh|atan2|ceil|cos|cosh|exp|floor|log|log2|max|min|pow|round|sign|sin|sinh|sqrt|tan|tanh|trunc)\]$/.exec(
+        text
+      );
+    if (match) {
+      return { processed: match[1], matched: true };
+    }
+
+    match = /^Math\[(E|LN2|LN10|LOG2E|LOG10E|PI|SQRT1_2|SQRT2)\]$/.exec(text);
+    if (match) {
+      const value = Math[match[1] as keyof Math];
+      return { processed: `f32(${value})`, matched: true };
+    }
+
+    return { processed: text, matched: false };
   },
-  gpuBuffer: <TBufferName extends string>(
+  buffer: <TBufferName extends string>(
     text: string,
-    gpuBuffers?: GPUBufferCollection<TBufferName>
+    buffers?: GPUBufferCollection<TBufferName>
   ) => {
     const match =
       /^inputs\[buffers\]\[([a-zA-Z0-9_]+)\](?:\[(.+?)\])(?:\[(.+?)\])?(?:\[(.+?)\])?$/.exec(
         text
       );
     if (match) {
-      if (!gpuBuffers) {
+      if (!buffers) {
         throw new Error('Invalid buffer name');
       }
 
-      if (!(match[1] in gpuBuffers)) {
+      if (!(match[1] in buffers)) {
         throw new Error('Invalid buffer name');
       }
 
-      const buffer = gpuBuffers[match[1] as TBufferName];
+      const buffer = buffers[match[1] as TBufferName];
       let index = `i32(${match[2]})`;
       if (match[3]) {
         if (buffer.size.length < 2) {
@@ -50,44 +69,32 @@ const processors = {
 
         index += ` + i32(${match[4]}) * ${buffer.size[0]} * ${buffer.size[1]}`;
       }
-      return `data_${match[1]}.data[${index}]`;
+      return { processed: `data_${match[1]}.data[${index}]`, matched: true };
     }
 
-    return text;
+    return { processed: text, matched: false };
   },
-  gpuUniform: <TUniformName extends string>(
+  uniform: <TUniformName extends string>(
     text: string,
-    gpuUniforms?: GPUUniformCollection<TUniformName>
+    uniforms?: GPUUniformCollection<TUniformName>
   ) => {
     const match = /^inputs\[uniforms\]\[([a-zA-Z0-9_]+)\]/.exec(text);
     if (match) {
-      if (!gpuUniforms) {
+      if (!uniforms) {
         throw new Error('Invalid uniform name');
       }
 
-      if (!(match[1] in gpuUniforms)) {
+      if (!(match[1] in uniforms)) {
         throw new Error('Invalid uniform name');
       }
 
-      return `uniforms.${match[1]}`;
+      return { processed: `uniforms.${match[1]}`, matched: true };
     }
 
-    return text;
+    return { processed: text, matched: false };
   },
   wrapIfSingleLine(text: string) {
     return text.includes('\n') ? text : `{ ${text}; }`;
-  },
-  gpuFunction: (text: string) => {
-    const match = /^inputs\[funcs\]\[([a-zA-Z0-9_]+)\]$/.exec(text);
-    if (match) {
-      if (!['setPixel'].includes(match[1])) {
-        throw new Error('Invalid function name');
-      }
-
-      return match[1];
-    }
-
-    return text;
   },
 };
 
@@ -141,28 +148,42 @@ const handlers = {
   ) {
     let memberExpression = '';
 
-    const parentIsLeftOfMemberExpression = state.parentIsLeftOfMemberExpression;
+    const parentIsLeftOfMemberExpression =
+      state.currentNodeIsLeftOfMemberExpression;
 
-    state.parentIsLeftOfMemberExpression = true;
+    state.currentNodeIsLeftOfMemberExpression = true;
     c(node.object, state);
     memberExpression += state.currentExpression;
 
-    state.parentIsLeftOfMemberExpression = false;
+    state.currentNodeIsLeftOfMemberExpression = false;
     c(node.property, state);
     memberExpression += `[${state.currentExpression}]`;
-    state.currentExpression = processors.threadId(memberExpression);
-    state.currentExpression = processors.gpuFunction(state.currentExpression);
-    state.currentExpression = processors.gpuUniform(
-      state.currentExpression,
-      state.gpuUniforms
-    );
 
-    state.parentIsLeftOfMemberExpression = parentIsLeftOfMemberExpression;
-    if (!state.parentIsLeftOfMemberExpression) {
-      state.currentExpression = processors.gpuBuffer(
+    let anyMatched = false;
+    let { processed: processed1, matched: matched1 } =
+      processors.misc(memberExpression);
+    state.currentExpression = processed1;
+    anyMatched ||= matched1;
+
+    let { processed: processed2, matched: matched2 } = processors.uniform(
+      state.currentExpression,
+      state.uniforms
+    );
+    state.currentExpression = processed2;
+    anyMatched ||= matched2;
+
+    state.currentNodeIsLeftOfMemberExpression = parentIsLeftOfMemberExpression;
+    if (!state.currentNodeIsLeftOfMemberExpression) {
+      let { processed: processed3, matched: matched3 } = processors.buffer(
         state.currentExpression,
-        state.gpuBuffers
+        state.buffers
       );
+      state.currentExpression = processed3;
+      anyMatched ||= matched3;
+
+      if (!anyMatched) {
+        throw new Error('Invalid expression');
+      }
     }
   },
   Identifier<TBufferName extends string, TUniformName extends string>(
@@ -374,8 +395,8 @@ export default function transpileKernelToGPU<
     TGPUKernelBuffersInterface,
     TGPUKernelUniformsInterface
   >,
-  gpuBuffers?: GPUBufferCollection<TBufferName>,
-  gpuUniforms?: GPUUniformCollection<TUniformName>,
+  buffers?: GPUBufferCollection<TBufferName>,
+  uniforms?: GPUUniformCollection<TUniformName>,
   canvas?: HTMLCanvasElement
 ) {
   const src = func.toString();
@@ -384,22 +405,22 @@ export default function transpileKernelToGPU<
 
   let wgsl = '';
 
-  if (gpuBuffers) {
+  if (buffers) {
     wgsl += 'struct Data {\n    data: array<f32>\n}\n\n';
-    for (const name in gpuBuffers) {
-      wgsl += `@group(0) @binding(${gpuBuffers[name].id}) var<storage, read_write> data_${name}: Data;\n`;
+    for (const name in buffers) {
+      wgsl += `@group(0) @binding(${buffers[name].id}) var<storage, read_write> data_${name}: Data;\n`;
     }
     wgsl += '\n';
   }
 
-  if (gpuUniforms) {
+  if (uniforms) {
     wgsl += 'struct Uniforms {\n';
-    for (const name in gpuUniforms) {
+    for (const name in uniforms) {
       wgsl += `    ${name}: f32,\n`;
     }
 
     wgsl += `}\n\n@group(0) @binding(${
-      gpuBuffers ? Object.keys(gpuBuffers).length : 0
+      buffers ? Object.keys(buffers).length : 0
     }) var<uniform> uniforms: Uniforms;\n\n`;
   }
 
@@ -407,10 +428,10 @@ export default function transpileKernelToGPU<
     wgsl += `struct PixelData {\n    data: array<vec3<f32>>\n}\n\n`;
 
     wgsl += `@group(0) @binding(${
-      (gpuBuffers ? Object.keys(gpuBuffers).length : 0) + (gpuUniforms ? 1 : 0)
+      (buffers ? Object.keys(buffers).length : 0) + (uniforms ? 1 : 0)
     }) var<storage, read_write> pixels: PixelData;\n\n`;
 
-    wgsl += `${getSetPixelSource(canvas.width, canvas.height)}\n\n`;
+    wgsl += `${getSetPixelSource(canvas.width)}\n\n`;
   }
 
   wgsl +=
@@ -418,9 +439,9 @@ export default function transpileKernelToGPU<
 
   const walkerState = {
     currentExpression: '',
-    parentIsLeftOfMemberExpression: false,
-    gpuBuffers,
-    gpuUniforms,
+    currentNodeIsLeftOfMemberExpression: false,
+    buffers,
+    uniforms,
   } as GPUWalkerState<TBufferName, TUniformName>;
   walk.recursive(funcBody, walkerState, handlers);
   wgsl += walkerState.currentExpression;
