@@ -182,7 +182,29 @@ const handlers = {
       anyMatched ||= matched3;
 
       if (!anyMatched) {
-        throw new Error('Invalid expression');
+        let replaced = state.currentExpression;
+        while (true) {
+          const match = /\[(.+?)\]/.exec(replaced);
+          if (!match) {
+            break;
+          }
+
+          replaced = replaced.replace(match[0], `.${match[1]}`);
+        }
+
+        // subtract 1 because function signature takes up the first line
+        let lineRange;
+        if (node.loc.start.line === node.loc.end.line) {
+          lineRange = `line ${node.loc.start.line - 1}`;
+        } else {
+          lineRange = `lines ${node.loc.start.line - 1}-${
+            node.loc.end.line - 1
+          }`;
+        }
+
+        throw new Error(
+          `Invalid expression on kernel ${lineRange}: ${replaced}`
+        );
       }
     }
   },
@@ -400,7 +422,7 @@ export default function transpileKernelToGPU<
   canvas?: HTMLCanvasElement
 ) {
   const src = func.toString();
-  const ast = acorn.parse(src, { ecmaVersion: 2022 }) as any;
+  const ast = acorn.parse(src, { ecmaVersion: 2022, locations: true }) as any;
   const funcBody = ast.body[0].expression.body;
 
   let wgsl = '';
