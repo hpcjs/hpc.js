@@ -4,12 +4,6 @@ HPC.js is a library that allows you to easily write GPU-accelerated code in Java
 
 For the uninitiated, we provide brief video guides that illustrate how GPU compute works, how to write your first program, and how to write a real-world application with user input.
 
-## Install
-
-```bash
-npm install hpc.js
-```
-
 ## Example Usage
 
 ```typescript
@@ -36,3 +30,7 @@ kernel.run(4);
 const result = await gpu.readBuffer('mybuffer');
 console.log(result);
 ```
+
+## Documentation and Tutorials
+
+See [https://hpcjs-docs.vercel.app](https://hpcjs-docs.vercel.app)
