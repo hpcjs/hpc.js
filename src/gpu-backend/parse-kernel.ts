@@ -141,11 +141,13 @@ const handlers = {
   ) {
     let memberExpression = '';
 
-    state.memberExpressionDepth++;
+    const parentIsLeftOfMemberExpression = state.parentIsLeftOfMemberExpression;
+
+    state.parentIsLeftOfMemberExpression = true;
     c(node.object, state);
     memberExpression += state.currentExpression;
-    state.memberExpressionDepth--;
 
+    state.parentIsLeftOfMemberExpression = false;
     c(node.property, state);
     memberExpression += `[${state.currentExpression}]`;
     state.currentExpression = processors.threadId(memberExpression);
@@ -154,7 +156,9 @@ const handlers = {
       state.currentExpression,
       state.gpuUniforms
     );
-    if (state.memberExpressionDepth === 0) {
+
+    state.parentIsLeftOfMemberExpression = parentIsLeftOfMemberExpression;
+    if (!state.parentIsLeftOfMemberExpression) {
       state.currentExpression = processors.gpuBuffer(
         state.currentExpression,
         state.gpuBuffers
@@ -414,10 +418,10 @@ export default function transpileKernelToGPU<
 
   const walkerState = {
     currentExpression: '',
-    memberExpressionDepth: 0,
+    parentIsLeftOfMemberExpression: false,
     gpuBuffers,
     gpuUniforms,
-  };
+  } as GPUWalkerState<TBufferName, TUniformName>;
   walk.recursive(funcBody, walkerState, handlers);
   wgsl += walkerState.currentExpression;
   console.log(wgsl);
