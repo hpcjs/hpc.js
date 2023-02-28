@@ -39,6 +39,16 @@ export default class GPUInterface<
     return this.backend.isInitialized;
   }
 
+  get backendType() {
+    if (!this.isInitialized) {
+      return 'uninitialized';
+    } else if (this.backend instanceof CPUFallback) {
+      return 'cpu';
+    } else {
+      return 'gpu';
+    }
+  }
+
   constructor({
     buffers = undefined,
     uniforms = undefined,
