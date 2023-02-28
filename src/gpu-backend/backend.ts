@@ -303,12 +303,12 @@ export default class GPUBackend<
     });
   }
 
-  createKernel(
+  async createKernel(
     kernel: GPUKernelSource<
       TGPUKernelBuffersInterface,
       TGPUKernelUniformsInterface
     >
-  ): GPUKernel {
+  ): Promise<GPUKernel> {
     if (!this.device || !this.bindGroupLayout)
       throw new Error('GPUInterface not initialized');
 
@@ -322,6 +322,11 @@ export default class GPUBackend<
     const shaderModule = this.device.createShaderModule({
       code: shaderSource,
     });
+    const compilationInfo = await shaderModule.compilationInfo();
+    if (compilationInfo.messages.some(msg => msg.type === 'error')) {
+      throw new Error('Unknown error during shader compilation');
+    }
+
     const computePipeline = this.device.createComputePipeline({
       layout: this.device.createPipelineLayout({
         bindGroupLayouts: [this.bindGroupLayout],

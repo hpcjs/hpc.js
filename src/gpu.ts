@@ -94,12 +94,12 @@ export default class GPUInterface<
   //   this.device.queue.writeBuffer(this.gpuBuffers[name].buffer, 0, data);
   // }
 
-  createKernel(
+  async createKernel(
     kernel: GPUKernelSource<
       TGPUKernelBuffersInterface,
       TGPUKernelUniformsInterface
     >
-  ): GPUKernel {
+  ): Promise<GPUKernel> {
     // can't be bothered to figure out typing for this
     return this.backend.createKernel(kernel as any);
   }

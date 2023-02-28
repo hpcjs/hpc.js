@@ -74,12 +74,12 @@ export default class CPUFallback<
   //   this.device.queue.writeBuffer(this.gpuBuffers[name].buffer, 0, data);
   // }
 
-  createKernel(
+  async createKernel(
     kernel: GPUKernelSource<
       TGPUKernelBuffersInterface,
       TGPUKernelUniformsInterface
     >
-  ): GPUKernel {
+  ): Promise<GPUKernel> {
     const runKernel = transpileKernelToCPU(
       kernel,
       this.buffers,
