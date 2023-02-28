@@ -1,7 +1,7 @@
 export const getSetPixelSource = (width: number, height: number) => {
   return /* wgsl */ `fn setPixel(x: f32, y: f32, r: f32, g: f32, b: f32) {
     let index = (i32(y) * ${width} + i32(x));
-    pixels.data[index] = vec3<f32>(r, g, b);
+    pixels.data[index] = vec3<f32>(r / 255, g / 255, b / 255);
 }`;
 };
 

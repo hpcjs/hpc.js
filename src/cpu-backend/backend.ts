@@ -64,6 +64,8 @@ export default class CPUFallback<
       this.context = canvas.getContext('2d')!;
       this.pixels = new Uint8ClampedArray(canvas.width * canvas.height * 4);
     }
+
+    this.initialized = true;
   }
 
   // setData(name: string, data: Float32Array) {

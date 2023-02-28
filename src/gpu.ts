@@ -2,6 +2,7 @@ import {
   GPUBufferSizeToBuffer,
   GPUBufferSpec,
   GPUInterfaceConstructorParams,
+  GPUInterfaceConstructorParamsWithCPU,
   GPUKernel,
   GPUKernelSource,
   GPUUniformSpec,
@@ -29,9 +30,10 @@ export default class GPUInterface<
   TGPUKernelUniformsInterface = { [K in TUniformName]: number }
 > {
   backend: CombinedBackend<TBufferName, TBuffers, TUniformName>;
-  gpuBufferSpecs?: TBuffers[];
-  gpuUniformSpec?: GPUUniformSpec<TUniformName>;
+  bufferSpecs?: TBuffers[];
+  uniformSpec?: GPUUniformSpec<TUniformName>;
   canvas?: HTMLCanvasElement;
+  useCPU: boolean;
 
   get isInitialized() {
     return this.backend.isInitialized;
@@ -41,10 +43,16 @@ export default class GPUInterface<
     buffers = undefined,
     uniforms = undefined,
     canvas = undefined,
-  }: GPUInterfaceConstructorParams<TBufferName, TBuffers, TUniformName>) {
-    this.gpuBufferSpecs = buffers;
-    this.gpuUniformSpec = uniforms;
+    useCPU = false,
+  }: GPUInterfaceConstructorParamsWithCPU<
+    TBufferName,
+    TBuffers,
+    TUniformName
+  >) {
+    this.bufferSpecs = buffers;
+    this.uniformSpec = uniforms;
     this.canvas = canvas;
+    this.useCPU = useCPU;
 
     this.backend = new GPUBackend({ buffers, uniforms, canvas });
   }
@@ -54,13 +62,17 @@ export default class GPUInterface<
       return;
     }
 
-    // const success = await this.backend.initialize();
-    const success = false;
+    let success: boolean;
+    if (this.useCPU) {
+      success = false;
+    } else {
+      success = await this.backend.initialize();
+    }
 
     if (!success) {
       this.backend = new CPUFallback({
-        buffers: this.gpuBufferSpecs,
-        uniforms: this.gpuUniformSpec,
+        buffers: this.bufferSpecs,
+        uniforms: this.uniformSpec,
         canvas: this.canvas,
       });
     }
@@ -78,7 +90,7 @@ export default class GPUInterface<
       TGPUKernelUniformsInterface
     >
   ): GPUKernel {
-    // can't be bothered to figure this out
+    // can't be bothered to figure out typing for this
     return this.backend.createKernel(kernel as any);
   }
 

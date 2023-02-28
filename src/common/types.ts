@@ -48,15 +48,23 @@ export type GPUKernel = {
   run: (x: number, y?: number, z?: number) => void;
 };
 
-export interface GPUInterfaceConstructorParams<
+export type GPUInterfaceConstructorParams<
   TBufferName extends string,
   TBuffers extends GPUBufferSpec<TBufferName>,
   TUniformName extends string
-> {
+> = {
   buffers?: TBuffers[];
   uniforms?: GPUUniformSpec<TUniformName>;
   canvas?: HTMLCanvasElement;
-}
+};
+
+export type GPUInterfaceConstructorParamsWithCPU<
+  TBufferName extends string,
+  TBuffers extends GPUBufferSpec<TBufferName>,
+  TUniformName extends string
+> = GPUInterfaceConstructorParams<TBufferName, TBuffers, TUniformName> & {
+  useCPU?: boolean;
+};
 
 export type GPUBufferSizeToBuffer<TSize> = TSize extends [number]
   ? number[]
