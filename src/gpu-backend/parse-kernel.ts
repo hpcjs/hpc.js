@@ -9,13 +9,17 @@ import {
 import { getSetPixelSource } from './wgsl-code';
 
 const processors = {
-  misc: (text: string) => {
-    let match = /^inputs\[threadId\]\[([xyz])\]$/.exec(text);
+  misc: (text: string, inputsVarName: string) => {
+    let match = new RegExp(
+      String.raw`^${inputsVarName}\[threadId\]\[([xyz])\]$`
+    ).exec(text);
     if (match) {
       return { processed: `f32(global_id.${match[1]})`, matched: true };
     }
 
-    match = /^inputs\[funcs\]\[(setPixel)\]$/.exec(text);
+    match = new RegExp(
+      String.raw`^${inputsVarName}\[funcs\]\[(setPixel)\]$`
+    ).exec(text);
     if (match) {
       return { processed: match[1], matched: true };
     }
@@ -34,7 +38,7 @@ const processors = {
       return { processed: `f32(${value})`, matched: true };
     }
 
-    match = /^inputs\[usingCpu\]$/.exec(text);
+    match = new RegExp(String.raw`^${inputsVarName}\[usingCpu\]$`).exec(text);
     if (match) {
       return { processed: 'false', matched: true };
     }
@@ -43,6 +47,7 @@ const processors = {
   },
   sizes: <TBufferName extends string>(
     text: string,
+    inputsVarName: string,
     buffers?: GPUBufferCollection<TBufferName>
   ) => {
     if (!buffers) {
@@ -51,7 +56,7 @@ const processors = {
 
     const buffersTerm = Object.keys(buffers).join('|');
     const match = new RegExp(
-      String.raw`^inputs\[sizes\]\[(${buffersTerm})\]\[([xyz])\]$`
+      String.raw`^${inputsVarName}\[sizes\]\[(${buffersTerm})\]\[([xyz])\]$`
     ).exec(text);
 
     if (match) {
@@ -70,12 +75,12 @@ const processors = {
   },
   buffer: <TBufferName extends string>(
     text: string,
+    inputsVarName: string,
     buffers?: GPUBufferCollection<TBufferName>
   ) => {
-    const match =
-      /^inputs\[buffers\]\[([a-zA-Z0-9_]+)\](?:\[(.+?)\])(?:\[(.+?)\])?(?:\[(.+?)\])?$/.exec(
-        text
-      );
+    const match = new RegExp(
+      String.raw`^${inputsVarName}\[buffers\]\[([a-zA-Z0-9_]+)\](?:\[(.+?)\])(?:\[(.+?)\])?(?:\[(.+?)\])?$`
+    ).exec(text);
     if (match) {
       if (!buffers) {
         throw new Error('Invalid buffer name');
@@ -108,9 +113,12 @@ const processors = {
   },
   uniform: <TUniformName extends string>(
     text: string,
+    inputsVarName: string,
     uniforms?: GPUUniformCollection<TUniformName>
   ) => {
-    const match = /^inputs\[uniforms\]\[([a-zA-Z0-9_]+)\]/.exec(text);
+    const match = new RegExp(
+      String.raw`^${inputsVarName}\[uniforms\]\[([a-zA-Z0-9_]+)\]`
+    ).exec(text);
     if (match) {
       if (!uniforms) {
         throw new Error('Invalid uniform name');
@@ -192,13 +200,16 @@ const handlers = {
     memberExpression += `[${state.currentExpression}]`;
 
     let anyMatched = false;
-    let { processed: processed1, matched: matched1 } =
-      processors.misc(memberExpression);
+    let { processed: processed1, matched: matched1 } = processors.misc(
+      memberExpression,
+      state.inputsVarName
+    );
     state.currentExpression = processed1;
     anyMatched ||= matched1;
 
     let { processed: processed2, matched: matched2 } = processors.uniform(
       state.currentExpression,
+      state.inputsVarName,
       state.uniforms
     );
     state.currentExpression = processed2;
@@ -206,6 +217,7 @@ const handlers = {
 
     let { processed: processed3, matched: matched3 } = processors.sizes(
       state.currentExpression,
+      state.inputsVarName,
       state.buffers
     );
     state.currentExpression = processed3;
@@ -215,6 +227,7 @@ const handlers = {
     if (!state.currentNodeIsLeftOfMemberExpression) {
       let { processed: processed4, matched: matched4 } = processors.buffer(
         state.currentExpression,
+        state.inputsVarName,
         state.buffers
       );
       state.currentExpression = processed4;
@@ -477,6 +490,7 @@ export default function transpileKernelToGPU<
   const src = func.toString();
   const ast = acorn.parse(src, { ecmaVersion: 2022, locations: true }) as any;
   const funcBody = ast.body[0].expression.body;
+  const inputsVarName = ast.body[0].expression.params[0].name;
 
   let wgsl = '';
 
@@ -517,6 +531,7 @@ export default function transpileKernelToGPU<
     currentNodeIsLeftOfMemberExpression: false,
     buffers,
     uniforms,
+    inputsVarName,
   } as GPUWalkerState<TBufferName, TUniformName>;
   walk.recursive(funcBody, walkerState, handlers);
   wgsl += walkerState.currentExpression;
