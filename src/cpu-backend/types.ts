@@ -18,9 +18,10 @@ export type CPUWalkerState<
   TUniformName extends string
 > = {
   currentExpression: string;
-  memberExpressionDepth: number;
+  currentNodeIsLeftOfMemberExpression: boolean;
   buffers?: CPUBufferCollection<TBufferName>;
   uniforms?: CPUUniformCollection<TUniformName>;
+  inputsVarName: string;
 };
 
 export type CPUTranspiledKernelArgs<

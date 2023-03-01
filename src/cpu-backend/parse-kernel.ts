@@ -1,6 +1,6 @@
 import * as acorn from 'acorn';
 import * as walk from 'acorn-walk';
-import { GPUKernelSource } from '../common/types';
+import { GPUKernelSource, GPUVec3 } from '../common/types';
 import {
   CPUBufferCollection,
   CPUTranspiledKernelArgs,
@@ -9,32 +9,90 @@ import {
 } from './types';
 
 const processors = {
-  threadId: (text: string) => {
-    const match = /^inputs\[threadId\]\[([xyz])\]$/.exec(text);
+  misc: (text: string, inputsVarName: string) => {
+    let match = new RegExp(
+      String.raw`^${inputsVarName}\[threadId\]\[([xyz])\]$`
+    ).exec(text);
     if (match) {
-      return `inputs.threadId.${match[1]}`;
+      return {
+        processed: `${inputsVarName}.threadId.${match[1]}`,
+        matched: true,
+      };
     }
 
-    return text;
-  },
-  buffer: <TBufferName extends string>(
-    text: string,
-    gpuBuffers?: CPUBufferCollection<TBufferName>
-  ) => {
-    const match =
-      /^inputs\[buffers\]\[([a-zA-Z0-9_]+)\](?:\[(.+?)\])(?:\[(.+?)\])?(?:\[(.+?)\])?$/.exec(
+    match = new RegExp(
+      String.raw`^${inputsVarName}\[funcs\]\[(setPixel)\]$`
+    ).exec(text);
+    if (match) {
+      return { processed: `${inputsVarName}.funcs.${match[1]}`, matched: true };
+    }
+
+    match =
+      /^Math\[(abs|acos|acosh|asin|asinh|atan|atanh|atan2|ceil|cos|cosh|exp|floor|log|log2|max|min|pow|round|sign|sin|sinh|sqrt|tan|tanh|trunc)\]$/.exec(
         text
       );
     if (match) {
-      if (!gpuBuffers) {
+      return { processed: `Math.${match[1]}`, matched: true };
+    }
+
+    match = /^Math\[(E|LN2|LN10|LOG2E|LOG10E|PI|SQRT1_2|SQRT2)\]$/.exec(text);
+    if (match) {
+      return { processed: `Math.${match[1]}`, matched: true };
+    }
+
+    match = new RegExp(String.raw`^${inputsVarName}\[usingCpu\]$`).exec(text);
+    if (match) {
+      return { processed: 'true', matched: true };
+    }
+
+    return { processed: text, matched: false };
+  },
+  sizes: <TBufferName extends string>(
+    text: string,
+    inputsVarName: string,
+    buffers?: CPUBufferCollection<TBufferName>
+  ) => {
+    if (!buffers) {
+      return { processed: text, matched: false };
+    }
+
+    const buffersTerm = Object.keys(buffers).join('|');
+    const match = new RegExp(
+      String.raw`^${inputsVarName}\[sizes\]\[(${buffersTerm})\]\[([xyz])\]$`
+    ).exec(text);
+
+    if (match) {
+      const index = { x: 0, y: 1, z: 2 }[match[2] as keyof GPUVec3];
+      if (index >= buffers[match[1] as TBufferName].size.length) {
+        throw new Error('Invalid buffer size index');
+      }
+
+      return {
+        processed: `${buffers[match[1] as TBufferName].size[index]}`,
+        matched: true,
+      };
+    }
+
+    return { processed: text, matched: false };
+  },
+  buffer: <TBufferName extends string>(
+    text: string,
+    inputsVarName: string,
+    buffers?: CPUBufferCollection<TBufferName>
+  ) => {
+    const match = new RegExp(
+      String.raw`^${inputsVarName}\[buffers\]\[([a-zA-Z0-9_]+)\](?:\[(.+?)\])(?:\[(.+?)\])?(?:\[(.+?)\])?$`
+    ).exec(text);
+    if (match) {
+      if (!buffers) {
         throw new Error('Invalid buffer name');
       }
 
-      if (!(match[1] in gpuBuffers)) {
+      if (!(match[1] in buffers)) {
         throw new Error('Invalid buffer name');
       }
 
-      const buffer = gpuBuffers[match[1] as TBufferName];
+      const buffer = buffers[match[1] as TBufferName];
       let index = `(${match[2]})`;
       if (match[3]) {
         if (buffer.size.length < 2) {
@@ -50,44 +108,41 @@ const processors = {
 
         index += ` + (${match[4]}) * ${buffer.size[0]} * ${buffer.size[1]}`;
       }
-      return `inputs.buffers.${match[1]}.resource[${index}]`;
+      return {
+        processed: `${inputsVarName}.buffers.${match[1]}.resource[${index}]`,
+        matched: true,
+      };
     }
 
-    return text;
+    return { processed: text, matched: false };
   },
-  gpuUniform: <TUniformName extends string>(
+  uniform: <TUniformName extends string>(
     text: string,
-    gpuUniforms?: CPUUniformCollection<TUniformName>
+    inputsVarName: string,
+    uniforms?: CPUUniformCollection<TUniformName>
   ) => {
-    const match = /^inputs\[uniforms\]\[([a-zA-Z0-9_]+)\]/.exec(text);
+    const match = new RegExp(
+      String.raw`^${inputsVarName}\[uniforms\]\[([a-zA-Z0-9_]+)\]`
+    ).exec(text);
     if (match) {
-      if (!gpuUniforms) {
+      if (!uniforms) {
         throw new Error('Invalid uniform name');
       }
 
-      if (!(match[1] in gpuUniforms)) {
+      if (!(match[1] in uniforms)) {
         throw new Error('Invalid uniform name');
       }
 
-      return `inputs.uniforms.${match[1]}`;
+      return {
+        processed: `${inputsVarName}.uniforms.${match[1]}`,
+        matched: true,
+      };
     }
 
-    return text;
+    return { processed: text, matched: false };
   },
   wrapIfSingleLine(text: string) {
     return text.includes('\n') ? text : `{ ${text}; }`;
-  },
-  func: (text: string) => {
-    const match = /^inputs\[funcs\]\[([a-zA-Z0-9_]+)\]$/.exec(text);
-    if (match) {
-      if (!['setPixel'].includes(match[1])) {
-        throw new Error('Invalid function name');
-      }
-
-      return `inputs.funcs.${match[1]}`;
-    }
-
-    return text;
   },
 };
 
@@ -141,24 +196,76 @@ const handlers = {
   ) {
     let memberExpression = '';
 
-    state.memberExpressionDepth++;
+    const parentIsLeftOfMemberExpression =
+      state.currentNodeIsLeftOfMemberExpression;
+
+    state.currentNodeIsLeftOfMemberExpression = true;
     c(node.object, state);
     memberExpression += state.currentExpression;
-    state.memberExpressionDepth--;
 
+    state.currentNodeIsLeftOfMemberExpression = false;
     c(node.property, state);
     memberExpression += `[${state.currentExpression}]`;
-    state.currentExpression = processors.gpuUniform(
+
+    let anyMatched = false;
+    let { processed: processed1, matched: matched1 } = processors.misc(
       memberExpression,
+      state.inputsVarName
+    );
+    state.currentExpression = processed1;
+    anyMatched ||= matched1;
+
+    let { processed: processed2, matched: matched2 } = processors.uniform(
+      state.currentExpression,
+      state.inputsVarName,
       state.uniforms
     );
-    state.currentExpression = processors.threadId(state.currentExpression);
-    state.currentExpression = processors.func(state.currentExpression);
-    if (state.memberExpressionDepth === 0) {
-      state.currentExpression = processors.buffer(
+    state.currentExpression = processed2;
+    anyMatched ||= matched2;
+
+    let { processed: processed3, matched: matched3 } = processors.sizes(
+      state.currentExpression,
+      state.inputsVarName,
+      state.buffers
+    );
+    state.currentExpression = processed3;
+    anyMatched ||= matched3;
+
+    state.currentNodeIsLeftOfMemberExpression = parentIsLeftOfMemberExpression;
+    if (!state.currentNodeIsLeftOfMemberExpression) {
+      let { processed: processed4, matched: matched4 } = processors.buffer(
         state.currentExpression,
+        state.inputsVarName,
         state.buffers
       );
+      state.currentExpression = processed4;
+      anyMatched ||= matched4;
+
+      if (!anyMatched) {
+        let replaced = state.currentExpression;
+        while (true) {
+          const match = /\[(.+?)\]/.exec(replaced);
+          if (!match) {
+            break;
+          }
+
+          replaced = replaced.replace(match[0], `.${match[1]}`);
+        }
+
+        // subtract 1 because function signature takes up the first line
+        let lineRange;
+        if (node.loc.start.line === node.loc.end.line) {
+          lineRange = `line ${node.loc.start.line - 1}`;
+        } else {
+          lineRange = `lines ${node.loc.start.line - 1}-${
+            node.loc.end.line - 1
+          }`;
+        }
+
+        throw new Error(
+          `Invalid expression on kernel ${lineRange}: ${replaced}`
+        );
+      }
     }
   },
   Identifier<TBufferName extends string, TUniformName extends string>(
@@ -246,9 +353,7 @@ const handlers = {
     let expression = '';
 
     c(node.argument, state);
-    expression += state.currentExpression;
-
-    expression += node.operator;
+    expression += `${state.currentExpression}${node.operator}`;
 
     state.currentExpression = expression;
   },
@@ -295,10 +400,10 @@ const handlers = {
     let expression = '';
 
     c(node.left, state);
-    expression += `bool(${state.currentExpression})`;
+    expression += `!!(${state.currentExpression})`;
 
     c(node.right, state);
-    expression += ` ${node.operator} bool(${state.currentExpression})`;
+    expression += ` ${node.operator} !!(${state.currentExpression})`;
     state.currentExpression = expression;
   },
   ReturnStatement<TBufferName extends string, TUniformName extends string>(
@@ -321,18 +426,18 @@ const handlers = {
   ConditionalExpression<TBufferName extends string, TUniformName extends string>(
     node: any, state: CPUWalkerState<TBufferName, TUniformName>, c: any
   ) {
-    let expression = '';
+    let expression = ''
 
-    c(node.test, state);
-    expression += `bool(${state.currentExpression}) ? `;
+    c(node.test, state)
+    expression += `(${state.currentExpression}) ? `
 
-    c(node.consequent, state);
-    expression += `${state.currentExpression} : `;
+    c(node.consequent, state)
+    expression += `${state.currentExpression} : `
 
-    c(node.alternate, state);
-    expression += `${state.currentExpression}`;
+    c(node.alternate, state)
+    expression += `${state.currentExpression}`
 
-    state.currentExpression = expression;
+    state.currentExpression = expression
   },
   CallExpression<TBufferName extends string, TUniformName extends string>(
     node: any,
@@ -351,6 +456,18 @@ const handlers = {
     }
     expression = expression.slice(0, -2);
     expression += ')';
+
+    state.currentExpression = expression;
+  },
+  UnaryExpression<TBufferName extends string, TUniformName extends string>(
+    node: any,
+    state: CPUWalkerState<TBufferName, TUniformName>,
+    c: any
+  ) {
+    let expression = '';
+
+    c(node.argument, state);
+    expression += `${node.operator}${state.currentExpression}`;
 
     state.currentExpression = expression;
   },
@@ -376,18 +493,20 @@ export default function transpileKernelToCPU<
   const src = kernel.toString();
   const ast = acorn.parse(src, { ecmaVersion: 2022 }) as any;
   const funcBody = ast.body[0].expression.body;
+  const inputsVarName = ast.body[0].expression.params[0].name;
 
   const walkerState = {
     currentExpression: '',
-    memberExpressionDepth: 0,
+    currentNodeIsLeftOfMemberExpression: false,
     buffers: gpuBuffers,
     uniforms: gpuUniforms,
+    inputsVarName,
   } as CPUWalkerState<TBufferName, TUniformName>;
   walk.recursive(funcBody, walkerState, handlers);
 
   // slice to remove braces
   const transpiledSource = walkerState.currentExpression.slice(2, -2);
-  const transpiled = new Function('inputs', transpiledSource);
+  const transpiled = new Function(inputsVarName, transpiledSource);
   console.log(transpiled.toString());
 
   const run = (x: number, y: number = 1, z: number = 1) => {
