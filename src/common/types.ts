@@ -26,22 +26,27 @@ export type GPUVec4 = { x: number; y: number; z: number; w: number };
 
 export type GPUKernelInputs<
   TGPUKernelBuffersInterface,
-  TGPUKernelUniformsInterface
+  TGPUKernelUniformsInterface,
+  TGPUKernelMiscInfoInterface
 > = {
   threadId: GPUVec3;
   buffers: TGPUKernelBuffersInterface;
   uniforms: TGPUKernelUniformsInterface;
+  sizes: TGPUKernelMiscInfoInterface;
+  usingCpu: boolean;
   funcs: {
     setPixel: (x: number, y: number, r: number, g: number, b: number) => void;
   };
 };
 export type GPUKernelSource<
   TGPUKernelBuffersInterface,
-  TGPUKernelUniformsInterface
+  TGPUKernelUniformsInterface,
+  TGPUKernelMiscInfoInterface
 > = (
   inputs: GPUKernelInputs<
     TGPUKernelBuffersInterface,
-    TGPUKernelUniformsInterface
+    TGPUKernelUniformsInterface,
+    TGPUKernelMiscInfoInterface
   >
 ) => void;
 export type GPUKernel = {
@@ -63,11 +68,20 @@ export type GPUInterfaceConstructorParamsWithCPU<
   TBuffers extends GPUBufferSpec<TBufferName>,
   TUniformName extends string
 > = GPUInterfaceConstructorParams<TBufferName, TBuffers, TUniformName> & {
-  useCPU?: boolean;
+  useCpu?: boolean;
 };
 
 export type GPUBufferSizeToBuffer<TSize> = TSize extends [number]
   ? number[]
   : TSize extends [number, number]
   ? number[][]
-  : number[][][];
+  : TSize extends [number, number, number]
+  ? number[][][]
+  : never;
+export type GPUBufferSizeToVec<TSize> = TSize extends [number]
+  ? { x: TSize[0] }
+  : TSize extends [number, number]
+  ? { x: TSize[0]; y: TSize[1] }
+  : TSize extends [number, number, number]
+  ? { x: TSize[0]; y: TSize[1]; z: TSize[2] }
+  : never;

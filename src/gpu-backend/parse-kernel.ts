@@ -1,6 +1,6 @@
 import * as acorn from 'acorn';
 import * as walk from 'acorn-walk';
-import { GPUKernelSource } from '../common/types';
+import { GPUKernelSource, GPUVec3 } from '../common/types';
 import {
   GPUBufferCollection,
   GPUUniformCollection,
@@ -32,6 +32,38 @@ const processors = {
     if (match) {
       const value = Math[match[1] as keyof Math];
       return { processed: `f32(${value})`, matched: true };
+    }
+
+    match = /^inputs\[usingCpu\]$/.exec(text);
+    if (match) {
+      return { processed: 'false', matched: true };
+    }
+
+    return { processed: text, matched: false };
+  },
+  sizes: <TBufferName extends string>(
+    text: string,
+    buffers?: GPUBufferCollection<TBufferName>
+  ) => {
+    if (!buffers) {
+      return { processed: text, matched: false };
+    }
+
+    const buffersTerm = Object.keys(buffers).join('|');
+    const match = new RegExp(
+      String.raw`^inputs\[sizes\]\[(${buffersTerm})\]\[([xyz])\]$`
+    ).exec(text);
+
+    if (match) {
+      const index = { x: 0, y: 1, z: 2 }[match[2] as keyof GPUVec3];
+      if (index >= buffers[match[1] as TBufferName].size.length) {
+        throw new Error('Invalid buffer size index');
+      }
+
+      return {
+        processed: `${buffers[match[1] as TBufferName].size[index]}`,
+        matched: true,
+      };
     }
 
     return { processed: text, matched: false };
@@ -172,14 +204,21 @@ const handlers = {
     state.currentExpression = processed2;
     anyMatched ||= matched2;
 
+    let { processed: processed3, matched: matched3 } = processors.sizes(
+      state.currentExpression,
+      state.buffers
+    );
+    state.currentExpression = processed3;
+    anyMatched ||= matched3;
+
     state.currentNodeIsLeftOfMemberExpression = parentIsLeftOfMemberExpression;
     if (!state.currentNodeIsLeftOfMemberExpression) {
-      let { processed: processed3, matched: matched3 } = processors.buffer(
+      let { processed: processed4, matched: matched4 } = processors.buffer(
         state.currentExpression,
         state.buffers
       );
-      state.currentExpression = processed3;
-      anyMatched ||= matched3;
+      state.currentExpression = processed4;
+      anyMatched ||= matched4;
 
       if (!anyMatched) {
         let replaced = state.currentExpression;
@@ -405,17 +444,31 @@ const handlers = {
 
     state.currentExpression = expression;
   },
+  UnaryExpression<TBufferName extends string, TUniformName extends string>(
+    node: any,
+    state: GPUWalkerState<TBufferName, TUniformName>,
+    c: any
+  ) {
+    let expression = '';
+
+    c(node.argument, state);
+    expression += `${node.operator}${state.currentExpression}`;
+
+    state.currentExpression = expression;
+  },
 };
 
 export default function transpileKernelToGPU<
   TGPUKernelBuffersInterface,
   TGPUKernelUniformsInterface,
+  TGPUKernelMiscInfoInterface,
   TBufferName extends string,
   TUniformName extends string
 >(
   func: GPUKernelSource<
     TGPUKernelBuffersInterface,
-    TGPUKernelUniformsInterface
+    TGPUKernelUniformsInterface,
+    TGPUKernelMiscInfoInterface
   >,
   buffers?: GPUBufferCollection<TBufferName>,
   uniforms?: GPUUniformCollection<TUniformName>,

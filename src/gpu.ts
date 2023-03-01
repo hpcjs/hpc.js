@@ -1,5 +1,6 @@
 import {
   GPUBufferSizeToBuffer,
+  GPUBufferSizeToVec,
   GPUBufferSpec,
   GPUInterfaceConstructorParams,
   GPUInterfaceConstructorParamsWithCPU,
@@ -27,13 +28,18 @@ export default class GPUInterface<
       ? GPUBufferSizeToBuffer<TBuffers['size']>
       : never;
   },
-  TGPUKernelUniformsInterface = { [K in TUniformName]: number }
+  TGPUKernelUniformsInterface = { [K in TUniformName]: number },
+  TGPUKernelMiscInfoInterface = {
+    [K in TBuffers['name']]: TBuffers extends { name: K }
+      ? GPUBufferSizeToVec<TBuffers['size']>
+      : never;
+  }
 > {
   backend: CombinedBackend<TBufferName, TBuffers, TUniformName>;
   bufferSpecs?: TBuffers[];
   uniformSpec?: GPUUniformSpec<TUniformName>;
   canvas?: HTMLCanvasElement;
-  useCPU: boolean;
+  useCpu: boolean;
 
   get isInitialized() {
     return this.backend.isInitialized;
@@ -53,7 +59,7 @@ export default class GPUInterface<
     buffers = undefined,
     uniforms = undefined,
     canvas = undefined,
-    useCPU = false,
+    useCpu = false,
   }: GPUInterfaceConstructorParamsWithCPU<
     TBufferName,
     TBuffers,
@@ -62,7 +68,7 @@ export default class GPUInterface<
     this.bufferSpecs = buffers;
     this.uniformSpec = uniforms;
     this.canvas = canvas;
-    this.useCPU = useCPU;
+    this.useCpu = useCpu;
 
     this.backend = new GPUBackend({ buffers, uniforms, canvas });
   }
@@ -73,7 +79,7 @@ export default class GPUInterface<
     }
 
     let success: boolean;
-    if (this.useCPU) {
+    if (this.useCpu) {
       success = false;
     } else {
       success = await this.backend.initialize();
@@ -97,7 +103,8 @@ export default class GPUInterface<
   async createKernel(
     kernel: GPUKernelSource<
       TGPUKernelBuffersInterface,
-      TGPUKernelUniformsInterface
+      TGPUKernelUniformsInterface,
+      TGPUKernelMiscInfoInterface
     >
   ): Promise<GPUKernel> {
     // can't be bothered to figure out typing for this
