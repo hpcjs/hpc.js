@@ -27,5 +27,6 @@ export type GPUWalkerState<
   currentNodeIsLeftOfMemberExpression: boolean;
   buffers?: GPUBufferCollection<TBufferName>;
   uniforms?: GPUUniformCollection<TUniformName>;
+  canvas?: HTMLCanvasElement;
   inputsVarName: string;
 };

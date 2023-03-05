@@ -9,22 +9,42 @@ import {
 } from './types';
 
 const processors = {
-  misc: (text: string, inputsVarName: string) => {
+  misc: (text: string, state: CPUWalkerState<string, string>) => {
     let match = new RegExp(
-      String.raw`^${inputsVarName}\[threadId\]\[([xyz])\]$`
+      String.raw`^${state.inputsVarName}\[threadId\]\[([xyz])\]$`
     ).exec(text);
     if (match) {
       return {
-        processed: `${inputsVarName}.threadId.${match[1]}`,
+        processed: `${state.inputsVarName}.threadId.${match[1]}`,
         matched: true,
       };
     }
 
     match = new RegExp(
-      String.raw`^${inputsVarName}\[funcs\]\[(setPixel)\]$`
+      String.raw`^${state.inputsVarName}\[canvas\]\[(width|height|setPixel)\]$`
     ).exec(text);
     if (match) {
-      return { processed: `${inputsVarName}.funcs.${match[1]}`, matched: true };
+      if (!state.canvas) {
+        throw new Error('Canvas is not defined');
+      }
+
+      switch (match[1]) {
+        case 'width':
+          return {
+            processed: `${state.canvas.width}`,
+            matched: true,
+          };
+        case 'height':
+          return {
+            processed: `${state.canvas.height}`,
+            matched: true,
+          };
+        case 'setPixel':
+          return {
+            processed: `${state.inputsVarName}.canvas.setPixel`,
+            matched: true,
+          };
+      }
     }
 
     match =
@@ -40,101 +60,91 @@ const processors = {
       return { processed: `Math.${match[1]}`, matched: true };
     }
 
-    match = new RegExp(String.raw`^${inputsVarName}\[usingCpu\]$`).exec(text);
+    match = new RegExp(String.raw`^${state.inputsVarName}\[usingCpu\]$`).exec(
+      text
+    );
     if (match) {
       return { processed: 'true', matched: true };
     }
 
     return { processed: text, matched: false };
   },
-  sizes: <TBufferName extends string>(
-    text: string,
-    inputsVarName: string,
-    buffers?: CPUBufferCollection<TBufferName>
-  ) => {
-    if (!buffers) {
+  sizes: (text: string, state: CPUWalkerState<string, string>) => {
+    if (!state.buffers) {
       return { processed: text, matched: false };
     }
 
-    const buffersTerm = Object.keys(buffers).join('|');
+    const buffersTerm = Object.keys(state.buffers).join('|');
     const match = new RegExp(
-      String.raw`^${inputsVarName}\[sizes\]\[(${buffersTerm})\]\[([xyz])\]$`
+      String.raw`^${state.inputsVarName}\[sizes\]\[(${buffersTerm})\]\[([xyz])\]$`
     ).exec(text);
 
     if (match) {
       const index = { x: 0, y: 1, z: 2 }[match[2] as keyof GPUVec3];
-      if (index >= buffers[match[1] as TBufferName].size.length) {
+      if (index >= state.buffers[match[1]].size.length) {
         throw new Error('Invalid buffer size index');
       }
 
       return {
-        processed: `${buffers[match[1] as TBufferName].size[index]}`,
+        processed: `${state.buffers[match[1]].size[index]}`,
         matched: true,
       };
     }
 
     return { processed: text, matched: false };
   },
-  buffer: <TBufferName extends string>(
-    text: string,
-    inputsVarName: string,
-    buffers?: CPUBufferCollection<TBufferName>
-  ) => {
+  buffer: (text: string, state: CPUWalkerState<string, string>) => {
     const match = new RegExp(
-      String.raw`^${inputsVarName}\[buffers\]\[([a-zA-Z0-9_]+)\](?:\[(.+?)\])(?:\[(.+?)\])?(?:\[(.+?)\])?$`
+      String.raw`^${state.inputsVarName}\[buffers\]\[([a-zA-Z0-9_]+)\](?:\[(.+?)\])(?:\[(.+?)\])?(?:\[(.+?)\])?$`
     ).exec(text);
     if (match) {
-      if (!buffers) {
+      if (!state.buffers) {
         throw new Error('Invalid buffer name');
       }
 
-      if (!(match[1] in buffers)) {
+      if (!(match[1] in state.buffers)) {
         throw new Error('Invalid buffer name');
       }
 
-      const buffer = buffers[match[1] as TBufferName];
-      let index = `(${match[2]})`;
+      const buffer = state.buffers[match[1]];
+      let index = `Math.floor(${match[2]})`;
       if (match[3]) {
         if (buffer.size.length < 2) {
           throw new Error('Invalid buffer size');
         }
 
-        index += ` + (${match[3]}) * ${buffer.size[0]}`;
+        index += ` + Math.floor(${match[3]}) * ${buffer.size[0]}`;
       }
       if (match[4]) {
         if (buffer.size.length < 3) {
           throw new Error('Invalid buffer size');
         }
 
-        index += ` + (${match[4]}) * ${buffer.size[0]} * ${buffer.size[1]}`;
+        index += ` + Math.floor(${match[4]}) * ${buffer.size[0]} * ${buffer.size[1]}`;
       }
       return {
-        processed: `${inputsVarName}.buffers.${match[1]}.resource[${index}]`,
+        processed: `${state.inputsVarName}.buffers.${match[1]}.resource[${index}]`,
         matched: true,
       };
     }
 
     return { processed: text, matched: false };
   },
-  uniform: <TUniformName extends string>(
-    text: string,
-    inputsVarName: string,
-    uniforms?: CPUUniformCollection<TUniformName>
-  ) => {
+  uniform: (text: string, state: CPUWalkerState<string, string>) => {
     const match = new RegExp(
-      String.raw`^${inputsVarName}\[uniforms\]\[([a-zA-Z0-9_]+)\]`
+      String.raw`^${state.inputsVarName}\[uniforms\]\[([a-zA-Z0-9_]+)\]`
     ).exec(text);
     if (match) {
-      if (!uniforms) {
+      if (!state.uniforms) {
         throw new Error('Invalid uniform name');
       }
 
-      if (!(match[1] in uniforms)) {
+      if (!(match[1] in state.uniforms)) {
         throw new Error('Invalid uniform name');
       }
 
       return {
-        processed: `${inputsVarName}.uniforms.${match[1]}`,
+        processed: `${state.inputsVarName}.uniforms.${match[1]}`,
         matched: true,
       };
     }
@@ -147,11 +157,7 @@ const processors = {
 };
 
 const handlers = {
-  BlockStatement<TBufferName extends string, TUniformName extends string>(
-    node: any,
-    state: CPUWalkerState<TBufferName, TUniformName>,
-    c: any
-  ) {
+  BlockStatement(node: any, state: CPUWalkerState<string, string>, c: any) {
     let statement = '{\n';
 
     for (const child of node.body) {
@@ -168,16 +174,16 @@ const handlers = {
     statement += '}';
     state.currentExpression = statement;
   },
-  ExpressionStatement<TBufferName extends string, TUniformName extends string>(
+  ExpressionStatement(
     node: any,
-    state: CPUWalkerState<TBufferName, TUniformName>,
+    state: CPUWalkerState<string, string>,
     c: any
   ) {
     c(node.expression, state);
   },
-  AssignmentExpression<TBufferName extends string, TUniformName extends string>(
+  AssignmentExpression(
     node: any,
-    state: CPUWalkerState<TBufferName, TUniformName>,
+    state: CPUWalkerState<string, string>,
     c: any
   ) {
     let expression = '';
@@ -189,11 +195,7 @@ const handlers = {
     expression += ` ${node.operator} ${state.currentExpression}`;
     state.currentExpression = expression;
   },
-  MemberExpression<TBufferName extends string, TUniformName extends string>(
-    node: any,
-    state: CPUWalkerState<TBufferName, TUniformName>,
-    c: any
-  ) {
+  MemberExpression(node: any, state: CPUWalkerState<string, string>, c: any) {
     let memberExpression = '';
 
     const parentIsLeftOfMemberExpression =
@@ -210,23 +212,21 @@ const handlers = {
     let anyMatched = false;
     let { processed: processed1, matched: matched1 } = processors.misc(
       memberExpression,
-      state.inputsVarName
+      state
     );
     state.currentExpression = processed1;
     anyMatched ||= matched1;
 
     let { processed: processed2, matched: matched2 } = processors.uniform(
       state.currentExpression,
-      state.inputsVarName,
-      state.uniforms
+      state
     );
     state.currentExpression = processed2;
     anyMatched ||= matched2;
 
     let { processed: processed3, matched: matched3 } = processors.sizes(
       state.currentExpression,
-      state.inputsVarName,
-      state.buffers
+      state
     );
     state.currentExpression = processed3;
     anyMatched ||= matched3;
@@ -235,8 +235,7 @@ const handlers = {
     if (!state.currentNodeIsLeftOfMemberExpression) {
       let { processed: processed4, matched: matched4 } = processors.buffer(
         state.currentExpression,
-        state.inputsVarName,
-        state.buffers
+        state
       );
       state.currentExpression = processed4;
       anyMatched ||= matched4;
@@ -268,21 +267,15 @@ const handlers = {
       }
     }
   },
-  Identifier<TBufferName extends string, TUniformName extends string>(
-    node: any,
-    state: CPUWalkerState<TBufferName, TUniformName>
-  ) {
+  Identifier(node: any, state: CPUWalkerState<string, string>) {
     state.currentExpression = node.name;
   },
-  Literal<TBufferName extends string, TUniformName extends string>(
-    node: any,
-    state: CPUWalkerState<TBufferName, TUniformName>
-  ) {
+  Literal(node: any, state: CPUWalkerState<string, string>) {
     state.currentExpression = `${node.value}`;
   },
-  VariableDeclaration<TBufferName extends string, TUniformName extends string>(
+  VariableDeclaration(
     node: any,
-    state: CPUWalkerState<TBufferName, TUniformName>,
+    state: CPUWalkerState<string, string>,
     c: any
   ) {
     let declarations = '';
@@ -297,11 +290,7 @@ const handlers = {
 
     state.currentExpression = declarations.slice(0, -2);
   },
-  VariableDeclarator<TBufferName extends string, TUniformName extends string>(
-    node: any,
-    state: CPUWalkerState<TBufferName, TUniformName>,
-    c: any
-  ) {
+  VariableDeclarator(node: any, state: CPUWalkerState<string, string>, c: any) {
     let declaration = '';
 
     c(node.id, state);
@@ -311,11 +300,7 @@ const handlers = {
     declaration += ` = ${state.currentExpression}`;
     state.currentExpression = declaration;
   },
-  ForStatement<TBufferName extends string, TUniformName extends string>(
-    node: any,
-    state: CPUWalkerState<TBufferName, TUniformName>,
-    c: any
-  ) {
+  ForStatement(node: any, state: CPUWalkerState<string, string>, c: any) {
     let forStatement = '';
 
     c(node.init, state);
@@ -331,11 +316,7 @@ const handlers = {
     forStatement += processors.wrapIfSingleLine(state.currentExpression);
     state.currentExpression = forStatement;
   },
-  BinaryExpression<TBufferName extends string, TUniformName extends string>(
-    node: any,
-    state: CPUWalkerState<TBufferName, TUniformName>,
-    c: any
-  ) {
+  BinaryExpression(node: any, state: CPUWalkerState<string, string>, c: any) {
     let expression = '';
 
     c(node.left, state);
@@ -345,11 +326,7 @@ const handlers = {
     expression += ` ${node.operator} ${state.currentExpression}`;
     state.currentExpression = expression;
   },
-  UpdateExpression<TBufferName extends string, TUniformName extends string>(
-    node: any,
-    state: CPUWalkerState<TBufferName, TUniformName>,
-    c: any
-  ) {
+  UpdateExpression(node: any, state: CPUWalkerState<string, string>, c: any) {
     let expression = '';
 
     c(node.argument, state);
@@ -357,11 +334,7 @@ const handlers = {
 
     state.currentExpression = expression;
   },
-  WhileStatement<TBufferName extends string, TUniformName extends string>(
-    node: any,
-    state: CPUWalkerState<TBufferName, TUniformName>,
-    c: any
-  ) {
+  WhileStatement(node: any, state: CPUWalkerState<string, string>, c: any) {
     let whileStatement = '';
 
     c(node.test, state);
@@ -371,11 +344,7 @@ const handlers = {
     whileStatement += processors.wrapIfSingleLine(state.currentExpression);
     state.currentExpression = whileStatement;
   },
-  IfStatement<TBufferName extends string, TUniformName extends string>(
-    node: any,
-    state: CPUWalkerState<TBufferName, TUniformName>,
-    c: any
-  ) {
+  IfStatement(node: any, state: CPUWalkerState<string, string>, c: any) {
     let ifStatement = '';
 
     c(node.test, state);
@@ -392,11 +361,7 @@ const handlers = {
 
     state.currentExpression = ifStatement;
   },
-  LogicalExpression<TBufferName extends string, TUniformName extends string>(
-    node: any,
-    state: CPUWalkerState<TBufferName, TUniformName>,
-    c: any
-  ) {
+  LogicalExpression(node: any, state: CPUWalkerState<string, string>, c: any) {
     let expression = '';
 
     c(node.left, state);
@@ -406,11 +371,7 @@ const handlers = {
     expression += ` ${node.operator} !!(${state.currentExpression})`;
     state.currentExpression = expression;
   },
-  ReturnStatement<TBufferName extends string, TUniformName extends string>(
-    node: any,
-    state: CPUWalkerState<TBufferName, TUniformName>,
-    c: any
-  ) {
+  ReturnStatement(node: any, state: CPUWalkerState<string, string>, c: any) {
     let returnStatement = 'return';
 
     if (node.argument) {
@@ -423,8 +384,8 @@ const handlers = {
   // when prettier formats the generics here, it breaks
   // the color coding for the rest of the file in my vscode
   // prettier-ignore
-  ConditionalExpression<TBufferName extends string, TUniformName extends string>(
-    node: any, state: CPUWalkerState<TBufferName, TUniformName>, c: any
+  ConditionalExpression(
+    node: any, state: CPUWalkerState<string, string>, c: any
   ) {
     let expression = ''
 
@@ -439,11 +400,7 @@ const handlers = {
 
     state.currentExpression = expression
   },
-  CallExpression<TBufferName extends string, TUniformName extends string>(
-    node: any,
-    state: CPUWalkerState<TBufferName, TUniformName>,
-    c: any
-  ) {
+  CallExpression(node: any, state: CPUWalkerState<string, string>, c: any) {
     let expression = '';
 
     c(node.callee, state);
@@ -459,11 +416,7 @@ const handlers = {
 
     state.currentExpression = expression;
   },
-  UnaryExpression<TBufferName extends string, TUniformName extends string>(
-    node: any,
-    state: CPUWalkerState<TBufferName, TUniformName>,
-    c: any
-  ) {
+  UnaryExpression(node: any, state: CPUWalkerState<string, string>, c: any) {
     let expression = '';
 
     c(node.argument, state);
@@ -501,6 +454,7 @@ export default function transpileKernelToCPU<
     buffers: gpuBuffers,
     uniforms: gpuUniforms,
     inputsVarName,
+    canvas,
   } as CPUWalkerState<TBufferName, TUniformName>;
   walk.recursive(funcBody, walkerState, handlers);
 
@@ -514,17 +468,27 @@ export default function transpileKernelToCPU<
       buffers: gpuBuffers,
       uniforms: gpuUniforms,
       threadId: { x: 0, y: 0, z: 0 },
-      funcs: {
-        setPixel: (x: number, y: number, r: number, g: number, b: number) => {
-          if (!canvas || !pixels) return;
+      canvas: canvas
+        ? {
+            width: canvas.width,
+            height: canvas.height,
+            setPixel: (
+              x: number,
+              y: number,
+              r: number,
+              g: number,
+              b: number
+            ) => {
+              if (!canvas || !pixels) return;
 
-          const index = (x + y * canvas.width) * 4;
-          pixels[index + 0] = r;
-          pixels[index + 1] = g;
-          pixels[index + 2] = b;
-          pixels[index + 3] = 255;
-        },
-      },
+              const index = (x + y * canvas.width) * 4;
+              pixels[index + 0] = r;
+              pixels[index + 1] = g;
+              pixels[index + 2] = b;
+              pixels[index + 3] = 255;
+            },
+          }
+        : undefined,
     };
 
     for (let ix = 0; ix < x; ix++) {

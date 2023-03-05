@@ -34,7 +34,9 @@ export type GPUKernelInputs<
   uniforms: TGPUKernelUniformsInterface;
   sizes: TGPUKernelMiscInfoInterface;
   usingCpu: boolean;
-  funcs: {
+  canvas: {
+    width: number;
+    height: number;
     setPixel: (x: number, y: number, r: number, g: number, b: number) => void;
   };
 };

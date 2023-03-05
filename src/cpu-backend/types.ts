@@ -21,6 +21,7 @@ export type CPUWalkerState<
   currentNodeIsLeftOfMemberExpression: boolean;
   buffers?: CPUBufferCollection<TBufferName>;
   uniforms?: CPUUniformCollection<TUniformName>;
+  canvas?: HTMLCanvasElement;
   inputsVarName: string;
 };
 
@@ -28,10 +29,12 @@ export type CPUTranspiledKernelArgs<
   TBufferName extends string,
   TUniformName extends string
 > = {
+  threadId: GPUVec3;
   buffers?: CPUBufferCollection<TBufferName>;
   uniforms?: CPUUniformCollection<TUniformName>;
-  threadId: GPUVec3;
-  funcs: {
+  canvas?: {
+    width: number;
+    height: number;
     setPixel: (x: number, y: number, r: number, g: number, b: number) => void;
   };
 };
