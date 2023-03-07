@@ -92,6 +92,8 @@ export default class GPUInterface<
         canvas: this.canvas,
       });
     }
+
+    return this;
   }
 
   // setData(name: string, data: Float32Array) {
