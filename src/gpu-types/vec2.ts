@@ -1,3 +1,6 @@
+import GPUVec3 from './vec3';
+import GPUVec4 from './vec4';
+
 export default class GPUVec2 {
   x: number;
   y: number;
@@ -42,6 +45,118 @@ export default class GPUVec2 {
   normalized() {
     const length = this.length();
     return new GPUVec2(this.x / length, this.y / length);
+  }
+
+  get xx() {
+    return new GPUVec2(this.x, this.x);
+  }
+
+  get xy() {
+    return new GPUVec2(this.x, this.y);
+  }
+
+  get yx() {
+    return new GPUVec2(this.y, this.x);
+  }
+
+  get yy() {
+    return new GPUVec2(this.y, this.y);
+  }
+
+  get xxx() {
+    return new GPUVec3(this.x, this.x, this.x);
+  }
+
+  get xxy() {
+    return new GPUVec3(this.x, this.x, this.y);
+  }
+
+  get xyx() {
+    return new GPUVec3(this.x, this.y, this.x);
+  }
+
+  get xyy() {
+    return new GPUVec3(this.x, this.y, this.y);
+  }
+
+  get yxx() {
+    return new GPUVec3(this.y, this.x, this.x);
+  }
+
+  get yxy() {
+    return new GPUVec3(this.y, this.x, this.y);
+  }
+
+  get yyx() {
+    return new GPUVec3(this.y, this.y, this.x);
+  }
+
+  get yyy() {
+    return new GPUVec3(this.y, this.y, this.y);
+  }
+
+  get xxxx() {
+    return new GPUVec4(this.x, this.x, this.x, this.x);
+  }
+
+  get xxxy() {
+    return new GPUVec4(this.x, this.x, this.x, this.y);
+  }
+
+  get xxyx() {
+    return new GPUVec4(this.x, this.x, this.y, this.x);
+  }
+
+  get xxyy() {
+    return new GPUVec4(this.x, this.x, this.y, this.y);
+  }
+
+  get xyxx() {
+    return new GPUVec4(this.x, this.y, this.x, this.x);
+  }
+
+  get xyxy() {
+    return new GPUVec4(this.x, this.y, this.x, this.y);
+  }
+
+  get xyyx() {
+    return new GPUVec4(this.x, this.y, this.y, this.x);
+  }
+
+  get xyyy() {
+    return new GPUVec4(this.x, this.y, this.y, this.y);
+  }
+
+  get yxxx() {
+    return new GPUVec4(this.y, this.x, this.x, this.x);
+  }
+
+  get yxxy() {
+    return new GPUVec4(this.y, this.x, this.x, this.y);
+  }
+
+  get yxyx() {
+    return new GPUVec4(this.y, this.x, this.y, this.x);
+  }
+
+  get yxyy() {
+    return new GPUVec4(this.y, this.x, this.y, this.y);
+  }
+
+  get yyxx() {
+    return new GPUVec4(this.y, this.y, this.x, this.x);
+  }
+
+  get yyxy() {
+    return new GPUVec4(this.y, this.y, this.x, this.y);
+  }
+
+  get yyyx() {
+    return new GPUVec4(this.y, this.y, this.y, this.x);
+  }
+
+  get yyyy() {
+    return new GPUVec4(this.y, this.y, this.y, this.y);
   }
 }
 

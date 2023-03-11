@@ -110,15 +110,15 @@ export function processExpressionFields(state: GPUWalkerState<string, string>) {
     3: 'w',
   };
 
-  for (let maxSize = 2; maxSize <= 4; maxSize++) {
-    for (let size = 1; size <= maxSize; size++) {
-      for (let swizzle = 0; swizzle < maxSize ** size; swizzle++) {
-        const baseConverted = swizzle.toString(maxSize).padStart(size, '0');
+  for (let dim = 2; dim <= 4; dim++) {
+    for (let size = 1; size <= 4; size++) {
+      for (let swizzle = 0; swizzle < dim ** size; swizzle++) {
+        const baseConverted = swizzle.toString(dim).padStart(size, '0');
         const swizzleString = baseConverted
           .split('')
           .map(c => letters[parseInt(c) as 0 | 1 | 2 | 3])
           .join('');
-        expressionFields[sizes[maxSize as 1 | 2 | 3 | 4] as VariableType].push({
+        expressionFields[sizes[dim as 1 | 2 | 3 | 4] as VariableType].push({
           property: swizzleString,
           type: sizes[size as 1 | 2 | 3 | 4] as VariableType,
         });
