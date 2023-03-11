@@ -1071,7 +1071,22 @@ const functions = {
       {
         returnType: 'void',
         arguments: ['number', 'number', 'number', 'number', 'number'],
-        formula: 'setPixel($1, $2, $3, $4, $5)',
+        formula: 'setPixelv1($1, $2, $3, $4, $5)',
+      },
+      {
+        returnType: 'void',
+        arguments: ['vec2', 'number', 'number', 'number'],
+        formula: 'setPixelv2($1, $2, $3, $4)',
+      },
+      {
+        returnType: 'void',
+        arguments: ['number', 'number', 'vec3'],
+        formula: 'setPixelv3($1, $2, $3)',
+      },
+      {
+        returnType: 'void',
+        arguments: ['vec2', 'vec3'],
+        formula: 'setPixelv4($1, $2)',
       },
     ],
   },

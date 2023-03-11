@@ -35,7 +35,16 @@ export type GPUKernelInputs<
   usingCpu: boolean;
   canvas: {
     size: GPUVec2;
-    setPixel: (x: number, y: number, r: number, g: number, b: number) => void;
+    setPixel: ((
+      x: number,
+      y: number,
+      r: number,
+      g: number,
+      b: number
+    ) => void) &
+      ((x: number, y: number, color: GPUVec3) => void) &
+      ((pos: GPUVec2, r: number, g: number, b: number) => void) &
+      ((pos: GPUVec2, color: GPUVec3) => void);
   };
 };
 export type GPUKernelSource<
