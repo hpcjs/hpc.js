@@ -15,11 +15,19 @@ export default class GPUVec2 {
     return new GPUVec2(this.x - other.x, this.y - other.y);
   }
 
-  times(other: GPUVec2) {
+  times(other: GPUVec2 | number) {
+    if (typeof other === 'number') {
+      return new GPUVec2(this.x * other, this.y * other);
+    }
+
     return new GPUVec2(this.x * other.x, this.y * other.y);
   }
 
-  divide(other: GPUVec2) {
+  divide(other: GPUVec2 | number) {
+    if (typeof other === 'number') {
+      return new GPUVec2(this.x / other, this.y / other);
+    }
+
     return new GPUVec2(this.x / other.x, this.y / other.y);
   }
 
@@ -35,4 +43,8 @@ export default class GPUVec2 {
     const length = this.length();
     return new GPUVec2(this.x / length, this.y / length);
   }
+}
+
+export function vec2(x: number, y: number) {
+  return new GPUVec2(x, y);
 }

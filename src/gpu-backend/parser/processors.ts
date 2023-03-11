@@ -50,8 +50,10 @@ export function processFunction(
     return;
   }
 
+  const prefix =
+    parentObjectType === 'standalone' ? '' : `${parentObjectType}.`;
   throw new Error(
-    `No matching function overload for ${parentObjectType}.${functionName}(${args
+    `No matching function overload for ${prefix}${functionName}(${args
       .map(arg => arg.type)
       .join(', ')})`
   );
@@ -82,6 +84,16 @@ export function processExpressionFields(state: GPUWalkerState<string, string>) {
     uniforms: [],
     buffers: [],
     buffer: [],
+    numberarrayliteral: [],
+    vec2arrayliteral: [],
+    vec3arrayliteral: [],
+    vec4arrayliteral: [],
+    booleanarrayliteral: [],
+    numberarray: [],
+    vec2array: [],
+    vec3array: [],
+    vec4array: [],
+    booleanarray: [],
   };
 
   // swizzling
@@ -368,4 +380,29 @@ export function processSpecialVariable(state: GPUWalkerState<string, string>) {
 
 export function wrapIfSingleLine(text: string) {
   return text.includes('\n') ? text : `{ ${text}; }`;
+}
+
+export function processArrayAccess(state: GPUWalkerState<string, string>) {
+  const arrayTypes = [
+    'numberarray',
+    'vec2array',
+    'vec3array',
+    'vec4array',
+    'booleanarray',
+  ];
+  if (!arrayTypes.includes(state.memberExpressionParentType)) {
+    return;
+  }
+
+  if (state.memberExpressionChildType !== 'number') {
+    throw new Error(
+      `Array access must be done with a number, but got ${state.memberExpressionChildType}`
+    );
+  }
+
+  state.currentExpression = `${state.memberExpressionParentName}[i32(${state.memberExpressionChildName})]`;
+  state.expressionType = state.memberExpressionParentType.replace(
+    'array',
+    ''
+  ) as any;
 }

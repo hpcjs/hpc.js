@@ -29,7 +29,16 @@ export default class GPUVec4 {
     );
   }
 
-  times(other: GPUVec4) {
+  times(other: GPUVec4 | number) {
+    if (typeof other === 'number') {
+      return new GPUVec4(
+        this.x * other,
+        this.y * other,
+        this.z * other,
+        this.w * other
+      );
+    }
+
     return new GPUVec4(
       this.x * other.x,
       this.y * other.y,
@@ -38,7 +47,16 @@ export default class GPUVec4 {
     );
   }
 
-  divide(other: GPUVec4) {
+  divide(other: GPUVec4 | number) {
+    if (typeof other === 'number') {
+      return new GPUVec4(
+        this.x / other,
+        this.y / other,
+        this.z / other,
+        this.w / other
+      );
+    }
+
     return new GPUVec4(
       this.x / other.x,
       this.y / other.y,
@@ -66,4 +84,8 @@ export default class GPUVec4 {
       this.w / length
     );
   }
+}
+
+export function vec4(x: number, y: number, z: number, w: number) {
+  return new GPUVec4(x, y, z, w);
 }

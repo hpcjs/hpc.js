@@ -33,7 +33,17 @@ export type VariableType =
   | 'buffer'
   | 'uniforms'
   | 'function'
-  | 'void';
+  | 'void'
+  | 'numberarrayliteral'
+  | 'vec2arrayliteral'
+  | 'vec3arrayliteral'
+  | 'vec4arrayliteral'
+  | 'booleanarrayliteral'
+  | 'numberarray'
+  | 'vec2array'
+  | 'vec3array'
+  | 'vec4array'
+  | 'booleanarray';
 export type WGSLType<T extends VariableType> = T extends 'number'
   ? 'f32'
   : T extends 'vec2'
@@ -58,6 +68,9 @@ export type GPUWalkerState<
   memberExpressionParentName: string;
   memberExpressionParentType: VariableType;
   memberExpressionChildName: string;
+  memberExpressionChildType: VariableType;
+  insideArrayLiteral: boolean;
+  addedPrelude: boolean;
 };
 
 export type GPUExpressionWithType = {

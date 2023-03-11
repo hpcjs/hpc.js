@@ -17,11 +17,19 @@ export default class GPUVec3 {
     return new GPUVec3(this.x - other.x, this.y - other.y, this.z - other.z);
   }
 
-  times(other: GPUVec3) {
+  times(other: GPUVec3 | number) {
+    if (typeof other === 'number') {
+      return new GPUVec3(this.x * other, this.y * other, this.z * other);
+    }
+
     return new GPUVec3(this.x * other.x, this.y * other.y, this.z * other.z);
   }
 
-  divide(other: GPUVec3) {
+  divide(other: GPUVec3 | number) {
+    if (typeof other === 'number') {
+      return new GPUVec3(this.x / other, this.y / other, this.z / other);
+    }
+
     return new GPUVec3(this.x / other.x, this.y / other.y, this.z / other.z);
   }
 

@@ -1,17 +1,17 @@
 import * as acorn from 'acorn';
 import * as walk from 'acorn-walk';
 import { GPUKernelSource } from '../../common/types';
-import { findMatchingBracket, tsToWgslType } from '../../common/utils';
+import { tsToWgslType } from '../../common/utils';
 import functions from './functions';
 import {
   GPUBufferCollection,
   GPUExpressionWithType,
   GPUUniformCollection,
   GPUWalkerState,
-  VariableType,
 } from '../types';
 import { getSetPixelSource } from '../wgsl-code';
 import {
+  processArrayAccess,
   processExpressionFields,
   processFunction,
   processSpecialVariable,
@@ -20,11 +20,16 @@ import {
 
 // required since minification turns vec3
 // into  __WEBPACK_IMPORTED_MODULE__.vec3
-const memberExpressionSkipTriggers = ['vec2', 'vec3', 'vec4'];
+const memberExpressionSkipTriggers = ['vec2', 'vec3', 'vec4', 'array'];
 
 const handlers = {
   BlockStatement(node: any, state: GPUWalkerState<string, string>, c: any) {
     let statement = '{\n';
+
+    if (!state.addedPrelude) {
+      statement += '    let global_id = vec3<f32>(global_id_u32);\n';
+      state.addedPrelude = true;
+    }
 
     for (const child of node.body) {
       const indent = ' '.repeat(4);
@@ -58,30 +63,49 @@ const handlers = {
     expression += state.currentExpression;
 
     c(node.right, state);
-    expression += ` ${node.operator} f32(${state.currentExpression})`;
+    expression += ` ${node.operator} ${state.currentExpression}`;
     state.currentExpression = expression;
   },
   MemberExpression(node: any, state: GPUWalkerState<string, string>, c: any) {
-    state.skipIdentifier = true;
-    c(node.property, state);
-    state.skipIdentifier = false;
-
-    // need to defer assignment to state
-    // otherwise it gets overwritten by child node
-    const memberExpressionChildName = state.currentExpression;
-
-    if (memberExpressionSkipTriggers.includes(state.currentExpression)) {
-      state.expressionType = 'unknown';
+    // solves minification issues
+    if (
+      node.property.type === 'Identifier' &&
+      memberExpressionSkipTriggers.includes(node.property.name)
+    ) {
+      state.currentExpression = node.property.name;
+      state.expressionType = 'function';
       return;
     }
 
     c(node.object, state);
-    state.memberExpressionChildName = memberExpressionChildName;
-    state.memberExpressionParentName = state.currentExpression;
-    state.memberExpressionParentType = state.expressionType;
+    const memberExpressionParentName = state.currentExpression;
+    const memberExpressionParentType = state.expressionType;
+
+    const arrayTypes = [
+      'numberarray',
+      'vec2array',
+      'vec3array',
+      'vec4array',
+      'booleanarray',
+    ];
+
+    // false if array access
+    state.skipIdentifier = !arrayTypes.includes(memberExpressionParentType);
+    c(node.property, state);
+    state.skipIdentifier = false;
+
+    state.memberExpressionParentName = memberExpressionParentName;
+    state.memberExpressionParentType = memberExpressionParentType;
+    state.memberExpressionChildName = state.currentExpression;
+    state.memberExpressionChildType = state.expressionType;
 
     state.expressionType = 'unknown';
     processExpressionFields(state);
+    if (state.expressionType !== 'unknown') {
+      return;
+    }
+
+    processArrayAccess(state);
     if (state.expressionType !== 'unknown') {
       return;
     }
@@ -145,10 +169,11 @@ const handlers = {
     declaration += state.currentExpression;
 
     c(node.init, state);
-    const varType = tsToWgslType(state.expressionType);
     state.variableTypes[node.id.name] = state.expressionType;
+    // const varType = tsToWgslType(state.expressionType);
+    const explicitType = state.expressionType === 'number' ? ': f32' : '';
 
-    declaration += ` = ${varType}(${state.currentExpression})`;
+    declaration += `${explicitType} = ${state.currentExpression}`;
     state.currentExpression = declaration;
   },
   ForStatement(node: any, state: GPUWalkerState<string, string>, c: any) {
@@ -315,6 +340,39 @@ const handlers = {
 
     processFunction(node.operator, null, [{ name: var1, type: type1 }], state);
   },
+  ArrayExpression(node: any, state: GPUWalkerState<string, string>, c: any) {
+    if (state.insideArrayLiteral) {
+      throw new Error('Nested array literals are not allowed');
+    }
+
+    state.insideArrayLiteral = true;
+
+    const expressions: string[] = [];
+
+    let type = null;
+    for (const element of node.elements) {
+      c(element, state);
+      expressions.push(state.currentExpression);
+      if (type === null) {
+        type = state.expressionType;
+
+        const allowedTypes = ['number', 'vec2', 'vec3', 'vec4', 'boolean'];
+        if (!allowedTypes.includes(type)) {
+          throw new Error(
+            `Array elements must be of type number, vec2, vec3, vec4 or boolean, but found ${type}`
+          );
+        }
+      } else if (type !== state.expressionType) {
+        throw new Error(
+          `Array elements must all be of the same type, but found ${type} and ${state.expressionType}`
+        );
+      }
+    }
+
+    state.currentExpression = `${expressions.join(', ')}`;
+    state.expressionType = (state.expressionType + 'arrayliteral') as any;
+    state.insideArrayLiteral = false;
+  },
 };
 
 export default function transpileKernelToGPU<
@@ -370,7 +428,7 @@ export default function transpileKernelToGPU<
   }
 
   wgsl +=
-    '@compute @workgroup_size(1, 1)\nfn main(@builtin(global_invocation_id) global_id: vec3<u32>) ';
+    '@compute @workgroup_size(1, 1)\nfn main(@builtin(global_invocation_id) global_id_u32: vec3<u32>) ';
 
   const walkerState = {
     currentExpression: '',
@@ -388,6 +446,9 @@ export default function transpileKernelToGPU<
     memberExpressionParentName: '',
     memberExpressionParentType: 'unknown',
     memberExpressionChildName: '',
+    memberExpressionChildType: 'unknown',
+    insideArrayLiteral: false,
+    addedPrelude: false,
   } as GPUWalkerState<TBufferName, TUniformName>;
   walk.recursive(funcBody, walkerState, handlers);
   wgsl += walkerState.currentExpression;

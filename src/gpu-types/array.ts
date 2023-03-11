@@ -1,9 +1,14 @@
-export default class GPUArray {
-  length: number;
-  data: number[];
+import GPUVec2 from './vec2';
+import GPUVec3 from './vec3';
+import GPUVec4 from './vec4';
 
-  constructor(data: number[]) {
-    this.length = data.length;
-    this.data = data;
-  }
+export type GPUArray<T extends number | GPUVec2 | GPUVec3 | GPUVec4> = {
+  [key: number]: T;
+};
+
+export function array<T extends number | GPUVec2 | GPUVec3 | GPUVec4>(
+  size: number,
+  data?: T[]
+): GPUArray<T> {
+  return {};
 }

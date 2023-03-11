@@ -576,6 +576,58 @@ const functions = {
     ],
   },
   standalone: {
+    array: [
+      {
+        returnType: 'numberarray',
+        arguments: ['number'],
+        formula: 'array<f32, $0>()',
+      },
+      {
+        returnType: 'numberarray',
+        arguments: ['number', 'numberarrayliteral'],
+        formula: 'array<f32, $0>($1)',
+      },
+      {
+        returnType: 'vec2array',
+        arguments: ['number'],
+        formula: 'array<vec2<f32>, $0>()',
+      },
+      {
+        returnType: 'vec2array',
+        arguments: ['number', 'vec2arrayliteral'],
+        formula: 'array<vec2<f32>, $0>($1)',
+      },
+      {
+        returnType: 'vec3array',
+        arguments: ['number'],
+        formula: 'array<vec3<f32>, $0>()',
+      },
+      {
+        returnType: 'vec3array',
+        arguments: ['number', 'vec3arrayliteral'],
+        formula: 'array<vec3<f32>, $0>($1)',
+      },
+      {
+        returnType: 'vec4array',
+        arguments: ['number'],
+        formula: 'array<vec4<f32>, $0>()',
+      },
+      {
+        returnType: 'vec4array',
+        arguments: ['number', 'vec4arrayliteral'],
+        formula: 'array<vec4<f32>, $0>($1)',
+      },
+      {
+        returnType: 'booleanarray',
+        arguments: ['number'],
+        formula: 'array<bool, $0>()',
+      },
+      {
+        returnType: 'booleanarray',
+        arguments: ['number', 'booleanarrayliteral'],
+        formula: 'array<bool, $0>($1)',
+      },
+    ],
     vec2: [
       {
         returnType: 'vec2',
@@ -820,11 +872,21 @@ const functions = {
         arguments: ['vec2'],
         formula: '($0 * $1)',
       },
+      {
+        returnType: 'vec2',
+        arguments: ['number'],
+        formula: '($0 * $1)',
+      },
     ],
     divide: [
       {
         returnType: 'vec2',
         arguments: ['vec2'],
+        formula: '($0 / $1)',
+      },
+      {
+        returnType: 'vec2',
+        arguments: ['number'],
         formula: '($0 / $1)',
       },
     ],
@@ -878,11 +940,21 @@ const functions = {
         arguments: ['vec3'],
         formula: '($0 * $1)',
       },
+      {
+        returnType: 'vec3',
+        arguments: ['number'],
+        formula: '($0 * $1)',
+      },
     ],
     divide: [
       {
         returnType: 'vec3',
         arguments: ['vec3'],
+        formula: '($0 / $1)',
+      },
+      {
+        returnType: 'vec3',
+        arguments: ['number'],
         formula: '($0 / $1)',
       },
     ],
@@ -943,11 +1015,21 @@ const functions = {
         arguments: ['vec4'],
         formula: '($0 * $1)',
       },
+      {
+        returnType: 'vec4',
+        arguments: ['number'],
+        formula: '($0 * $1)',
+      },
     ],
     divide: [
       {
         returnType: 'vec4',
         arguments: ['vec4'],
+        formula: '($0 / $1)',
+      },
+      {
+        returnType: 'vec4',
+        arguments: ['number'],
         formula: '($0 / $1)',
       },
     ],
@@ -998,6 +1080,16 @@ const functions = {
   uniforms: {},
   buffers: {},
   buffer: {},
+  numberarrayliteral: {},
+  vec2arrayliteral: {},
+  vec3arrayliteral: {},
+  vec4arrayliteral: {},
+  booleanarrayliteral: {},
+  numberarray: {},
+  vec2array: {},
+  vec3array: {},
+  vec4array: {},
+  booleanarray: {},
 } as {
   [K in VariableType | 'standalone']: {
     [key: string]: {
