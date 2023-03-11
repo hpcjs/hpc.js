@@ -18,9 +18,9 @@
   "author": "Ethan Lipson",
   "license": "ISC",
   "dependencies": {
+    "@webgpu/types": "^0.1.30",
     "acorn": "^8.8.2",
-    "acorn-walk": "^8.2.0",
-    "@webgpu/types": "^0.1.24"
+    "acorn-walk": "^8.2.0"
   },
   "devDependencies": {
     "@types/node": "^18.11.19",
