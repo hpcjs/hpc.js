@@ -878,7 +878,7 @@ const functions = {
         formula: '($0 * $1)',
       },
     ],
-    divide: [
+    div: [
       {
         returnType: 'vec2',
         arguments: ['vec2'],
@@ -946,7 +946,7 @@ const functions = {
         formula: '($0 * $1)',
       },
     ],
-    divide: [
+    div: [
       {
         returnType: 'vec3',
         arguments: ['vec3'],
@@ -1021,7 +1021,7 @@ const functions = {
         formula: '($0 * $1)',
       },
     ],
-    divide: [
+    div: [
       {
         returnType: 'vec4',
         arguments: ['vec4'],

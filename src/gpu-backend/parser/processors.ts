@@ -324,14 +324,9 @@ export function processSpecialVariable(state: GPUWalkerState<string, string>) {
       type: 'canvas',
     });
     specialVariables.push({
-      regex: `${state.inputsVarName}[canvas][width]`,
-      formula: `${state.canvas.width}`,
-      type: 'number',
-    });
-    specialVariables.push({
-      regex: `${state.inputsVarName}[canvas][height]`,
-      formula: `${state.canvas.height}`,
-      type: 'number',
+      regex: `${state.inputsVarName}[canvas][size]`,
+      formula: `vec2<f32>(${state.canvas.width}, ${state.canvas.height})`,
+      type: 'vec2',
     });
     specialVariables.push({
       regex: `${state.inputsVarName}[canvas][setPixel]`,

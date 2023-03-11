@@ -26,7 +26,7 @@ export default class GPUVec2 {
     return new GPUVec2(this.x * other.x, this.y * other.y);
   }
 
-  divide(other: GPUVec2 | number) {
+  div(other: GPUVec2 | number) {
     if (typeof other === 'number') {
       return new GPUVec2(this.x / other, this.y / other);
     }

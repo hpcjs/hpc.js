@@ -50,7 +50,7 @@ export default class GPUVec4 {
     );
   }
 
-  divide(other: GPUVec4 | number) {
+  div(other: GPUVec4 | number) {
     if (typeof other === 'number') {
       return new GPUVec4(
         this.x / other,

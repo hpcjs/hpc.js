@@ -373,6 +373,9 @@ const handlers = {
     state.expressionType = (state.expressionType + 'arrayliteral') as any;
     state.insideArrayLiteral = false;
   },
+  BreakStatement(node: any, state: GPUWalkerState<string, string>, c: any) {
+    state.currentExpression = 'break';
+  },
 };
 
 export default function transpileKernelToGPU<

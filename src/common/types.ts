@@ -1,3 +1,4 @@
+import GPUVec2 from '../gpu-types/vec2';
 import GPUVec3 from '../gpu-types/vec3';
 
 export type GPUBufferSize =
@@ -33,8 +34,7 @@ export type GPUKernelInputs<
   sizes: TGPUKernelMiscInfoInterface;
   usingCpu: boolean;
   canvas: {
-    width: number;
-    height: number;
+    size: GPUVec2;
     setPixel: (x: number, y: number, r: number, g: number, b: number) => void;
   };
 };
