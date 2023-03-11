@@ -376,6 +376,9 @@ const handlers = {
   BreakStatement(node: any, state: GPUWalkerState<string, string>, c: any) {
     state.currentExpression = 'break';
   },
+  ContinueStatement(node: any, state: GPUWalkerState<string, string>, c: any) {
+    state.currentExpression = 'continue';
+  },
 };
 
 export default function transpileKernelToGPU<
