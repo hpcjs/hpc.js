@@ -1,6 +1,7 @@
 import * as acorn from 'acorn';
 import * as walk from 'acorn-walk';
-import { GPUKernelSource, GPUVec3 } from '../common/types';
+import { GPUKernelSource } from '../common/types';
+import { vec3 } from '../gpu-types/vec3';
 import {
   CPUBufferCollection,
   CPUTranspiledKernelArgs,
@@ -80,7 +81,7 @@ const processors = {
     ).exec(text);
 
     if (match) {
-      const index = { x: 0, y: 1, z: 2 }[match[2] as keyof GPUVec3];
+      const index = { x: 0, y: 1, z: 2 }[match[2] as 'x' | 'y' | 'z'];
       if (index >= state.buffers[match[1]].size.length) {
         throw new Error('Invalid buffer size index');
       }
@@ -467,7 +468,7 @@ export default function transpileKernelToCPU<
     const inputs: CPUTranspiledKernelArgs<TBufferName, TUniformName> = {
       buffers: gpuBuffers,
       uniforms: gpuUniforms,
-      threadId: { x: 0, y: 0, z: 0 },
+      threadId: vec3(0, 0, 0),
       canvas: canvas
         ? {
             width: canvas.width,

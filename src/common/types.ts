@@ -1,3 +1,5 @@
+import GPUVec3 from '../gpu-types/vec3';
+
 export type GPUBufferSize =
   | [number]
   | [number, number]
@@ -19,10 +21,6 @@ export type GPUBufferSpec<TName extends string> =
       initialData?: number[][][];
     };
 export type GPUUniformSpec<TName extends string> = { [K in TName]: number };
-
-export type GPUVec2 = { x: number; y: number };
-export type GPUVec3 = { x: number; y: number; z: number };
-export type GPUVec4 = { x: number; y: number; z: number; w: number };
 
 export type GPUKernelInputs<
   TGPUKernelBuffersInterface,

@@ -6,7 +6,7 @@ import {
   GPUKernel,
   GPUKernelSource,
 } from '../common/types';
-import transpileKernelToGPU from './parse-kernel';
+import transpileKernelToGPU from './parser/parse-kernel';
 import { GPUBufferCollection, GPUUniformCollection } from './types';
 import { getFragmentSource, getVertexSource } from './wgsl-code';
 

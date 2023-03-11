@@ -1,4 +1,5 @@
-import { GPUBufferSize, GPUVec3 } from '../common/types';
+import { GPUBufferSize } from '../common/types';
+import GPUVec3 from '../gpu-types/vec3';
 
 export type CPUBufferWithInfo = {
   size: GPUBufferSize;

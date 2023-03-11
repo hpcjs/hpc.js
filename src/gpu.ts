@@ -2,7 +2,6 @@ import {
   GPUBufferSizeToBuffer,
   GPUBufferSizeToVec,
   GPUBufferSpec,
-  GPUInterfaceConstructorParams,
   GPUInterfaceConstructorParamsWithCPU,
   GPUKernel,
   GPUKernelSource,
