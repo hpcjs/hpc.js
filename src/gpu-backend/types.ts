@@ -1,4 +1,7 @@
 import { GPUBufferSize } from '../common/types';
+import { GPUVec2 } from '../gpu-types/vec2';
+import { GPUVec3 } from '../gpu-types/vec3';
+import { GPUVec4 } from '../gpu-types/vec4';
 
 export type GPUBufferWithInfo = {
   size: GPUBufferSize;
@@ -8,8 +11,8 @@ export type GPUBufferWithInfo = {
   mapped: boolean;
 };
 export type GPUUniformInfo = {
-  id: number;
-  value: number;
+  value: number | GPUVec2 | GPUVec3 | GPUVec4;
+  offset: number;
 };
 
 export type GPUBufferCollection<TName extends string> = {

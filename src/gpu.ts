@@ -9,32 +9,37 @@ import {
 } from './common/types';
 import CPUFallback from './cpu-backend/backend';
 import GPUBackend from './gpu-backend/backend';
+import { GPUVec2 } from './gpu-types/vec2';
+import { GPUVec3 } from './gpu-types/vec3';
+import { GPUVec4 } from './gpu-types/vec4';
 
 type CombinedBackend<
   TBufferName extends string,
   TBuffers extends GPUBufferSpec<TBufferName>,
-  TUniformName extends string
+  TUniformName extends string,
+  TUniforms extends GPUUniformSpec<TUniformName>
 > =
-  | GPUBackend<TBufferName, TBuffers, TUniformName>
-  | CPUFallback<TBufferName, TBuffers, TUniformName>;
+  | GPUBackend<TBufferName, TBuffers, TUniformName, TUniforms>
+  | CPUFallback<TBufferName, TBuffers, TUniformName, TUniforms>;
 
 export default class GPUInterface<
   TBufferName extends string,
   TBuffers extends GPUBufferSpec<TBufferName>,
   TUniformName extends string,
+  TUniforms extends GPUUniformSpec<TUniformName>,
   TGPUKernelBuffersInterface = {
     [K in TBuffers['name']]: TBuffers extends { name: K }
       ? GPUBufferSizeToBuffer<TBuffers['size']>
       : never;
   },
-  TGPUKernelUniformsInterface = { [K in TUniformName]: number },
+  TGPUKernelUniformsInterface = TUniforms,
   TGPUKernelMiscInfoInterface = {
     [K in TBuffers['name']]: TBuffers extends { name: K }
       ? GPUBufferSizeToVec<TBuffers['size']>
       : never;
   }
 > {
-  backend: CombinedBackend<TBufferName, TBuffers, TUniformName>;
+  backend: CombinedBackend<TBufferName, TBuffers, TUniformName, TUniforms>;
   bufferSpecs?: TBuffers[];
   uniformSpec?: GPUUniformSpec<TUniformName>;
   canvas?: HTMLCanvasElement;
@@ -62,7 +67,8 @@ export default class GPUInterface<
   }: GPUInterfaceConstructorParamsWithCPU<
     TBufferName,
     TBuffers,
-    TUniformName
+    TUniformName,
+    TUniforms
   >) {
     this.bufferSpecs = buffers;
     this.uniformSpec = uniforms;
@@ -126,7 +132,7 @@ export default class GPUInterface<
     }
   }
 
-  setUniforms(uniforms: { [K in TUniformName]?: number }) {
+  setUniforms(uniforms: Partial<TUniforms>) {
     this.backend.setUniforms(uniforms);
   }
 

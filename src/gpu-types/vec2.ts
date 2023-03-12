@@ -5,6 +5,9 @@ export class GPUVec2 {
   x: number;
   y: number;
 
+  // required to stop duck typing
+  type: 'vec2' = 'vec2';
+
   constructor(x: number, y: number) {
     this.x = x;
     this.y = y;

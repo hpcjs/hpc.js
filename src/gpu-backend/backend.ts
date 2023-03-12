@@ -5,21 +5,30 @@ import {
   GPUInterfaceConstructorParams,
   GPUKernel,
   GPUKernelSource,
+  GPUUniformSpec,
 } from '../common/types';
+import { GPUVec2 } from '../gpu-types/vec2';
+import { GPUVec3 } from '../gpu-types/vec3';
+import { GPUVec4 } from '../gpu-types/vec4';
 import transpileKernelToGPU from './parser/parse-kernel';
-import { GPUBufferCollection, GPUUniformCollection } from './types';
+import {
+  GPUBufferCollection,
+  GPUUniformCollection,
+  GPUUniformInfo,
+} from './types';
 import { getFragmentSource, getVertexSource } from './wgsl-code';
 
 export default class GPUBackend<
   TBufferName extends string,
   TBuffers extends GPUBufferSpec<TBufferName>,
   TUniformName extends string,
+  TUniforms extends GPUUniformSpec<TUniformName>,
   TGPUKernelBuffersInterface = {
     [K in TBuffers['name']]: TBuffers extends { name: K }
       ? GPUBufferSizeToBuffer<TBuffers['size']>
       : never;
   },
-  TGPUKernelUniformsInterface = { [K in TUniformName]: number },
+  TGPUKernelUniformsInterface = TUniforms,
   TGPUKernelMiscInfoInterface = {
     [K in TBuffers['name']]: TBuffers extends { name: K }
       ? GPUBufferSizeToVec<TBuffers['size']>
@@ -39,6 +48,7 @@ export default class GPUBackend<
   private context?: GPUCanvasContext;
   private renderPipeline?: GPURenderPipeline;
   private vertexBuffer?: GPUBuffer;
+  private totalUniformOffset: number = 0;
 
   get isInitialized() {
     return this.initialized;
@@ -48,16 +58,22 @@ export default class GPUBackend<
     buffers = undefined,
     uniforms = undefined,
     canvas = undefined,
-  }: GPUInterfaceConstructorParams<TBufferName, TBuffers, TUniformName>) {
+  }: GPUInterfaceConstructorParams<
+    TBufferName,
+    TBuffers,
+    TUniformName,
+    TUniforms
+  >) {
     this.bufferSpecs = buffers;
     this.uniforms =
       uniforms === undefined
         ? undefined
         : Object.keys(uniforms).reduce((res, key, i) => {
-            res[key as TUniformName] = {
+            res[key] = {
               id: i,
               value: uniforms[key as TUniformName],
-            };
+              offset: -1,
+            } as GPUUniformInfo;
             return res;
           }, {} as any);
     this.canvas = canvas;
@@ -139,18 +155,53 @@ export default class GPUBackend<
     }
 
     if (this.uniforms) {
+      let totalOffset = 0;
+      for (const uniform in this.uniforms) {
+        this.uniforms[uniform].offset = totalOffset;
+
+        if (typeof this.uniforms[uniform].value === 'number') {
+          totalOffset += 4;
+        } else if (this.uniforms[uniform].value instanceof GPUVec2) {
+          totalOffset += 4;
+        } else if (this.uniforms[uniform].value instanceof GPUVec3) {
+          totalOffset += 4;
+        } else if (this.uniforms[uniform].value instanceof GPUVec4) {
+          totalOffset += 4;
+        } else {
+          throw new Error(`Uniform ${uniform} has invalid type`);
+        }
+      }
+
       this.uniformBuffer = this.device.createBuffer({
-        size: Object.keys(this.uniforms).length * 4,
+        size: totalOffset * 4,
         usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
         mappedAtCreation: true,
       });
       const uniformArrayBuffer = this.uniformBuffer.getMappedRange();
       const uniformDataView = new Float32Array(uniformArrayBuffer);
       for (const uniform in this.uniforms) {
-        const id = this.uniforms[uniform].id;
-        uniformDataView[id] = this.uniforms[uniform].value;
+        const value = this.uniforms[uniform].value;
+        const offset = this.uniforms[uniform].offset;
+
+        if (typeof value === 'number') {
+          uniformDataView[offset] = value;
+        } else if (value instanceof GPUVec2) {
+          uniformDataView[offset] = value.x;
+          uniformDataView[offset + 1] = value.y;
+        } else if (value instanceof GPUVec3) {
+          uniformDataView[offset] = value.x;
+          uniformDataView[offset + 1] = value.y;
+          uniformDataView[offset + 2] = value.z;
+        } else {
+          uniformDataView[offset] = value.x;
+          uniformDataView[offset + 1] = value.y;
+          uniformDataView[offset + 2] = value.z;
+          uniformDataView[offset + 3] = value.w;
+        }
       }
       this.uniformBuffer.unmap();
+
+      this.totalUniformOffset = totalOffset;
     }
 
     if (this.canvas) {
@@ -442,22 +493,38 @@ export default class GPUBackend<
     buffer.mapped = false;
   }
 
-  setUniforms(uniforms: { [K in TUniformName]?: number }) {
+  setUniforms(uniforms: Partial<TUniforms>) {
     if (!this.device || !this.uniformBuffer)
       throw new Error('GPUInterface not initialized');
     if (!this.uniforms) throw new Error('No uniforms defined');
 
-    for (const uniform in uniforms) {
-      this.uniforms[uniform].value = uniforms[uniform] as number;
+    for (const uniform of Object.keys(uniforms)) {
+      this.uniforms[uniform as TUniformName].value =
+        uniforms[uniform as TUniformName]!;
     }
 
-    const uniformDataBuffer = new Float32Array(
-      Object.keys(this.uniforms).length
-    );
+    const uniformDataBuffer = new Float32Array(this.totalUniformOffset);
     for (const uniform in this.uniforms) {
-      const id = this.uniforms[uniform].id;
-      uniformDataBuffer[id] = this.uniforms[uniform].value;
+      const value = this.uniforms[uniform].value;
+      const offset = this.uniforms[uniform].offset;
+
+      if (typeof value === 'number') {
+        uniformDataBuffer[offset] = value;
+      } else if (value instanceof GPUVec2) {
+        uniformDataBuffer[offset] = value.x;
+        uniformDataBuffer[offset + 1] = value.y;
+      } else if (value instanceof GPUVec3) {
+        uniformDataBuffer[offset] = value.x;
+        uniformDataBuffer[offset + 1] = value.y;
+        uniformDataBuffer[offset + 2] = value.z;
+      } else {
+        uniformDataBuffer[offset] = value.x;
+        uniformDataBuffer[offset + 1] = value.y;
+        uniformDataBuffer[offset + 2] = value.z;
+        uniformDataBuffer[offset + 3] = value.w;
+      }
     }
+
     this.device.queue.writeBuffer(this.uniformBuffer, 0, uniformDataBuffer);
   }
 

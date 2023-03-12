@@ -5,7 +5,11 @@ import {
   GPUInterfaceConstructorParams,
   GPUKernel,
   GPUKernelSource,
+  GPUUniformSpec,
 } from '../common/types';
+import { GPUVec2 } from '../gpu-types/vec2';
+import { GPUVec3 } from '../gpu-types/vec3';
+import { GPUVec4 } from '../gpu-types/vec4';
 import transpileKernelToCPU from './parse-kernel';
 import { CPUBufferCollection, CPUUniformCollection } from './types';
 
@@ -13,12 +17,13 @@ export default class CPUFallback<
   TBufferName extends string,
   TBuffers extends GPUBufferSpec<TBufferName>,
   TUniformName extends string,
+  TUniforms extends GPUUniformSpec<TUniformName>,
   TGPUKernelBuffersInterface = {
     [K in TBuffers['name']]: TBuffers extends { name: K }
       ? GPUBufferSizeToBuffer<TBuffers['size']>
       : never;
   },
-  TGPUKernelUniformsInterface = { [K in TUniformName]: number },
+  TGPUKernelUniformsInterface = TUniforms,
   TGPUKernelMiscInfoInterface = {
     [K in TBuffers['name']]: TBuffers extends { name: K }
       ? GPUBufferSizeToVec<TBuffers['size']>
@@ -40,7 +45,12 @@ export default class CPUFallback<
     buffers = undefined,
     uniforms = undefined,
     canvas = undefined,
-  }: GPUInterfaceConstructorParams<TBufferName, TBuffers, TUniformName>) {
+  }: GPUInterfaceConstructorParams<
+    TBufferName,
+    TBuffers,
+    TUniformName,
+    TUniforms
+  >) {
     if (buffers) {
       this.buffers = {} as CPUBufferCollection<TBufferName>;
 
@@ -61,6 +71,7 @@ export default class CPUFallback<
       this.uniforms = {} as CPUUniformCollection<TUniformName>;
 
       for (const uniform in uniforms) {
+        // @ts-ignore
         this.uniforms[uniform] = uniforms[uniform];
       }
     }
@@ -117,11 +128,13 @@ export default class CPUFallback<
     return buffer.resource;
   }
 
-  setUniforms(uniforms: { [K in TUniformName]?: number }) {
+  setUniforms(uniforms: Partial<TUniforms>) {
     if (!this.uniforms) throw new Error('No uniforms defined');
 
-    for (const uniform in uniforms) {
-      this.uniforms[uniform] = uniforms[uniform] as number;
+    for (const uniform of Object.keys(uniforms)) {
+      // @ts-ignore
+      this.uniforms[uniform as TUniformName] =
+        uniforms[uniform as TUniformName]!;
     }
   }
 

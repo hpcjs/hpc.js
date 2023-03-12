@@ -16,6 +16,9 @@ import {
   processSpecialVariable,
   wrapIfSingleLine,
 } from './processors';
+import { GPUVec2 } from '../../gpu-types/vec2';
+import { GPUVec3 } from '../../gpu-types/vec3';
+import { GPUVec4 } from '../../gpu-types/vec4';
 
 // required since minification turns vec3
 // into  __WEBPACK_IMPORTED_MODULE__.vec3
@@ -425,7 +428,19 @@ export default function transpileKernelToGPU<
   if (uniforms) {
     wgsl += 'struct Uniforms {\n';
     for (const name in uniforms) {
-      wgsl += `    ${name}: f32,\n`;
+      const value = uniforms[name].value;
+      const type =
+        typeof value === 'number'
+          ? 'f32'
+          : value instanceof GPUVec2
+          ? 'vec2<f32>'
+          : value instanceof GPUVec3
+          ? 'vec3<f32>'
+          : value instanceof GPUVec4
+          ? 'vec4<f32>'
+          : 'unknown';
+
+      wgsl += `    @align(16) ${name}: ${type},\n`;
     }
 
     wgsl += `}\n\n@group(0) @binding(${

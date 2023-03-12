@@ -1,4 +1,7 @@
 import { findMatchingBracket } from '../../common/utils';
+import { GPUVec2 } from '../../gpu-types/vec2';
+import { GPUVec3 } from '../../gpu-types/vec3';
+import { GPUVec4 } from '../../gpu-types/vec4';
 import { GPUExpressionWithType, GPUWalkerState, VariableType } from '../types';
 import functions from './functions';
 
@@ -346,10 +349,22 @@ export function processSpecialVariable(state: GPUWalkerState<string, string>) {
     });
 
     for (const uniformName in state.uniforms) {
+      const value = state.uniforms[uniformName].value;
+      const type =
+        typeof value === 'number'
+          ? 'number'
+          : value instanceof GPUVec2
+          ? 'vec2'
+          : value instanceof GPUVec3
+          ? 'vec3'
+          : value instanceof GPUVec4
+          ? 'vec4'
+          : 'unknown';
+
       specialVariables.push({
         regex: `${state.inputsVarName}[uniforms][${uniformName}]`,
         formula: `uniforms.${uniformName}`,
-        type: 'number',
+        type,
       });
     }
   }

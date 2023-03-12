@@ -1,5 +1,6 @@
 import { GPUVec2 } from '../gpu-types/vec2';
 import { GPUVec3 } from '../gpu-types/vec3';
+import { GPUVec4 } from '../gpu-types/vec4';
 
 export type GPUBufferSize =
   | [number]
@@ -21,7 +22,9 @@ export type GPUBufferSpec<TName extends string> =
       size: [number, number, number];
       initialData?: number[][][];
     };
-export type GPUUniformSpec<TName extends string> = { [K in TName]: number };
+export type GPUUniformSpec<TName extends string> = {
+  [K in TName]: number | GPUVec2 | GPUVec3 | GPUVec4;
+};
 
 export type GPUKernelInputs<
   TGPUKernelBuffersInterface,
@@ -65,18 +68,25 @@ export type GPUKernel = {
 export type GPUInterfaceConstructorParams<
   TBufferName extends string,
   TBuffers extends GPUBufferSpec<TBufferName>,
-  TUniformName extends string
+  TUniformName extends string,
+  TUniforms extends GPUUniformSpec<TUniformName>
 > = {
   buffers?: TBuffers[];
-  uniforms?: GPUUniformSpec<TUniformName>;
+  uniforms?: TUniforms;
   canvas?: HTMLCanvasElement;
 };
 
 export type GPUInterfaceConstructorParamsWithCPU<
   TBufferName extends string,
   TBuffers extends GPUBufferSpec<TBufferName>,
-  TUniformName extends string
-> = GPUInterfaceConstructorParams<TBufferName, TBuffers, TUniformName> & {
+  TUniformName extends string,
+  TUniforms extends GPUUniformSpec<TUniformName>
+> = GPUInterfaceConstructorParams<
+  TBufferName,
+  TBuffers,
+  TUniformName,
+  TUniforms
+> & {
   useCpu?: boolean;
 };
 
