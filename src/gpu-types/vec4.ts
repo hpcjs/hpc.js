@@ -1,7 +1,7 @@
-import GPUVec2 from './vec2';
-import GPUVec3 from './vec3';
+import { GPUVec2 } from './vec2';
+import { GPUVec3 } from './vec3';
 
-export default class GPUVec4 {
+export class GPUVec4 {
   x: number;
   y: number;
   z: number;

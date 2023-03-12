@@ -30,7 +30,9 @@ export type VariableType =
   | 'canvas'
   | 'buffersizes'
   | 'buffers'
-  | 'buffer'
+  | 'buffer1d'
+  | 'buffer2d'
+  | 'buffer3d'
   | 'uniforms'
   | 'function'
   | 'void'
@@ -71,6 +73,8 @@ export type GPUWalkerState<
   memberExpressionChildType: VariableType;
   insideArrayLiteral: boolean;
   addedPrelude: boolean;
+  arrayLength: number;
+  arrayLengths: { [key: string]: number };
 };
 
 export type GPUExpressionWithType = {

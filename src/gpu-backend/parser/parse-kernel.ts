@@ -1,7 +1,6 @@
 import * as acorn from 'acorn';
 import * as walk from 'acorn-walk';
 import { GPUKernelSource } from '../../common/types';
-import { tsToWgslType } from '../../common/utils';
 import functions from './functions';
 import {
   GPUBufferCollection,
@@ -20,7 +19,7 @@ import {
 
 // required since minification turns vec3
 // into  __WEBPACK_IMPORTED_MODULE__.vec3
-const memberExpressionSkipTriggers = ['vec2', 'vec3', 'vec4', 'array'];
+const memberExpressionSkipTriggers = ['vec2', 'vec3', 'vec4', 'array', 'dim'];
 
 const handlers = {
   BlockStatement(node: any, state: GPUWalkerState<string, string>, c: any) {
@@ -170,11 +169,21 @@ const handlers = {
 
     c(node.init, state);
     state.variableTypes[node.id.name] = state.expressionType;
-    // const varType = tsToWgslType(state.expressionType);
-    const explicitType = state.expressionType === 'number' ? ': f32' : '';
 
+    const explicitType = state.expressionType === 'number' ? ': f32' : '';
     declaration += `${explicitType} = ${state.currentExpression}`;
     state.currentExpression = declaration;
+
+    const arrayTypes = [
+      'numberarray',
+      'vec2array',
+      'vec3array',
+      'vec4array',
+      'booleanarray',
+    ];
+    if (arrayTypes.includes(state.expressionType)) {
+      state.arrayLengths[node.id.name] = state.arrayLength;
+    }
   },
   ForStatement(node: any, state: GPUWalkerState<string, string>, c: any) {
     let forStatement = '';
@@ -372,6 +381,7 @@ const handlers = {
     state.currentExpression = `${expressions.join(', ')}`;
     state.expressionType = (state.expressionType + 'arrayliteral') as any;
     state.insideArrayLiteral = false;
+    state.arrayLength = node.elements.length;
   },
   BreakStatement(node: any, state: GPUWalkerState<string, string>, c: any) {
     state.currentExpression = 'break';
@@ -455,6 +465,8 @@ export default function transpileKernelToGPU<
     memberExpressionChildType: 'unknown',
     insideArrayLiteral: false,
     addedPrelude: false,
+    arrayLength: 0,
+    arrayLengths: {},
   } as GPUWalkerState<TBufferName, TUniformName>;
   walk.recursive(funcBody, walkerState, handlers);
   wgsl += walkerState.currentExpression;

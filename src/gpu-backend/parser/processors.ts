@@ -33,15 +33,47 @@ export function processFunction(
     }
 
     let formula = func.formula;
+    let expressions = [];
     if (parentObject) {
-      formula = formula.replace('$0', parentObject.name);
+      expressions.push(parentObject);
+    }
+    for (let i = 0; i < args.length; i++) {
+      expressions.push(args[i]);
+    }
 
-      for (let i = 0; i < args.length; i++) {
-        formula = formula.replace(`$${i + 1}`, args[i].name);
+    for (let i = 0; i < expressions.length; i++) {
+      formula = formula.replace(`$${i}`, expressions[i].name);
+    }
+
+    if (expressions[0].type.includes('array')) {
+      if (state.arrayLengths[expressions[0].name]) {
+        state.arrayLength = state.arrayLengths[expressions[0].name];
       }
-    } else {
-      for (let i = 0; i < args.length; i++) {
-        formula = formula.replace(`$${i}`, args[i].name);
+
+      formula = formula.replace('$s', `${state.arrayLength}`);
+      formula = formula.replace(
+        '$r',
+        `${expressions[1]}, `.repeat(parseInt(expressions[0].name)).slice(0, -2)
+      );
+    } else if (state.buffers && /^buffer[123]d$/.test(expressions[0].type)) {
+      const bufferNames = Object.keys(state.buffers);
+      const bufferRegex = new RegExp(
+        String.raw`^${state.inputsVarName}\[buffers\]\[(${bufferNames.join(
+          '|'
+        )})\]`
+      );
+      const match = bufferRegex.exec(expressions[0].name);
+
+      console.log(bufferRegex);
+      console.log(expressions[0]);
+      if (match) {
+        const bufferName = match[1];
+        const buffer = state.buffers[bufferName];
+        const numIndices = parseInt(expressions[0].type[6]);
+        const size = buffer.size
+          .slice(buffer.size.length - numIndices)
+          .join(', ');
+        formula = formula.replace('$s', size);
       }
     }
 
@@ -83,7 +115,9 @@ export function processExpressionFields(state: GPUWalkerState<string, string>) {
     buffersizes: [],
     uniforms: [],
     buffers: [],
-    buffer: [],
+    buffer1d: [],
+    buffer2d: [],
+    buffer3d: [],
     numberarrayliteral: [],
     vec2arrayliteral: [],
     vec3arrayliteral: [],
@@ -265,10 +299,13 @@ export function processSpecialVariable(state: GPUWalkerState<string, string>) {
           formula += `[$${i}]`;
         }
 
+        // in the future, typescript will be able to say
+        // step: 0 | 1 | 2
+        // but I am limited by the technology of my time
         specialVariables.push({
           regex: intermediateMatchFunction,
           formula,
-          type: 'buffer',
+          type: `buffer${buffer.size.length - step}d` as any,
         });
       }
 

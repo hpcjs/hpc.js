@@ -1,5 +1,5 @@
-import GPUVec2 from '../gpu-types/vec2';
-import GPUVec3 from '../gpu-types/vec3';
+import { GPUVec2 } from '../gpu-types/vec2';
+import { GPUVec3 } from '../gpu-types/vec3';
 
 export type GPUBufferSize =
   | [number]
@@ -80,12 +80,18 @@ export type GPUInterfaceConstructorParamsWithCPU<
   useCpu?: boolean;
 };
 
+export type GPUBuffer1D = { [key: number]: number };
+export type GPUBuffer2D = { [key: number]: { [key: number]: number } };
+export type GPUBuffer3D = {
+  [key: number]: { [key: number]: { [key: number]: number } };
+};
+
 export type GPUBufferSizeToBuffer<TSize> = TSize extends [number]
-  ? number[]
+  ? GPUBuffer1D
   : TSize extends [number, number]
-  ? number[][]
+  ? GPUBuffer2D
   : TSize extends [number, number, number]
-  ? number[][][]
+  ? GPUBuffer3D
   : never;
 export type GPUBufferSizeToVec<TSize> = TSize extends [number]
   ? { x: TSize[0] }

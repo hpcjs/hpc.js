@@ -330,7 +330,15 @@ export default class GPUBackend<
     const shaderModule = this.device.createShaderModule({
       code: shaderSource,
     });
-    const compilationInfo = await shaderModule.getCompilationInfo();
+
+    let compilationInfo: GPUCompilationInfo;
+    if (!shaderModule.getCompilationInfo) {
+      // @ts-ignore
+      compilationInfo = await shaderModule.compilationInfo();
+    } else {
+      compilationInfo = await shaderModule.getCompilationInfo();
+    }
+
     if (compilationInfo.messages.some(msg => msg.type === 'error')) {
       throw new Error('Unknown error during shader compilation');
     }
