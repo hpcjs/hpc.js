@@ -28,13 +28,11 @@ export type GPUUniformSpec<TName extends string> = {
 
 export type GPUKernelInputs<
   TGPUKernelBuffersInterface,
-  TGPUKernelUniformsInterface,
-  TGPUKernelMiscInfoInterface
+  TGPUKernelUniformsInterface
 > = {
   threadId: GPUVec3;
   buffers: TGPUKernelBuffersInterface;
   uniforms: TGPUKernelUniformsInterface;
-  sizes: TGPUKernelMiscInfoInterface;
   usingCpu: boolean;
   canvas: {
     size: GPUVec2;
@@ -52,13 +50,11 @@ export type GPUKernelInputs<
 };
 export type GPUKernelSource<
   TGPUKernelBuffersInterface,
-  TGPUKernelUniformsInterface,
-  TGPUKernelMiscInfoInterface
+  TGPUKernelUniformsInterface
 > = (
   inputs: GPUKernelInputs<
     TGPUKernelBuffersInterface,
-    TGPUKernelUniformsInterface,
-    TGPUKernelMiscInfoInterface
+    TGPUKernelUniformsInterface
   >
 ) => void;
 export type GPUKernel = {
@@ -91,10 +87,8 @@ export type GPUInterfaceConstructorParamsWithCPU<
 };
 
 export type GPUBuffer1D = { [key: number]: number };
-export type GPUBuffer2D = { [key: number]: { [key: number]: number } };
-export type GPUBuffer3D = {
-  [key: number]: { [key: number]: { [key: number]: number } };
-};
+export type GPUBuffer2D = { [key: number]: GPUBuffer1D };
+export type GPUBuffer3D = { [key: number]: GPUBuffer2D };
 
 export type GPUBufferSizeToBuffer<TSize> = TSize extends [number]
   ? GPUBuffer1D

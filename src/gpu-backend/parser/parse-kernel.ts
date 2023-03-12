@@ -187,6 +187,24 @@ const handlers = {
     if (arrayTypes.includes(state.expressionType)) {
       state.arrayLengths[node.id.name] = state.arrayLength;
     }
+
+    const allowedTypes = [
+      'number',
+      'vec2',
+      'vec3',
+      'vec4',
+      'boolean',
+      'numberarray',
+      'vec2array',
+      'vec3array',
+      'vec4array',
+      'booleanarray',
+    ];
+    if (!allowedTypes.includes(state.expressionType)) {
+      throw new Error(
+        `Cannot assign expression of type ${state.expressionType} to variable`
+      );
+    }
   },
   ForStatement(node: any, state: GPUWalkerState<string, string>, c: any) {
     let forStatement = '';
@@ -397,14 +415,12 @@ const handlers = {
 export default function transpileKernelToGPU<
   TGPUKernelBuffersInterface,
   TGPUKernelUniformsInterface,
-  TGPUKernelMiscInfoInterface,
   TBufferName extends string,
   TUniformName extends string
 >(
   func: GPUKernelSource<
     TGPUKernelBuffersInterface,
-    TGPUKernelUniformsInterface,
-    TGPUKernelMiscInfoInterface
+    TGPUKernelUniformsInterface
   >,
   buffers?: GPUBufferCollection<TBufferName>,
   uniforms?: GPUUniformCollection<TUniformName>,

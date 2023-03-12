@@ -430,14 +430,12 @@ const handlers = {
 export default function transpileKernelToCPU<
   TGPUKernelBuffersInterface,
   TGPUKernelUniformsInterface,
-  TGPUKernelMiscInfoInterface,
   TBufferName extends string,
   TUniformName extends string
 >(
   kernel: GPUKernelSource<
     TGPUKernelBuffersInterface,
-    TGPUKernelUniformsInterface,
-    TGPUKernelMiscInfoInterface
+    TGPUKernelUniformsInterface
   >,
   gpuBuffers?: CPUBufferCollection<TBufferName>,
   gpuUniforms?: CPUUniformCollection<TUniformName>,

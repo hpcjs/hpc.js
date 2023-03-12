@@ -23,12 +23,7 @@ export default class CPUFallback<
       ? GPUBufferSizeToBuffer<TBuffers['size']>
       : never;
   },
-  TGPUKernelUniformsInterface = TUniforms,
-  TGPUKernelMiscInfoInterface = {
-    [K in TBuffers['name']]: TBuffers extends { name: K }
-      ? GPUBufferSizeToVec<TBuffers['size']>
-      : never;
-  }
+  TGPUKernelUniformsInterface = TUniforms
 > {
   private buffers?: CPUBufferCollection<TBufferName>;
   private uniforms?: CPUUniformCollection<TUniformName>;
@@ -94,8 +89,7 @@ export default class CPUFallback<
   async createKernel(
     kernel: GPUKernelSource<
       TGPUKernelBuffersInterface,
-      TGPUKernelUniformsInterface,
-      TGPUKernelMiscInfoInterface
+      TGPUKernelUniformsInterface
     >
   ): Promise<GPUKernel> {
     const runKernel = transpileKernelToCPU(

@@ -1133,7 +1133,6 @@ const functions = {
     ],
   },
   void: {},
-  buffersizes: {},
   uniforms: {},
   buffers: {},
   buffer1d: {},

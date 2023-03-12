@@ -28,12 +28,7 @@ export default class GPUBackend<
       ? GPUBufferSizeToBuffer<TBuffers['size']>
       : never;
   },
-  TGPUKernelUniformsInterface = TUniforms,
-  TGPUKernelMiscInfoInterface = {
-    [K in TBuffers['name']]: TBuffers extends { name: K }
-      ? GPUBufferSizeToVec<TBuffers['size']>
-      : never;
-  }
+  TGPUKernelUniformsInterface = TUniforms
 > {
   private device?: GPUDevice;
   private bindGroup?: GPUBindGroup;
@@ -364,8 +359,7 @@ export default class GPUBackend<
   async createKernel(
     kernel: GPUKernelSource<
       TGPUKernelBuffersInterface,
-      TGPUKernelUniformsInterface,
-      TGPUKernelMiscInfoInterface
+      TGPUKernelUniformsInterface
     >
   ): Promise<GPUKernel> {
     if (!this.device || !this.bindGroupLayout)

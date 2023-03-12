@@ -32,12 +32,7 @@ export default class GPUInterface<
       ? GPUBufferSizeToBuffer<TBuffers['size']>
       : never;
   },
-  TGPUKernelUniformsInterface = TUniforms,
-  TGPUKernelMiscInfoInterface = {
-    [K in TBuffers['name']]: TBuffers extends { name: K }
-      ? GPUBufferSizeToVec<TBuffers['size']>
-      : never;
-  }
+  TGPUKernelUniformsInterface = TUniforms
 > {
   backend: CombinedBackend<TBufferName, TBuffers, TUniformName, TUniforms>;
   bufferSpecs?: TBuffers[];
@@ -110,8 +105,7 @@ export default class GPUInterface<
   async createKernel(
     kernel: GPUKernelSource<
       TGPUKernelBuffersInterface,
-      TGPUKernelUniformsInterface,
-      TGPUKernelMiscInfoInterface
+      TGPUKernelUniformsInterface
     >
   ): Promise<GPUKernel> {
     // can't be bothered to figure out typing for this

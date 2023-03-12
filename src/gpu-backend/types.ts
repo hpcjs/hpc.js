@@ -31,7 +31,6 @@ export type VariableType =
   | 'math'
   | 'unknown'
   | 'canvas'
-  | 'buffersizes'
   | 'buffers'
   | 'buffer1d'
   | 'buffer2d'

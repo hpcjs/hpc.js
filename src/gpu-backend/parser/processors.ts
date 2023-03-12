@@ -67,8 +67,6 @@ export function processFunction(
       );
       const match = bufferRegex.exec(expressions[0].name);
 
-      console.log(bufferRegex);
-      console.log(expressions[0]);
       if (match) {
         const bufferName = match[1];
         const buffer = state.buffers[bufferName];
@@ -115,7 +113,6 @@ export function processExpressionFields(state: GPUWalkerState<string, string>) {
     void: [],
     canvas: [],
     function: [],
-    buffersizes: [],
     uniforms: [],
     buffers: [],
     buffer1d: [],
@@ -309,33 +306,6 @@ export function processSpecialVariable(state: GPUWalkerState<string, string>) {
           regex: intermediateMatchFunction,
           formula,
           type: `buffer${buffer.size.length - step}d` as any,
-        });
-      }
-
-      // buffer size
-      specialVariables.push({
-        regex: `${state.inputsVarName}[sizes]`,
-        formula: `${state.inputsVarName}[sizes]`,
-        type: 'buffersizes',
-      });
-
-      if (buffer.size.length === 1) {
-        specialVariables.push({
-          regex: `${state.inputsVarName}[sizes][${bufferName}]`,
-          formula: `${buffer.size[0]}`,
-          type: 'number',
-        });
-      } else if (buffer.size.length === 2) {
-        specialVariables.push({
-          regex: `${state.inputsVarName}[sizes][${bufferName}]`,
-          formula: `vec2<f32>(${buffer.size[0]}, ${buffer.size[1]})`,
-          type: 'vec2',
-        });
-      } else {
-        specialVariables.push({
-          regex: `${state.inputsVarName}[sizes][${bufferName}]`,
-          formula: `vec3<f32>(${buffer.size[0]}, ${buffer.size[1]}, ${buffer.size[2]})`,
-          type: 'vec3',
         });
       }
     }
