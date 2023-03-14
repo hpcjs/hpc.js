@@ -128,7 +128,22 @@ export function processExpressionFields(state: GPUWalkerState<string, string>) {
     vec3array: [],
     vec4array: [],
     booleanarray: [],
+    numbertype: [],
+    vec2type: [],
+    vec3type: [],
+    vec4type: [],
+    booleantype: [],
+    types: [],
   };
+
+  // type literals
+  const typeLiterals = ['number', 'vec2', 'vec3', 'vec4', 'boolean'] as const;
+  for (const type of typeLiterals) {
+    expressionFields.types.push({
+      property: type,
+      type: (type + 'type') as VariableType,
+    });
+  }
 
   // swizzling
   const sizes = {

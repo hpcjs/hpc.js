@@ -7,4 +7,5 @@ export { vec3, GPUVec3 } from './gpu-types/vec3';
 export { vec4, GPUVec4 } from './gpu-types/vec4';
 export { array, GPUArray } from './gpu-types/array';
 export { dim } from './gpu-types/utils';
+export { types } from './gpu-types/func-types';
 export type { GPUKernel };

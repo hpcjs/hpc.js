@@ -19,10 +19,22 @@ import {
 import { GPUVec2 } from '../../gpu-types/vec2';
 import { GPUVec3 } from '../../gpu-types/vec3';
 import { GPUVec4 } from '../../gpu-types/vec4';
+import {
+  IsES5DefaultParamNode,
+  tsToWgslType,
+  typeLiteralToType,
+} from '../../common/utils';
 
 // required since minification turns vec3
 // into  __WEBPACK_IMPORTED_MODULE__.vec3
-const memberExpressionSkipTriggers = ['vec2', 'vec3', 'vec4', 'array', 'dim'];
+const memberExpressionSkipTriggers = {
+  vec2: 'function',
+  vec3: 'function',
+  vec4: 'function',
+  array: 'function',
+  dim: 'function',
+  types: 'types',
+} as const;
 
 const handlers = {
   BlockStatement(node: any, state: GPUWalkerState<string, string>, c: any) {
@@ -37,6 +49,10 @@ const handlers = {
       const indent = ' '.repeat(4);
 
       c(child, state);
+      if (state.currentExpression === '') {
+        continue;
+      }
+
       const indented = state.currentExpression
         .split('\n')
         .map(line => `${indent}${line}`)
@@ -71,11 +87,15 @@ const handlers = {
   MemberExpression(node: any, state: GPUWalkerState<string, string>, c: any) {
     // solves minification issues
     if (
+      node.object.type === 'Identifier' &&
       node.property.type === 'Identifier' &&
-      memberExpressionSkipTriggers.includes(node.property.name)
+      node.property.name in memberExpressionSkipTriggers
     ) {
       state.currentExpression = node.property.name;
-      state.expressionType = 'function';
+      state.expressionType =
+        memberExpressionSkipTriggers[
+          node.property.name as keyof typeof memberExpressionSkipTriggers
+        ];
       return;
     }
 
@@ -136,11 +156,11 @@ const handlers = {
     }
 
     if (node.name in functions.standalone) {
-      state.expressionType = 'unknown';
+      state.expressionType = 'function';
       return;
     }
 
-    throw new Error(`Unknown variable ${node.name}`);
+    throw new Error(`Unknown variable '${node.name}'`);
   },
   Literal(node: any, state: GPUWalkerState<string, string>) {
     state.currentExpression = `${node.value}`;
@@ -303,12 +323,30 @@ const handlers = {
   },
   ReturnStatement(node: any, state: GPUWalkerState<string, string>, c: any) {
     let returnStatement = 'return';
+    let returnType = 'void';
 
     if (node.argument) {
       c(node.argument, state);
       returnStatement += ` ${state.currentExpression}`;
+      returnType = state.expressionType;
+
+      if (!state.insideFunctionDeclaration) {
+        throw new Error(
+          'Returning an expression from the kernel is not allowed'
+        );
+      }
     }
 
+    if (
+      state.functionReturnType !== 'unknown' &&
+      state.functionReturnType !== state.expressionType
+    ) {
+      throw new Error(
+        `Function has inconsistent return types: ${state.functionReturnType} and ${state.expressionType}`
+      );
+    }
+
+    state.functionReturnType = state.expressionType;
     state.currentExpression = returnStatement;
   },
   ConditionalExpression(
@@ -410,6 +448,111 @@ const handlers = {
   ContinueStatement(node: any, state: GPUWalkerState<string, string>, c: any) {
     state.currentExpression = 'continue';
   },
+  FunctionDeclaration(
+    node: any,
+    state: GPUWalkerState<string, string>,
+    c: any
+  ) {
+    if (state.insideFunctionDeclaration) {
+      throw new Error('Nested function declarations are not allowed');
+    }
+
+    if (state.currentExpression !== '') {
+      throw new Error('Function declarations must come before all other code');
+    }
+
+    state.insideFunctionDeclaration = true;
+    const args = [] as GPUExpressionWithType[];
+
+    // check if default params are es5 or es6
+    if (
+      node.params.length !== 0 &&
+      node.params[0].type === 'AssignmentPattern'
+    ) {
+      // es6
+      for (const param of node.params) {
+        state.skipIdentifier = true;
+        c(param.left, state);
+        state.skipIdentifier = false;
+        const name = state.currentExpression;
+
+        c(param.right, state);
+        const typeLiteral = state.expressionType;
+        const type = typeLiteralToType(typeLiteral);
+
+        args.push({ name, type });
+        state.variableTypes[name] = type;
+      }
+    } else if (
+      node.body.body.length !== 0 &&
+      node.body.body[0].type === 'VariableDeclaration'
+    ) {
+      // es5
+      // could also be an empty parameter list
+      // but the code works out to be the same
+      const paramDeclarations = node.body.body[0].declarations;
+      let isES6ParamInit = true;
+
+      for (const param of paramDeclarations) {
+        state.skipIdentifier = true;
+        c(param.id, state);
+        state.skipIdentifier = false;
+        const name = state.currentExpression;
+
+        if (!IsES5DefaultParamNode(param.init)) {
+          isES6ParamInit = false;
+          break;
+        }
+
+        c(param.init.alternate, state);
+        const typeLiteral = state.expressionType;
+        const type = typeLiteralToType(typeLiteral);
+
+        args.push({ name, type });
+        state.variableTypes[name] = type;
+      }
+
+      if (isES6ParamInit) {
+        node.body.body.shift();
+      }
+    }
+
+    state.skipIdentifier = true;
+    c(node.id, state);
+    state.skipIdentifier = false;
+    const name = state.currentExpression;
+
+    state.functionReturnType = 'unknown';
+    c(node.body, state);
+    const body = state.currentExpression;
+    if (state.functionReturnType === 'unknown') {
+      state.functionReturnType = 'void';
+    }
+    const returnType = state.functionReturnType;
+
+    const source = `fn ${name}(global_id: vec3<f32>, ${args
+      .map(p => `${p.name}: ${tsToWgslType(p.type)}`)
+      .join(', ')}) -> ${tsToWgslType(state.functionReturnType)} ${body}`;
+    state.functionDeclarations.push({ name, args, returnType, source });
+
+    const formula = `${name}(global_id${args
+      .map((_, i) => `, $${i}`)
+      .join('')})`;
+    functions.standalone[name] = [
+      {
+        arguments: args.map(arg => arg.type),
+        formula,
+        returnType,
+      },
+    ];
+
+    state.insideFunctionDeclaration = false;
+    state.currentExpression = '';
+    state.variableTypes = {
+      Math: 'math',
+      [state.inputsVarName]: 'unknown',
+    };
+  },
 };
 
 export default function transpileKernelToGPU<
@@ -474,9 +617,6 @@ export default function transpileKernelToGPU<
     wgsl += `${getSetPixelSource(canvas.width)}\n\n`;
   }
 
-  wgsl +=
-    '@compute @workgroup_size(1, 1)\nfn main(@builtin(global_invocation_id) global_id_u32: vec3<u32>) ';
-
   const walkerState = {
     currentExpression: '',
     currentNodeIsLeftOfMemberExpression: false,
@@ -498,10 +638,18 @@ export default function transpileKernelToGPU<
     addedPrelude: false,
     arrayLength: 0,
     arrayLengths: {},
+    functionDeclarations: [],
+    functionReturnType: 'unknown',
+    insideFunctionDeclaration: false,
   } as GPUWalkerState<TBufferName, TUniformName>;
   walk.recursive(funcBody, walkerState, handlers);
-  wgsl += walkerState.currentExpression;
-  console.log(wgsl);
 
+  wgsl += walkerState.functionDeclarations.map(f => `${f.source}\n\n`).join('');
+
+  wgsl +=
+    '@compute @workgroup_size(1, 1)\nfn main(@builtin(global_invocation_id) global_id_u32: vec3<u32>) ';
+  wgsl += walkerState.currentExpression;
+
+  console.log(wgsl);
   return wgsl;
 }

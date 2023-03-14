@@ -1149,6 +1149,12 @@ const functions = {
   vec3array: {},
   vec4array: {},
   booleanarray: {},
+  numbertype: {},
+  vec2type: {},
+  vec3type: {},
+  vec4type: {},
+  booleantype: {},
+  types: {},
 } as {
   [K in VariableType | 'standalone']: {
     [key: string]: {

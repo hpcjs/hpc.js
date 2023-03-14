@@ -44,3 +44,56 @@ export function findMatchingBracket(str: string, start: number) {
 
   return -1;
 }
+
+export function typeLiteralToType(typeLiteral: VariableType) {
+  const typeLiterals = [
+    'numbertype',
+    'vec2type',
+    'vec3type',
+    'vec4type',
+    'booleantype',
+  ];
+
+  if (!typeLiterals.includes(typeLiteral)) {
+    throw new Error(
+      `Types must be specified with one of the following: ${typeLiterals
+        .map(t => `types.${t.slice(0, -4)}`)
+        .join(', ')}`
+    );
+  }
+
+  return typeLiteral.slice(0, -4) as VariableType;
+}
+
+export function IsES5DefaultParamNode(node: any) {
+  return (
+    node.type === 'ConditionalExpression' &&
+    node.test.type === 'LogicalExpression' &&
+    node.test.left.type === 'BinaryExpression' &&
+    node.test.left.left.type === 'MemberExpression' &&
+    node.test.left.left.object.type === 'Identifier' &&
+    node.test.left.left.object.name === 'arguments' &&
+    node.test.left.left.property.type === 'Identifier' &&
+    node.test.left.left.property.name === 'length' &&
+    node.test.left.operator === '>' &&
+    node.test.left.right.type === 'Literal' &&
+    typeof node.test.left.right.value === 'number' &&
+    node.test.operator === '&&' &&
+    node.test.right.type === 'BinaryExpression' &&
+    node.test.right.left.type === 'MemberExpression' &&
+    node.test.right.left.object.type === 'Identifier' &&
+    node.test.right.left.object.name === 'arguments' &&
+    node.test.right.left.property.type === 'Literal' &&
+    typeof node.test.right.left.property.value === 'number' &&
+    node.test.right.operator === '!==' &&
+    node.test.right.right.type === 'UnaryExpression' &&
+    node.test.right.right.operator === 'void' &&
+    node.test.right.right.argument.type === 'Literal' &&
+    node.test.right.right.argument.value === 0 &&
+    node.consequent.type === 'MemberExpression' &&
+    node.consequent.object.type === 'Identifier' &&
+    node.consequent.object.name === 'arguments' &&
+    node.consequent.property.type === 'Literal' &&
+    typeof node.consequent.property.value === 'number'
+  );
+}
