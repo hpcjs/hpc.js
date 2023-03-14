@@ -1436,6 +1436,12 @@ export class GPUVec4 {
   }
 }
 
-export function vec4(x: number, y: number, z: number, w: number) {
-  return new GPUVec4(x, y, z, w);
+export function vec4(x: number, y: number, z: number, w: number): GPUVec4;
+export function vec4(val: number): GPUVec4;
+export function vec4(xOrVal: number, y?: number, z?: number, w?: number) {
+  if (y === undefined || z === undefined || w === undefined) {
+    return new GPUVec4(xOrVal, xOrVal, xOrVal, xOrVal);
+  }
+
+  return new GPUVec4(xOrVal, y, z, w);
 }

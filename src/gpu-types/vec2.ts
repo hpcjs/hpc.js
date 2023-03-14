@@ -163,6 +163,12 @@ export class GPUVec2 {
   }
 }
 
-export function vec2(x: number, y: number) {
-  return new GPUVec2(x, y);
+export function vec2(x: number, y: number): GPUVec2;
+export function vec2(val: number): GPUVec2;
+export function vec2(xOrVal: number, y?: number) {
+  if (y === undefined) {
+    return new GPUVec2(xOrVal, xOrVal);
+  }
+
+  return new GPUVec2(xOrVal, y);
 }

@@ -529,6 +529,12 @@ export class GPUVec3 {
   }
 }
 
-export function vec3(x: number, y: number, z: number) {
-  return new GPUVec3(x, y, z);
+export function vec3(x: number, y: number, z: number): GPUVec3;
+export function vec3(val: number): GPUVec3;
+export function vec3(xOrVal: number, y?: number, z?: number) {
+  if (y === undefined || z === undefined) {
+    return new GPUVec3(xOrVal, xOrVal, xOrVal);
+  }
+
+  return new GPUVec3(xOrVal, y, z);
 }

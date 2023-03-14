@@ -676,6 +676,11 @@ const functions = {
         arguments: ['number', 'number'],
         formula: 'vec2<f32>($0, $1)',
       },
+      {
+        returnType: 'vec2',
+        arguments: ['number'],
+        formula: 'vec2<f32>($0)',
+      },
     ],
     vec3: [
       {
@@ -683,12 +688,22 @@ const functions = {
         arguments: ['number', 'number', 'number'],
         formula: 'vec3<f32>($0, $1, $2)',
       },
+      {
+        returnType: 'vec3',
+        arguments: ['number'],
+        formula: 'vec3<f32>($0)',
+      },
     ],
     vec4: [
       {
         returnType: 'vec4',
         arguments: ['number', 'number', 'number', 'number'],
         formula: 'vec4<f32>($0, $1, $2, $3)',
+      },
+      {
+        returnType: 'vec4',
+        arguments: ['number'],
+        formula: 'vec4<f32>($0)',
       },
     ],
     '==': [
