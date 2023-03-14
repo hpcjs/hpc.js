@@ -7,6 +7,7 @@ import {
   GPUExpressionWithType,
   GPUUniformCollection,
   GPUWalkerState,
+  VariableType,
 } from '../types';
 import { getSetPixelSource } from '../wgsl-code';
 import {
@@ -41,7 +42,7 @@ const handlers = {
     let statement = '{\n';
 
     if (!state.addedPrelude) {
-      statement += '    let global_id = vec3<f32>(global_id_u32);\n';
+      statement += state.prelude;
       state.addedPrelude = true;
     }
 
@@ -222,7 +223,7 @@ const handlers = {
     ];
     if (!allowedTypes.includes(state.expressionType)) {
       throw new Error(
-        `Cannot assign expression of type ${state.expressionType} to variable`
+        `Cannot assign expression of type '${state.expressionType}' to variable`
       );
     }
   },
@@ -323,7 +324,7 @@ const handlers = {
   },
   ReturnStatement(node: any, state: GPUWalkerState<string, string>, c: any) {
     let returnStatement = 'return';
-    let returnType = 'void';
+    let returnType = 'void' as VariableType;
 
     if (node.argument) {
       c(node.argument, state);
@@ -339,14 +340,14 @@ const handlers = {
 
     if (
       state.functionReturnType !== 'unknown' &&
-      state.functionReturnType !== state.expressionType
+      state.functionReturnType !== returnType
     ) {
       throw new Error(
-        `Function has inconsistent return types: ${state.functionReturnType} and ${state.expressionType}`
+        `Function has inconsistent return types: ${state.functionReturnType} and ${returnType}`
       );
     }
 
-    state.functionReturnType = state.expressionType;
+    state.functionReturnType = returnType;
     state.currentExpression = returnStatement;
   },
   ConditionalExpression(
@@ -461,6 +462,7 @@ const handlers = {
       throw new Error('Function declarations must come before all other code');
     }
 
+    state.addedPrelude = false;
     state.insideFunctionDeclaration = true;
     const args = [] as GPUExpressionWithType[];
 
@@ -522,6 +524,9 @@ const handlers = {
     state.skipIdentifier = false;
     const name = state.currentExpression;
 
+    state.prelude = args
+      .map(arg => `    var ${arg.name} = param_${arg.name};\n`)
+      .join('');
     state.functionReturnType = 'unknown';
     c(node.body, state);
     const body = state.currentExpression;
@@ -531,7 +536,7 @@ const handlers = {
     const returnType = state.functionReturnType;
 
     const source = `fn ${name}(global_id: vec3<f32>, ${args
-      .map(p => `${p.name}: ${tsToWgslType(p.type)}`)
+      .map(p => `param_${p.name}: ${tsToWgslType(p.type)}`)
       .join(', ')}) -> ${tsToWgslType(state.functionReturnType)} ${body}`;
     state.functionDeclarations.push({ name, args, returnType, source });
 
@@ -550,8 +555,9 @@ const handlers = {
     state.currentExpression = '';
     state.variableTypes = {
       Math: 'math',
-      [state.inputsVarName]: 'unknown',
+      [state.inputsVarName]: 'inputs',
     };
+    state.prelude = '    let global_id = vec3<f32>(global_id_u32);\n';
   },
 };
 
@@ -627,7 +633,7 @@ export default function transpileKernelToGPU<
     expressionType: 'unknown',
     variableTypes: {
       Math: 'math',
-      [inputsVarName]: 'unknown',
+      [inputsVarName]: 'inputs',
     },
     skipIdentifier: false,
     memberExpressionParentName: '',
@@ -636,6 +642,7 @@ export default function transpileKernelToGPU<
     memberExpressionChildType: 'unknown',
     insideArrayLiteral: false,
     addedPrelude: false,
+    prelude: '    let global_id = vec3<f32>(global_id_u32);\n',
     arrayLength: 0,
     arrayLengths: {},
     functionDeclarations: [],

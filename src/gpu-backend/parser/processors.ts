@@ -134,6 +134,7 @@ export function processExpressionFields(state: GPUWalkerState<string, string>) {
     vec4type: [],
     booleantype: [],
     types: [],
+    inputs: [],
   };
 
   // type literals

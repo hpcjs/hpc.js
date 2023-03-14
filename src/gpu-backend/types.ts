@@ -53,7 +53,8 @@ export type VariableType =
   | 'vec3type'
   | 'vec4type'
   | 'booleantype'
-  | 'types';
+  | 'types'
+  | 'inputs';
 export type WGSLType<T extends VariableType> = T extends 'number'
   ? 'f32'
   : T extends 'vec2'
@@ -81,6 +82,7 @@ export type GPUWalkerState<
   memberExpressionChildType: VariableType;
   insideArrayLiteral: boolean;
   addedPrelude: boolean;
+  prelude: string;
   arrayLength: number;
   arrayLengths: { [key: string]: number };
   functionDeclarations: GPUFunctionDeclaration[];

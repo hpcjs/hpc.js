@@ -1155,6 +1155,7 @@ const functions = {
   vec4type: {},
   booleantype: {},
   types: {},
+  inputs: {},
 } as {
   [K in VariableType | 'standalone']: {
     [key: string]: {
