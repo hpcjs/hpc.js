@@ -29,6 +29,13 @@ export class GPUVec2 {
     return new GPUVec2(this.x * other.x, this.y * other.y);
   }
 
+  cplxTimes(other: GPUVec2) {
+    return new GPUVec2(
+      this.x * other.x - this.y * other.y,
+      this.x * other.y + this.y * other.x
+    );
+  }
+
   div(other: GPUVec2 | number) {
     if (typeof other === 'number') {
       return new GPUVec2(this.x / other, this.y / other);

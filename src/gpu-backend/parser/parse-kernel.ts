@@ -9,7 +9,7 @@ import {
   GPUWalkerState,
   VariableType,
 } from '../types';
-import { getSetPixelSource } from '../wgsl-code';
+import { getCplxTimesSource, getSetPixelSource } from '../wgsl-code';
 import {
   processArrayAccess,
   processExpressionFields,
@@ -622,6 +622,8 @@ export default function transpileKernelToGPU<
 
     wgsl += `${getSetPixelSource(canvas.width)}\n\n`;
   }
+
+  wgsl += `${getCplxTimesSource()}\n\n`;
 
   const walkerState = {
     currentExpression: '',

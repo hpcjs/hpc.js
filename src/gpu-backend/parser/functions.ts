@@ -935,6 +935,13 @@ const functions = {
         formula: '($0 * $1)',
       },
     ],
+    cplxTimes: [
+      {
+        returnType: 'vec2',
+        arguments: ['vec2'],
+        formula: 'cplxTimes($0, $1)',
+      },
+    ],
     div: [
       {
         returnType: 'vec2',
