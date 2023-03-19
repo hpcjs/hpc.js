@@ -60,6 +60,146 @@ export class GPUVec3 {
     return new GPUVec3(this.x / length, this.y / length, this.z / length);
   }
 
+  abs() {
+    return new GPUVec3(Math.abs(this.x), Math.abs(this.y), Math.abs(this.z));
+  }
+
+  acos() {
+    return new GPUVec3(Math.acos(this.x), Math.acos(this.y), Math.acos(this.z));
+  }
+
+  acosh() {
+    return new GPUVec3(
+      Math.acosh(this.x),
+      Math.acosh(this.y),
+      Math.acosh(this.z)
+    );
+  }
+
+  asin() {
+    return new GPUVec3(Math.asin(this.x), Math.asin(this.y), Math.asin(this.z));
+  }
+
+  asinh() {
+    return new GPUVec3(
+      Math.asinh(this.x),
+      Math.asinh(this.y),
+      Math.asinh(this.z)
+    );
+  }
+
+  atan() {
+    return new GPUVec3(Math.atan(this.x), Math.atan(this.y), Math.atan(this.z));
+  }
+
+  atanh() {
+    return new GPUVec3(
+      Math.atanh(this.x),
+      Math.atanh(this.y),
+      Math.atanh(this.z)
+    );
+  }
+
+  atan2(other: GPUVec3) {
+    return new GPUVec3(
+      Math.atan2(this.x, other.x),
+      Math.atan2(this.y, other.y),
+      Math.atan2(this.z, other.z)
+    );
+  }
+
+  ceil() {
+    return new GPUVec3(Math.ceil(this.x), Math.ceil(this.y), Math.ceil(this.z));
+  }
+
+  cos() {
+    return new GPUVec3(Math.cos(this.x), Math.cos(this.y), Math.cos(this.z));
+  }
+
+  cosh() {
+    return new GPUVec3(Math.cosh(this.x), Math.cosh(this.y), Math.cosh(this.z));
+  }
+
+  exp() {
+    return new GPUVec3(Math.exp(this.x), Math.exp(this.y), Math.exp(this.z));
+  }
+
+  floor() {
+    return new GPUVec3(
+      Math.floor(this.x),
+      Math.floor(this.y),
+      Math.floor(this.z)
+    );
+  }
+
+  log() {
+    return new GPUVec3(Math.log(this.x), Math.log(this.y), Math.log(this.z));
+  }
+
+  max(other: GPUVec3) {
+    return new GPUVec3(
+      Math.max(this.x, other.x),
+      Math.max(this.y, other.y),
+      Math.max(this.z, other.z)
+    );
+  }
+
+  min(other: GPUVec3) {
+    return new GPUVec3(
+      Math.min(this.x, other.x),
+      Math.min(this.y, other.y),
+      Math.min(this.z, other.z)
+    );
+  }
+
+  pow(other: GPUVec3) {
+    return new GPUVec3(
+      Math.pow(this.x, other.x),
+      Math.pow(this.y, other.y),
+      Math.pow(this.z, other.z)
+    );
+  }
+
+  round() {
+    return new GPUVec3(
+      Math.round(this.x),
+      Math.round(this.y),
+      Math.round(this.z)
+    );
+  }
+
+  sign() {
+    return new GPUVec3(Math.sign(this.x), Math.sign(this.y), Math.sign(this.z));
+  }
+
+  sin() {
+    return new GPUVec3(Math.sin(this.x), Math.sin(this.y), Math.sin(this.z));
+  }
+
+  sinh() {
+    return new GPUVec3(Math.sinh(this.x), Math.sinh(this.y), Math.sinh(this.z));
+  }
+
+  sqrt() {
+    return new GPUVec3(Math.sqrt(this.x), Math.sqrt(this.y), Math.sqrt(this.z));
+  }
+
+  tan() {
+    return new GPUVec3(Math.tan(this.x), Math.tan(this.y), Math.tan(this.z));
+  }
+
+  tanh() {
+    return new GPUVec3(Math.tanh(this.x), Math.tanh(this.y), Math.tanh(this.z));
+  }
+
+  trunc() {
+    return new GPUVec3(
+      Math.trunc(this.x),
+      Math.trunc(this.y),
+      Math.trunc(this.z)
+    );
+  }
+
   get xx() {
     return new GPUVec2(this.x, this.x);
   }

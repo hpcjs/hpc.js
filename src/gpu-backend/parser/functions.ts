@@ -8,41 +8,11 @@ const functions = {
         arguments: ['number'],
         formula: 'abs($1)',
       },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2'],
-        formula: 'abs($1)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3'],
-        formula: 'abs($1)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4'],
-        formula: 'abs($1)',
-      },
     ],
     acos: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'acos($1)',
-      },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2'],
-        formula: 'acos($1)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3'],
-        formula: 'acos($1)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4'],
         formula: 'acos($1)',
       },
     ],
@@ -52,41 +22,11 @@ const functions = {
         arguments: ['number'],
         formula: 'acosh($1)',
       },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2'],
-        formula: 'acosh($1)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3'],
-        formula: 'acosh($1)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4'],
-        formula: 'acosh($1)',
-      },
     ],
     asin: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'asin($1)',
-      },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2'],
-        formula: 'asin($1)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3'],
-        formula: 'asin($1)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4'],
         formula: 'asin($1)',
       },
     ],
@@ -96,41 +36,11 @@ const functions = {
         arguments: ['number'],
         formula: 'asinh($1)',
       },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2'],
-        formula: 'asinh($1)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3'],
-        formula: 'asinh($1)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4'],
-        formula: 'asinh($1)',
-      },
     ],
     atan: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'atan($1)',
-      },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2'],
-        formula: 'atan($1)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3'],
-        formula: 'atan($1)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4'],
         formula: 'atan($1)',
       },
     ],
@@ -140,41 +50,11 @@ const functions = {
         arguments: ['number'],
         formula: 'atanh($1)',
       },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2'],
-        formula: 'atanh($1)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3'],
-        formula: 'atanh($1)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4'],
-        formula: 'atanh($1)',
-      },
     ],
     atan2: [
       {
         returnType: 'number',
         arguments: ['number', 'number'],
-        formula: 'atan2($1, $2)',
-      },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2', 'vec2'],
-        formula: 'atan2($1, $2)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3', 'vec3'],
-        formula: 'atan2($1, $2)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4', 'vec4'],
         formula: 'atan2($1, $2)',
       },
     ],
@@ -184,41 +64,11 @@ const functions = {
         arguments: ['number'],
         formula: 'ceil($1)',
       },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2'],
-        formula: 'ceil($1)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3'],
-        formula: 'ceil($1)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4'],
-        formula: 'ceil($1)',
-      },
     ],
     cos: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'cos($1)',
-      },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2'],
-        formula: 'cos($1)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3'],
-        formula: 'cos($1)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4'],
         formula: 'cos($1)',
       },
     ],
@@ -228,41 +78,11 @@ const functions = {
         arguments: ['number'],
         formula: 'cosh($1)',
       },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2'],
-        formula: 'cosh($1)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3'],
-        formula: 'cosh($1)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4'],
-        formula: 'cosh($1)',
-      },
     ],
     exp: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'exp($1)',
-      },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2'],
-        formula: 'exp($1)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3'],
-        formula: 'exp($1)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4'],
         formula: 'exp($1)',
       },
     ],
@@ -272,41 +92,11 @@ const functions = {
         arguments: ['number'],
         formula: 'floor($1)',
       },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2'],
-        formula: 'floor($1)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3'],
-        formula: 'floor($1)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4'],
-        formula: 'floor($1)',
-      },
     ],
     log: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'log($1)',
-      },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2'],
-        formula: 'log($1)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3'],
-        formula: 'log($1)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4'],
         formula: 'log($1)',
       },
     ],
@@ -316,41 +106,11 @@ const functions = {
         arguments: ['number'],
         formula: 'log2($1)',
       },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2'],
-        formula: 'log2($1)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3'],
-        formula: 'log2($1)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4'],
-        formula: 'log2($1)',
-      },
     ],
     max: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'max($1)',
-      },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2'],
-        formula: 'max($1)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3'],
-        formula: 'max($1)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4'],
         formula: 'max($1)',
       },
     ],
@@ -360,41 +120,11 @@ const functions = {
         arguments: ['number'],
         formula: 'min($1)',
       },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2'],
-        formula: 'min($1)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3'],
-        formula: 'min($1)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4'],
-        formula: 'min($1)',
-      },
     ],
     pow: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'pow($1)',
-      },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2'],
-        formula: 'pow($1)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3'],
-        formula: 'pow($1)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4'],
         formula: 'pow($1)',
       },
     ],
@@ -404,41 +134,11 @@ const functions = {
         arguments: ['number'],
         formula: 'round($1)',
       },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2'],
-        formula: 'round($1)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3'],
-        formula: 'round($1)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4'],
-        formula: 'round($1)',
-      },
     ],
     sign: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'sign($1)',
-      },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2'],
-        formula: 'sign($1)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3'],
-        formula: 'sign($1)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4'],
         formula: 'sign($1)',
       },
     ],
@@ -448,41 +148,11 @@ const functions = {
         arguments: ['number'],
         formula: 'sin($1)',
       },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2'],
-        formula: 'sin($1)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3'],
-        formula: 'sin($1)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4'],
-        formula: 'sin($1)',
-      },
     ],
     sinh: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'sinh($1)',
-      },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2'],
-        formula: 'sinh($1)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3'],
-        formula: 'sinh($1)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4'],
         formula: 'sinh($1)',
       },
     ],
@@ -492,41 +162,11 @@ const functions = {
         arguments: ['number'],
         formula: 'sqrt($1)',
       },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2'],
-        formula: 'sqrt($1)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3'],
-        formula: 'sqrt($1)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4'],
-        formula: 'sqrt($1)',
-      },
     ],
     tan: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'tan($1)',
-      },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2'],
-        formula: 'tan($1)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3'],
-        formula: 'tan($1)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4'],
         formula: 'tan($1)',
       },
     ],
@@ -536,41 +176,11 @@ const functions = {
         arguments: ['number'],
         formula: 'tanh($1)',
       },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2'],
-        formula: 'tanh($1)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3'],
-        formula: 'tanh($1)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4'],
-        formula: 'tanh($1)',
-      },
     ],
     trunc: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'trunc($1)',
-      },
-      {
-        returnType: 'vec2',
-        arguments: ['vec2'],
-        formula: 'trunc($1)',
-      },
-      {
-        returnType: 'vec3',
-        arguments: ['vec3'],
-        formula: 'trunc($1)',
-      },
-      {
-        returnType: 'vec4',
-        arguments: ['vec4'],
         formula: 'trunc($1)',
       },
     ],
@@ -982,6 +592,188 @@ const functions = {
         formula: 'distance($0, $1)',
       },
     ],
+    abs: [
+      {
+        returnType: 'vec2',
+        arguments: [],
+        formula: 'abs($0)',
+      },
+    ],
+    acos: [
+      {
+        returnType: 'vec2',
+        arguments: [],
+        formula: 'acos($0)',
+      },
+    ],
+    acosh: [
+      {
+        returnType: 'vec2',
+        arguments: [],
+        formula: 'acosh($0)',
+      },
+    ],
+    asin: [
+      {
+        returnType: 'vec2',
+        arguments: [],
+        formula: 'asin($0)',
+      },
+    ],
+    asinh: [
+      {
+        returnType: 'vec2',
+        arguments: [],
+        formula: 'asinh($0)',
+      },
+    ],
+    atan: [
+      {
+        returnType: 'vec2',
+        arguments: [],
+        formula: 'atan($0)',
+      },
+    ],
+    atanh: [
+      {
+        returnType: 'vec2',
+        arguments: [],
+        formula: 'atanh($0)',
+      },
+    ],
+    atan2: [
+      {
+        returnType: 'vec2',
+        arguments: ['vec2'],
+        formula: 'atan2($0, $1)',
+      },
+    ],
+    ceil: [
+      {
+        returnType: 'vec2',
+        arguments: [],
+        formula: 'ceil($0)',
+      },
+    ],
+    cos: [
+      {
+        returnType: 'vec2',
+        arguments: [],
+        formula: 'cos($0)',
+      },
+    ],
+    cosh: [
+      {
+        returnType: 'vec2',
+        arguments: [],
+        formula: 'cosh($0)',
+      },
+    ],
+    exp: [
+      {
+        returnType: 'vec2',
+        arguments: [],
+        formula: 'exp($0)',
+      },
+    ],
+    floor: [
+      {
+        returnType: 'vec2',
+        arguments: [],
+        formula: 'floor($0)',
+      },
+    ],
+    log: [
+      {
+        returnType: 'vec2',
+        arguments: [],
+        formula: 'log($0)',
+      },
+    ],
+    log2: [
+      {
+        returnType: 'vec2',
+        arguments: [],
+        formula: 'log2($0)',
+      },
+    ],
+    max: [
+      {
+        returnType: 'vec2',
+        arguments: ['vec2'],
+        formula: 'max($0, $1)',
+      },
+    ],
+    min: [
+      {
+        returnType: 'vec2',
+        arguments: ['vec2'],
+        formula: 'min($0, $1)',
+      },
+    ],
+    pow: [
+      {
+        returnType: 'vec2',
+        arguments: ['vec2'],
+        formula: 'pow($0, $1)',
+      },
+    ],
+    round: [
+      {
+        returnType: 'vec2',
+        arguments: [],
+        formula: 'round($0)',
+      },
+    ],
+    sign: [
+      {
+        returnType: 'vec2',
+        arguments: [],
+        formula: 'sign($0)',
+      },
+    ],
+    sin: [
+      {
+        returnType: 'vec2',
+        arguments: [],
+        formula: 'sin($0)',
+      },
+    ],
+    sinh: [
+      {
+        returnType: 'vec2',
+        arguments: [],
+        formula: 'sinh($0)',
+      },
+    ],
+    sqrt: [
+      {
+        returnType: 'vec2',
+        arguments: [],
+        formula: 'sqrt($0)',
+      },
+    ],
+    tan: [
+      {
+        returnType: 'vec2',
+        arguments: [],
+        formula: 'tan($0)',
+      },
+    ],
+    tanh: [
+      {
+        returnType: 'vec2',
+        arguments: [],
+        formula: 'tanh($0)',
+      },
+    ],
+    trunc: [
+      {
+        returnType: 'vec2',
+        arguments: [],
+        formula: 'trunc($0)',
+      },
+    ],
   },
   vec3: {
     plus: [
@@ -1057,6 +849,188 @@ const functions = {
         formula: 'distance($0, $1)',
       },
     ],
+    abs: [
+      {
+        returnType: 'vec3',
+        arguments: [],
+        formula: 'abs($0)',
+      },
+    ],
+    acos: [
+      {
+        returnType: 'vec3',
+        arguments: [],
+        formula: 'acos($0)',
+      },
+    ],
+    acosh: [
+      {
+        returnType: 'vec3',
+        arguments: [],
+        formula: 'acosh($0)',
+      },
+    ],
+    asin: [
+      {
+        returnType: 'vec3',
+        arguments: [],
+        formula: 'asin($0)',
+      },
+    ],
+    asinh: [
+      {
+        returnType: 'vec3',
+        arguments: [],
+        formula: 'asinh($0)',
+      },
+    ],
+    atan: [
+      {
+        returnType: 'vec3',
+        arguments: [],
+        formula: 'atan($0)',
+      },
+    ],
+    atanh: [
+      {
+        returnType: 'vec3',
+        arguments: [],
+        formula: 'atanh($0)',
+      },
+    ],
+    atan2: [
+      {
+        returnType: 'vec3',
+        arguments: ['vec3'],
+        formula: 'atan2($0, $1)',
+      },
+    ],
+    ceil: [
+      {
+        returnType: 'vec3',
+        arguments: [],
+        formula: 'ceil($0)',
+      },
+    ],
+    cos: [
+      {
+        returnType: 'vec3',
+        arguments: [],
+        formula: 'cos($0)',
+      },
+    ],
+    cosh: [
+      {
+        returnType: 'vec3',
+        arguments: [],
+        formula: 'cosh($0)',
+      },
+    ],
+    exp: [
+      {
+        returnType: 'vec3',
+        arguments: [],
+        formula: 'exp($0)',
+      },
+    ],
+    floor: [
+      {
+        returnType: 'vec3',
+        arguments: [],
+        formula: 'floor($0)',
+      },
+    ],
+    log: [
+      {
+        returnType: 'vec3',
+        arguments: [],
+        formula: 'log($0)',
+      },
+    ],
+    log2: [
+      {
+        returnType: 'vec3',
+        arguments: [],
+        formula: 'log2($0)',
+      },
+    ],
+    max: [
+      {
+        returnType: 'vec3',
+        arguments: ['vec3'],
+        formula: 'max($0, $1)',
+      },
+    ],
+    min: [
+      {
+        returnType: 'vec3',
+        arguments: ['vec3'],
+        formula: 'min($0, $1)',
+      },
+    ],
+    pow: [
+      {
+        returnType: 'vec3',
+        arguments: ['vec3'],
+        formula: 'pow($0, $1)',
+      },
+    ],
+    round: [
+      {
+        returnType: 'vec3',
+        arguments: [],
+        formula: 'round($0)',
+      },
+    ],
+    sign: [
+      {
+        returnType: 'vec3',
+        arguments: [],
+        formula: 'sign($0)',
+      },
+    ],
+    sin: [
+      {
+        returnType: 'vec3',
+        arguments: [],
+        formula: 'sin($0)',
+      },
+    ],
+    sinh: [
+      {
+        returnType: 'vec3',
+        arguments: [],
+        formula: 'sinh($0)',
+      },
+    ],
+    sqrt: [
+      {
+        returnType: 'vec3',
+        arguments: [],
+        formula: 'sqrt($0)',
+      },
+    ],
+    tan: [
+      {
+        returnType: 'vec3',
+        arguments: [],
+        formula: 'tan($0)',
+      },
+    ],
+    tanh: [
+      {
+        returnType: 'vec3',
+        arguments: [],
+        formula: 'tanh($0)',
+      },
+    ],
+    trunc: [
+      {
+        returnType: 'vec3',
+        arguments: [],
+        formula: 'trunc($0)',
+      },
+    ],
   },
   vec4: {
     plus: [
@@ -1123,6 +1097,188 @@ const functions = {
         returnType: 'number',
         arguments: ['vec4'],
         formula: 'distance($0, $1)',
+      },
+    ],
+    abs: [
+      {
+        returnType: 'vec4',
+        arguments: [],
+        formula: 'abs($0)',
+      },
+    ],
+    acos: [
+      {
+        returnType: 'vec4',
+        arguments: [],
+        formula: 'acos($0)',
+      },
+    ],
+    acosh: [
+      {
+        returnType: 'vec4',
+        arguments: [],
+        formula: 'acosh($0)',
+      },
+    ],
+    asin: [
+      {
+        returnType: 'vec4',
+        arguments: [],
+        formula: 'asin($0)',
+      },
+    ],
+    asinh: [
+      {
+        returnType: 'vec4',
+        arguments: [],
+        formula: 'asinh($0)',
+      },
+    ],
+    atan: [
+      {
+        returnType: 'vec4',
+        arguments: [],
+        formula: 'atan($0)',
+      },
+    ],
+    atanh: [
+      {
+        returnType: 'vec4',
+        arguments: [],
+        formula: 'atanh($0)',
+      },
+    ],
+    atan2: [
+      {
+        returnType: 'vec4',
+        arguments: ['vec4'],
+        formula: 'atan2($0, $1)',
+      },
+    ],
+    ceil: [
+      {
+        returnType: 'vec4',
+        arguments: [],
+        formula: 'ceil($0)',
+      },
+    ],
+    cos: [
+      {
+        returnType: 'vec4',
+        arguments: [],
+        formula: 'cos($0)',
+      },
+    ],
+    cosh: [
+      {
+        returnType: 'vec4',
+        arguments: [],
+        formula: 'cosh($0)',
+      },
+    ],
+    exp: [
+      {
+        returnType: 'vec4',
+        arguments: [],
+        formula: 'exp($0)',
+      },
+    ],
+    floor: [
+      {
+        returnType: 'vec4',
+        arguments: [],
+        formula: 'floor($0)',
+      },
+    ],
+    log: [
+      {
+        returnType: 'vec4',
+        arguments: [],
+        formula: 'log($0)',
+      },
+    ],
+    log2: [
+      {
+        returnType: 'vec4',
+        arguments: [],
+        formula: 'log2($0)',
+      },
+    ],
+    max: [
+      {
+        returnType: 'vec4',
+        arguments: ['vec4'],
+        formula: 'max($0, $1)',
+      },
+    ],
+    min: [
+      {
+        returnType: 'vec4',
+        arguments: ['vec4'],
+        formula: 'min($0, $1)',
+      },
+    ],
+    pow: [
+      {
+        returnType: 'vec4',
+        arguments: ['vec4'],
+        formula: 'pow($0, $1)',
+      },
+    ],
+    round: [
+      {
+        returnType: 'vec4',
+        arguments: [],
+        formula: 'round($0)',
+      },
+    ],
+    sign: [
+      {
+        returnType: 'vec4',
+        arguments: [],
+        formula: 'sign($0)',
+      },
+    ],
+    sin: [
+      {
+        returnType: 'vec4',
+        arguments: [],
+        formula: 'sin($0)',
+      },
+    ],
+    sinh: [
+      {
+        returnType: 'vec4',
+        arguments: [],
+        formula: 'sinh($0)',
+      },
+    ],
+    sqrt: [
+      {
+        returnType: 'vec4',
+        arguments: [],
+        formula: 'sqrt($0)',
+      },
+    ],
+    tan: [
+      {
+        returnType: 'vec4',
+        arguments: [],
+        formula: 'tan($0)',
+      },
+    ],
+    tanh: [
+      {
+        returnType: 'vec4',
+        arguments: [],
+        formula: 'tanh($0)',
+      },
+    ],
+    trunc: [
+      {
+        returnType: 'vec4',
+        arguments: [],
+        formula: 'trunc($0)',
       },
     ],
   },

@@ -57,6 +57,113 @@ export class GPUVec2 {
     return new GPUVec2(this.x / length, this.y / length);
   }
 
+  abs() {
+    return new GPUVec2(Math.abs(this.x), Math.abs(this.y));
+  }
+
+  acos() {
+    return new GPUVec2(Math.acos(this.x), Math.acos(this.y));
+  }
+
+  acosh() {
+    return new GPUVec2(Math.acosh(this.x), Math.acosh(this.y));
+  }
+
+  asin() {
+    return new GPUVec2(Math.asin(this.x), Math.asin(this.y));
+  }
+
+  asinh() {
+    return new GPUVec2(Math.asinh(this.x), Math.asinh(this.y));
+  }
+
+  atan() {
+    return new GPUVec2(Math.atan(this.x), Math.atan(this.y));
+  }
+
+  atanh() {
+    return new GPUVec2(Math.atanh(this.x), Math.atanh(this.y));
+  }
+
+  atan2(other: GPUVec2) {
+    return new GPUVec2(
+      Math.atan2(this.x, other.x),
+      Math.atan2(this.y, other.y)
+    );
+  }
+
+  ceil() {
+    return new GPUVec2(Math.ceil(this.x), Math.ceil(this.y));
+  }
+
+  cos() {
+    return new GPUVec2(Math.cos(this.x), Math.cos(this.y));
+  }
+
+  cosh() {
+    return new GPUVec2(Math.cosh(this.x), Math.cosh(this.y));
+  }
+
+  exp() {
+    return new GPUVec2(Math.exp(this.x), Math.exp(this.y));
+  }
+
+  floor() {
+    return new GPUVec2(Math.floor(this.x), Math.floor(this.y));
+  }
+
+  log() {
+    return new GPUVec2(Math.log(this.x), Math.log(this.y));
+  }
+
+  log2() {
+    return new GPUVec2(Math.log2(this.x), Math.log2(this.y));
+  }
+
+  max(other: GPUVec2) {
+    return new GPUVec2(Math.max(this.x, other.x), Math.max(this.y, other.y));
+  }
+
+  min(other: GPUVec2) {
+    return new GPUVec2(Math.min(this.x, other.x), Math.min(this.y, other.y));
+  }
+
+  pow(other: GPUVec2) {
+    return new GPUVec2(Math.pow(this.x, other.x), Math.pow(this.y, other.y));
+  }
+
+  round() {
+    return new GPUVec2(Math.round(this.x), Math.round(this.y));
+  }
+
+  sign() {
+    return new GPUVec2(Math.sign(this.x), Math.sign(this.y));
+  }
+
+  sin() {
+    return new GPUVec2(Math.sin(this.x), Math.sin(this.y));
+  }
+
+  sinh() {
+    return new GPUVec2(Math.sinh(this.x), Math.sinh(this.y));
+  }
+
+  sqrt() {
+    return new GPUVec2(Math.sqrt(this.x), Math.sqrt(this.y));
+  }
+
+  tan() {
+    return new GPUVec2(Math.tan(this.x), Math.tan(this.y));
+  }
+
+  tanh() {
+    return new GPUVec2(Math.tanh(this.x), Math.tanh(this.y));
+  }
+
+  trunc() {
+    return new GPUVec2(Math.trunc(this.x), Math.trunc(this.y));
+  }
+
   get xx() {
     return new GPUVec2(this.x, this.x);
   }
