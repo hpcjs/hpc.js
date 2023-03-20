@@ -60,6 +60,10 @@ export class GPUVec3 {
     return new GPUVec3(this.x / length, this.y / length, this.z / length);
   }
 
+  dist(other: GPUVec3) {
+    return this.minus(other).length();
+  }
+
   abs() {
     return new GPUVec3(Math.abs(this.x), Math.abs(this.y), Math.abs(this.z));
   }

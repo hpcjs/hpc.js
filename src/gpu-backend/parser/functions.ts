@@ -585,7 +585,7 @@ const functions = {
         formula: 'normalize($0)',
       },
     ],
-    distance: [
+    dist: [
       {
         returnType: 'number',
         arguments: ['vec2'],
@@ -842,7 +842,7 @@ const functions = {
         formula: 'normalize($0)',
       },
     ],
-    distance: [
+    dist: [
       {
         returnType: 'number',
         arguments: ['vec3'],
@@ -1092,7 +1092,7 @@ const functions = {
         formula: 'normalize($0)',
       },
     ],
-    distance: [
+    dist: [
       {
         returnType: 'number',
         arguments: ['vec4'],

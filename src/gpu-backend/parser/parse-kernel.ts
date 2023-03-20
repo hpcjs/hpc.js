@@ -113,9 +113,12 @@ const handlers = {
     ];
 
     // false if array access
-    state.skipIdentifier = !arrayTypes.includes(memberExpressionParentType);
+    const parentSkipIdentifier = state.skipIdentifier;
+    state.skipIdentifier =
+      !arrayTypes.includes(memberExpressionParentType) &&
+      node.property.type === 'Identifier';
     c(node.property, state);
-    state.skipIdentifier = false;
+    state.skipIdentifier = parentSkipIdentifier;
 
     state.memberExpressionParentName = memberExpressionParentName;
     state.memberExpressionParentType = memberExpressionParentType;

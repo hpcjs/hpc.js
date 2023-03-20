@@ -91,6 +91,10 @@ export class GPUVec4 {
     );
   }
 
+  dist(other: GPUVec4) {
+    return this.minus(other).length();
+  }
+
   abs() {
     return new GPUVec4(
       Math.abs(this.x),
