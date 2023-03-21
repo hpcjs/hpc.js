@@ -44,6 +44,18 @@ export class GPUVec2 {
     return new GPUVec2(this.x / other.x, this.y / other.y);
   }
 
+  cplxDiv(other: GPUVec2) {
+    const denom = other.dot(other);
+    return new GPUVec2(
+      (this.x * other.x + this.y * other.y) / denom,
+      (this.y * other.x - this.x * other.y) / denom
+    );
+  }
+
+  cplxConj() {
+    return new GPUVec2(this.x, -this.y);
+  }
+
   dot(other: GPUVec2) {
     return this.x * other.x + this.y * other.y;
   }

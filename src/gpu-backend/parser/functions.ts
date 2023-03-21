@@ -564,6 +564,20 @@ const functions = {
         formula: '($0 / $1)',
       },
     ],
+    cplxDiv: [
+      {
+        returnType: 'vec2',
+        arguments: ['vec2'],
+        formula: 'cplxDiv($0, $1)',
+      },
+    ],
+    cplxConj: [
+      {
+        returnType: 'vec2',
+        arguments: [],
+        formula: 'cplxConj($0)',
+      },
+    ],
     dot: [
       {
         returnType: 'number',

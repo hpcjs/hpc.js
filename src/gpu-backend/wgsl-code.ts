@@ -20,9 +20,20 @@ fn setPixelv4(pos: vec2<f32>, color: vec3<f32>) {
 }`;
 };
 
-export const getCplxTimesSource = () => {
+export const getCplxSource = () => {
   return /* wgsl */ `fn cplxTimes(a: vec2<f32>, b: vec2<f32>) -> vec2<f32> {
   return vec2<f32>(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x);
+}
+
+fn cplxDiv(a: vec2<f32>, b: vec2<f32>) -> vec2<f32> {
+  return vec2<f32>(
+    a.x * b.x + a.y * b.y,
+    a.y * b.x - a.x * b.y
+  ) / dot(b, b);
+}
+
+fn cplxConj(a: vec2<f32>) -> vec2<f32> {
+  return vec2<f32>(a.x, -a.y);
 }`;
 };
 
