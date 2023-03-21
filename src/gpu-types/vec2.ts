@@ -21,6 +21,8 @@ export class GPUVec2 {
     return new GPUVec2(this.x - other.x, this.y - other.y);
   }
 
+  times(other: GPUVec2): GPUVec2;
+  times(other: number): GPUVec2;
   times(other: GPUVec2 | number) {
     if (typeof other === 'number') {
       return new GPUVec2(this.x * other, this.y * other);
@@ -36,6 +38,8 @@ export class GPUVec2 {
     );
   }
 
+  div(other: GPUVec2): GPUVec2;
+  div(other: number): GPUVec2;
   div(other: GPUVec2 | number) {
     if (typeof other === 'number') {
       return new GPUVec2(this.x / other, this.y / other);

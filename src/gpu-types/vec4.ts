@@ -35,6 +35,8 @@ export class GPUVec4 {
     );
   }
 
+  times(other: GPUVec4): GPUVec4;
+  times(other: number): GPUVec4;
   times(other: GPUVec4 | number) {
     if (typeof other === 'number') {
       return new GPUVec4(
@@ -53,6 +55,8 @@ export class GPUVec4 {
     );
   }
 
+  div(other: GPUVec4): GPUVec4;
+  div(other: number): GPUVec4;
   div(other: GPUVec4 | number) {
     if (typeof other === 'number') {
       return new GPUVec4(
