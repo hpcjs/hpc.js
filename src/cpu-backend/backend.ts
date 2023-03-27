@@ -1,12 +1,15 @@
 import {
-  GPUBufferSizeToBuffer,
+  ExtractArrayType,
   GPUBufferSizeToVec,
   GPUBufferSpec,
+  GPUBufferSpecToBuffer,
+  GPUBufferTypeStr,
   GPUInterfaceConstructorParams,
   GPUKernel,
   GPUKernelSource,
   GPUUniformSpec,
 } from '../common/types';
+import { GPUBufferTypeToType } from '../gpu-backend/types';
 import { GPUVec2 } from '../gpu-types/vec2';
 import { GPUVec3 } from '../gpu-types/vec3';
 import { GPUVec4 } from '../gpu-types/vec4';
@@ -20,7 +23,14 @@ export default class CPUFallback<
   TUniforms extends GPUUniformSpec<TUniformName>,
   TGPUKernelBuffersInterface = {
     [K in TBuffers['name']]: TBuffers extends { name: K }
-      ? GPUBufferSizeToBuffer<TBuffers['size']>
+      ? GPUBufferSpecToBuffer<
+          TBuffers['size'],
+          TBuffers extends { type: GPUBufferTypeStr }
+            ? GPUBufferTypeToType<TBuffers['type']>
+            : TBuffers extends { initialData: any[] }
+            ? ExtractArrayType<TBuffers['initialData']>
+            : number
+        >
       : never;
   },
   TGPUKernelUniformsInterface = TUniforms
@@ -49,17 +59,17 @@ export default class CPUFallback<
     if (buffers) {
       this.buffers = {} as CPUBufferCollection<TBufferName>;
 
-      for (const buffer of buffers) {
-        const data = new Float32Array(buffer.size.reduce((a, b) => a * b, 1));
-        if (buffer.initialData) {
-          data.set(buffer.initialData.flat(3));
-        }
+      // for (const buffer of buffers) {
+      //   const data = new Float32Array(buffer.size.reduce((a, b) => a * b, 1));
+      //   if (buffer.initialData) {
+      //     data.set(buffer.initialData.flat(3));
+      //   }
 
-        this.buffers[buffer.name] = {
-          size: buffer.size,
-          resource: data,
-        };
-      }
+      //   this.buffers[buffer.name] = {
+      //     size: buffer.size,
+      //     resource: data,
+      //   };
+      // }
     }
 
     if (uniforms) {

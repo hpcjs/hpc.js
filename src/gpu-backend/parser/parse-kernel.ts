@@ -586,9 +586,13 @@ export default function transpileKernelToGPU<
   let wgsl = '';
 
   if (buffers) {
-    wgsl += 'struct Data {\n    data: array<f32>\n}\n\n';
+    wgsl += 'struct Data_number {\n    data: array<f32>\n}\n\n';
+    wgsl += 'struct Data_vec2 {\n    data: array<vec2<f32>>\n}\n\n';
+    wgsl += 'struct Data_vec3 {\n    data: array<vec3<f32>>\n}\n\n';
+    wgsl += 'struct Data_vec4 {\n    data: array<vec4<f32>>\n}\n\n';
+
     for (const name in buffers) {
-      wgsl += `@group(0) @binding(${buffers[name].id}) var<storage, read_write> data_${name}: Data;\n`;
+      wgsl += `@group(0) @binding(${buffers[name].id}) var<storage, read_write> data_${name}: Data_${buffers[name].type};\n`;
     }
     wgsl += '\n';
   }

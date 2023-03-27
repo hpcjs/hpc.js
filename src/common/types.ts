@@ -1,27 +1,21 @@
 import { GPUVec2 } from '../gpu-types/vec2';
 import { GPUVec3 } from '../gpu-types/vec3';
 import { GPUVec4 } from '../gpu-types/vec4';
+import { GPUBufferSpec } from './gpubufferspec';
+
+export type GPUBufferTypeStr = 'number' | 'vec2' | 'vec3' | 'vec4';
+export type GPUBufferType = number | GPUVec2 | GPUVec3 | GPUVec4;
+export type { GPUBufferSpec };
+
+export type ExtractArrayType<T> = T extends (infer U)[]
+  ? ExtractArrayType<U>
+  : T;
 
 export type GPUBufferSize =
   | [number]
   | [number, number]
   | [number, number, number];
-export type GPUBufferSpec<TName extends string> =
-  | {
-      name: TName;
-      size: [number];
-      initialData?: number[];
-    }
-  | {
-      name: TName;
-      size: [number, number];
-      initialData?: number[][];
-    }
-  | {
-      name: TName;
-      size: [number, number, number];
-      initialData?: number[][][];
-    };
+
 export type GPUUniformSpec<TName extends string> = {
   [K in TName]: number | GPUVec2 | GPUVec3 | GPUVec4;
 };
@@ -86,16 +80,25 @@ export type GPUInterfaceConstructorParamsWithCPU<
   useCpu?: boolean;
 };
 
-export type GPUBuffer1D = { [key: number]: number };
-export type GPUBuffer2D = { [key: number]: GPUBuffer1D };
-export type GPUBuffer3D = { [key: number]: GPUBuffer2D };
+export type GPUBuffer1D<TType extends number | GPUVec2 | GPUVec3 | GPUVec4> = {
+  [key: number]: TType;
+};
+export type GPUBuffer2D<TType extends number | GPUVec2 | GPUVec3 | GPUVec4> = {
+  [key: number]: GPUBuffer1D<TType>;
+};
+export type GPUBuffer3D<TType extends number | GPUVec2 | GPUVec3 | GPUVec4> = {
+  [key: number]: GPUBuffer2D<TType>;
+};
 
-export type GPUBufferSizeToBuffer<TSize> = TSize extends [number]
-  ? GPUBuffer1D
+export type GPUBufferSpecToBuffer<
+  TSize,
+  TType extends number | GPUVec2 | GPUVec3 | GPUVec4
+> = TSize extends [number]
+  ? GPUBuffer1D<TType>
   : TSize extends [number, number]
-  ? GPUBuffer2D
+  ? GPUBuffer2D<TType>
   : TSize extends [number, number, number]
-  ? GPUBuffer3D
+  ? GPUBuffer3D<TType>
   : never;
 export type GPUBufferSizeToVec<TSize> = TSize extends [number]
   ? { x: TSize[0] }

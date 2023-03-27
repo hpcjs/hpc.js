@@ -1,7 +1,8 @@
 import {
-  GPUBufferSizeToBuffer,
-  GPUBufferSizeToVec,
+  ExtractArrayType,
   GPUBufferSpec,
+  GPUBufferSpecToBuffer,
+  GPUBufferTypeStr,
   GPUInterfaceConstructorParamsWithCPU,
   GPUKernel,
   GPUKernelSource,
@@ -9,9 +10,7 @@ import {
 } from './common/types';
 import CPUFallback from './cpu-backend/backend';
 import GPUBackend from './gpu-backend/backend';
-import { GPUVec2 } from './gpu-types/vec2';
-import { GPUVec3 } from './gpu-types/vec3';
-import { GPUVec4 } from './gpu-types/vec4';
+import { GPUBufferTypeToType } from './gpu-backend/types';
 
 type CombinedBackend<
   TBufferName extends string,
@@ -29,7 +28,14 @@ export default class GPUInterface<
   TUniforms extends GPUUniformSpec<TUniformName>,
   TGPUKernelBuffersInterface = {
     [K in TBuffers['name']]: TBuffers extends { name: K }
-      ? GPUBufferSizeToBuffer<TBuffers['size']>
+      ? GPUBufferSpecToBuffer<
+          TBuffers['size'],
+          TBuffers extends { type: GPUBufferTypeStr }
+            ? GPUBufferTypeToType<TBuffers['type']>
+            : TBuffers extends { initialData: any[] }
+            ? ExtractArrayType<TBuffers['initialData']>
+            : number
+        >
       : never;
   },
   TGPUKernelUniformsInterface = TUniforms

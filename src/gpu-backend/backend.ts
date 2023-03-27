@@ -1,18 +1,22 @@
 import {
-  GPUBufferSizeToBuffer,
+  GPUBufferSpecToBuffer,
   GPUBufferSizeToVec,
   GPUBufferSpec,
   GPUInterfaceConstructorParams,
   GPUKernel,
   GPUKernelSource,
   GPUUniformSpec,
+  GPUBufferTypeStr,
+  ExtractArrayType,
 } from '../common/types';
+import { getDataType } from '../common/utils';
 import { GPUVec2 } from '../gpu-types/vec2';
 import { GPUVec3 } from '../gpu-types/vec3';
 import { GPUVec4 } from '../gpu-types/vec4';
 import transpileKernelToGPU from './parser/parse-kernel';
 import {
   GPUBufferCollection,
+  GPUBufferTypeToType,
   GPUUniformCollection,
   GPUUniformInfo,
 } from './types';
@@ -25,7 +29,14 @@ export default class GPUBackend<
   TUniforms extends GPUUniformSpec<TUniformName>,
   TGPUKernelBuffersInterface = {
     [K in TBuffers['name']]: TBuffers extends { name: K }
-      ? GPUBufferSizeToBuffer<TBuffers['size']>
+      ? GPUBufferSpecToBuffer<
+          TBuffers['size'],
+          TBuffers extends { type: GPUBufferTypeStr }
+            ? GPUBufferTypeToType<TBuffers['type']>
+            : TBuffers extends { initialData: any[] }
+            ? ExtractArrayType<TBuffers['initialData']>
+            : number
+        >
       : never;
   },
   TGPUKernelUniformsInterface = TUniforms
@@ -106,9 +117,23 @@ export default class GPUBackend<
       this.buffers = {} as GPUBufferCollection<TBufferName>;
 
       for (let i = 0; i < this.bufferSpecs.length; i++) {
-        const { name, size, initialData } = this.bufferSpecs[i];
+        const spec = this.bufferSpecs[i];
+
+        let type = 'number' as GPUBufferTypeStr;
+        if (spec.type !== undefined) {
+          type = spec.type;
+        } else if (spec.initialData !== undefined) {
+          type = getDataType(spec.initialData.flat(3)[0]);
+        }
+
+        // else: type is number
+
+        const bytesPerElement =
+          type === 'number' ? 4 : type === 'vec2' ? 8 : 16;
+        const initialData =
+          'initialData' in spec ? spec.initialData : undefined;
         const buffer = this.device.createBuffer({
-          size: size.reduce((a, b) => a * b, 1) * 4,
+          size: spec.size.reduce((a, b) => a * b, 1) * bytesPerElement,
           usage:
             GPUBufferUsage.STORAGE |
             GPUBufferUsage.COPY_SRC |
@@ -116,35 +141,49 @@ export default class GPUBackend<
           mappedAtCreation: initialData ? true : false,
         });
         if (initialData) {
-          const flattened: number[] = [];
-          for (const entry1 of initialData) {
-            if (typeof entry1 !== 'number') {
-              for (const entry2 of entry1) {
-                if (typeof entry2 !== 'number') {
-                  for (const entry3 of entry2) {
-                    flattened.push(entry3);
-                  }
-                } else {
-                  flattened.push(entry2);
-                }
-              }
-            } else {
-              flattened.push(entry1);
-            }
-          }
+          const flattened = initialData.flat(3) as
+            | number[]
+            | GPUVec2[]
+            | GPUVec3[]
+            | GPUVec4[];
 
           const arrayBuffer = buffer.getMappedRange();
           const dataView = new Float32Array(arrayBuffer);
-          dataView.set(flattened);
+          if (type === 'number') {
+            for (let i = 0; i < flattened.length; i++) {
+              dataView[i] = flattened[i] as number;
+            }
+          } else if (type === 'vec2') {
+            for (let i = 0; i < flattened.length; i++) {
+              dataView[2 * i + 0] = (flattened[i] as GPUVec2).x;
+              dataView[2 * i + 1] = (flattened[i] as GPUVec2).y;
+            }
+          } else if (type === 'vec3') {
+            for (let i = 0; i < flattened.length; i++) {
+              dataView[4 * i + 0] = (flattened[i] as GPUVec3).x;
+              dataView[4 * i + 1] = (flattened[i] as GPUVec3).y;
+              dataView[4 * i + 2] = (flattened[i] as GPUVec3).z;
+              dataView[4 * i + 3] = 0;
+            }
+          } else if (type === 'vec4') {
+            for (let i = 0; i < flattened.length; i++) {
+              dataView[4 * i + 0] = (flattened[i] as GPUVec4).x;
+              dataView[4 * i + 1] = (flattened[i] as GPUVec4).y;
+              dataView[4 * i + 2] = (flattened[i] as GPUVec4).z;
+              dataView[4 * i + 3] = (flattened[i] as GPUVec4).w;
+            }
+          }
+
           buffer.unmap();
         }
 
-        this.buffers[name] = {
+        this.buffers[spec.name] = {
           resource: buffer,
           id: i,
           readBuffer: undefined,
-          size,
+          size: spec.size,
           mapped: false,
+          type,
         };
       }
     }
@@ -450,8 +489,12 @@ export default class GPUBackend<
 
     const buffer = this.buffers[name];
     if (!buffer.readBuffer) {
+      const bytesPerElement =
+        buffer.type === 'number' ? 4 : buffer.type === 'vec2' ? 8 : 16;
       buffer.readBuffer = this.device.createBuffer({
-        size: buffer.size.reduce((a: number, b: number) => a * b, 1) * 4,
+        size:
+          buffer.size.reduce((a: number, b: number) => a * b, 1) *
+          bytesPerElement,
         usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
       });
     }

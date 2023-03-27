@@ -1,4 +1,7 @@
 import { VariableType } from '../gpu-backend/types';
+import { GPUVec2 } from '../gpu-types/vec2';
+import { GPUVec3 } from '../gpu-types/vec3';
+import { GPUVec4 } from '../gpu-types/vec4';
 
 export function tsToWgslType(type: VariableType) {
   switch (type) {
@@ -63,6 +66,20 @@ export function typeLiteralToType(typeLiteral: VariableType) {
   }
 
   return typeLiteral.slice(0, -4) as VariableType;
+}
+
+export function getDataType(val: number | GPUVec2 | GPUVec3 | GPUVec4) {
+  if (typeof val === 'number') {
+    return 'number';
+  } else if (val instanceof GPUVec2) {
+    return 'vec2';
+  } else if (val instanceof GPUVec3) {
+    return 'vec3';
+  } else if (val instanceof GPUVec4) {
+    return 'vec4';
+  }
+
+  throw new Error(`Invalid data type: ${val}`);
 }
 
 export function IsES5DefaultParamNode(node: any) {

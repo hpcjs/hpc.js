@@ -3,12 +3,25 @@ import { GPUVec2 } from '../gpu-types/vec2';
 import { GPUVec3 } from '../gpu-types/vec3';
 import { GPUVec4 } from '../gpu-types/vec4';
 
+export type GPUBufferTypeToType<
+  TType extends 'number' | 'vec2' | 'vec3' | 'vec4'
+> = TType extends 'number'
+  ? number
+  : TType extends 'vec2'
+  ? GPUVec2
+  : TType extends 'vec3'
+  ? GPUVec3
+  : TType extends 'vec4'
+  ? GPUVec4
+  : never;
+
 export type GPUBufferWithInfo = {
   size: GPUBufferSize;
   resource: GPUBuffer;
   id: number;
   readBuffer?: GPUBuffer;
   mapped: boolean;
+  type: 'number' | 'vec2' | 'vec3' | 'vec4';
 };
 export type GPUUniformInfo = {
   value: number | GPUVec2 | GPUVec3 | GPUVec4;
