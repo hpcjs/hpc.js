@@ -115,9 +115,18 @@ export function processExpressionFields(state: GPUWalkerState<string, string>) {
     function: [],
     uniforms: [],
     buffers: [],
-    buffer1d: [],
-    buffer2d: [],
-    buffer3d: [],
+    buffer1dnumber: [],
+    buffer2dnumber: [],
+    buffer3dnumber: [],
+    buffer1dvec2: [],
+    buffer2dvec2: [],
+    buffer3dvec2: [],
+    buffer1dvec3: [],
+    buffer2dvec3: [],
+    buffer3dvec3: [],
+    buffer1dvec4: [],
+    buffer2dvec4: [],
+    buffer3dvec4: [],
     numberarrayliteral: [],
     vec2arrayliteral: [],
     vec3arrayliteral: [],
@@ -269,7 +278,7 @@ export function processSpecialVariable(state: GPUWalkerState<string, string>) {
       specialVariables.push({
         regex: matchFunction,
         formula,
-        type: 'number',
+        type: state.buffers[bufferName].type,
       });
 
       // intermediate steps
@@ -321,7 +330,8 @@ export function processSpecialVariable(state: GPUWalkerState<string, string>) {
         specialVariables.push({
           regex: intermediateMatchFunction,
           formula,
-          type: `buffer${buffer.size.length - step}d` as any,
+          type: (`buffer${buffer.size.length - step}d` +
+            state.buffers[bufferName].type) as any,
         });
       }
     }
