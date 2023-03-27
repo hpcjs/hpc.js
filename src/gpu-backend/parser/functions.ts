@@ -438,12 +438,22 @@ const functions = {
         arguments: ['number', 'number'],
         formula: '($0 + $1)',
       },
+      {
+        returnType: 'number',
+        arguments: ['number'],
+        formula: '($0)',
+      },
     ],
     '-': [
       {
         returnType: 'number',
         arguments: ['number', 'number'],
         formula: '($0 - $1)',
+      },
+      {
+        returnType: 'number',
+        arguments: ['number'],
+        formula: '(-$0)',
       },
     ],
     '*': [

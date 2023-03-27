@@ -54,7 +54,8 @@ export const getVertexSource = () => {
 
 export const getFragmentSource = (
   pixelBufferIndex: number,
-  screenWidth: number
+  screenWidth: number,
+  screenHeight: number
 ) => {
   return /* wgsl */ `
   struct PixelData {
@@ -65,7 +66,7 @@ export const getFragmentSource = (
 
   @fragment
   fn main(@builtin(position) pos: vec4<f32>) -> @location(0) vec4<f32> {
-    let index = i32(pos.x) + i32(pos.y) * ${screenWidth};
+    let index = i32(pos.x) + (${screenHeight} - i32(pos.y)) * ${screenWidth};
     return vec4<f32>(pixels.data[index], 1);
   }
 `;

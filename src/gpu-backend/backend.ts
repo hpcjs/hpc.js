@@ -356,7 +356,8 @@ export default class GPUBackend<
       code: getFragmentSource(
         (this.buffers ? Object.keys(this.buffers).length : 0) +
           (this.uniforms ? 1 : 0),
-        this.canvas.width
+        this.canvas.width,
+        this.canvas.height
       ),
     });
 
