@@ -128,6 +128,13 @@ const functions = {
         formula: 'pow($1)',
       },
     ],
+    random: [
+      {
+        returnType: 'number',
+        arguments: [],
+        formula: 'hpcjsRand()',
+      },
+    ],
     round: [
       {
         returnType: 'number',

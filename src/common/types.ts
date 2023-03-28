@@ -64,6 +64,9 @@ export type GPUInterfaceConstructorParams<
   buffers?: TBuffers[];
   uniforms?: TUniforms;
   canvas?: HTMLCanvasElement;
+  options?: {
+    numRandSeeds?: number;
+  };
 };
 
 export type GPUInterfaceConstructorParamsWithCPU<
@@ -77,7 +80,10 @@ export type GPUInterfaceConstructorParamsWithCPU<
   TUniformName,
   TUniforms
 > & {
-  useCpu?: boolean;
+  options?: {
+    useCpu?: boolean;
+    numRandSeeds?: number;
+  };
 };
 
 export type GPUBuffer1D<TType extends number | GPUVec2 | GPUVec3 | GPUVec4> = {

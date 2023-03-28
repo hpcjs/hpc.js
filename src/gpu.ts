@@ -45,6 +45,7 @@ export default class GPUInterface<
   uniformSpec?: GPUUniformSpec<TUniformName>;
   canvas?: HTMLCanvasElement;
   useCpu: boolean;
+  numRandSeeds: number;
 
   get isInitialized() {
     return this.backend.isInitialized;
@@ -64,7 +65,7 @@ export default class GPUInterface<
     buffers = undefined,
     uniforms = undefined,
     canvas = undefined,
-    useCpu = false,
+    options = undefined,
   }: GPUInterfaceConstructorParamsWithCPU<
     TBufferName,
     TBuffers,
@@ -74,9 +75,15 @@ export default class GPUInterface<
     this.bufferSpecs = buffers;
     this.uniformSpec = uniforms;
     this.canvas = canvas;
-    this.useCpu = useCpu;
+    this.useCpu = options?.useCpu ?? false;
+    this.numRandSeeds = options?.numRandSeeds ?? 1 << 16;
 
-    this.backend = new GPUBackend({ buffers, uniforms, canvas });
+    this.backend = new GPUBackend({
+      buffers,
+      uniforms,
+      canvas,
+      options: { numRandSeeds: this.numRandSeeds },
+    });
   }
 
   async initialize() {

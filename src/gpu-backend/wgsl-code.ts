@@ -37,6 +37,14 @@ fn cplxConj(a: vec2<f32>) -> vec2<f32> {
 }`;
 };
 
+export const getRandomSource = () => {
+  return /* wgsl */ `var<private> hpcjsRandState: u32 = 0;
+fn hpcjsRand() -> f32 {
+  hpcjsRandState = (hpcjsRandState * 1103515245 + 12345) % (1 << 24);
+  return f32(hpcjsRandState) / f32(1 << 24);
+}`;
+};
+
 export const getVertexSource = () => {
   return /* wgsl */ `
   struct VSOut {

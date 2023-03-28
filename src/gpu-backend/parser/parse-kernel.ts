@@ -9,7 +9,11 @@ import {
   GPUWalkerState,
   VariableType,
 } from '../types';
-import { getCplxSource, getSetPixelSource } from '../wgsl-code';
+import {
+  getCplxSource,
+  getRandomSource,
+  getSetPixelSource,
+} from '../wgsl-code';
 import {
   processArrayAccess,
   processExpressionFields,
@@ -527,6 +531,7 @@ const handlers = {
     state.skipIdentifier = false;
     const name = state.currentExpression;
 
+    const originalPrelude = state.prelude;
     state.prelude = args
       .map(arg => `    var ${arg.name} = param_${arg.name};\n`)
       .join('');
@@ -560,7 +565,7 @@ const handlers = {
       Math: 'math',
       [state.inputsVarName]: 'inputs',
     };
-    state.prelude = '    let global_id = vec3<f32>(global_id_u32);\n';
+    state.prelude = originalPrelude;
   },
 };
 
@@ -574,9 +579,10 @@ export default function transpileKernelToGPU<
     TGPUKernelBuffersInterface,
     TGPUKernelUniformsInterface
   >,
-  buffers?: GPUBufferCollection<TBufferName>,
-  uniforms?: GPUUniformCollection<TUniformName>,
-  canvas?: HTMLCanvasElement
+  buffers: GPUBufferCollection<TBufferName> | undefined,
+  uniforms: GPUUniformCollection<TUniformName> | undefined,
+  canvas: HTMLCanvasElement | undefined,
+  randBufferSize: number
 ) {
   const src = func.toString();
   const ast = acorn.parse(src, { ecmaVersion: 2022, locations: true }) as any;
@@ -630,6 +636,14 @@ export default function transpileKernelToGPU<
     wgsl += `${getSetPixelSource(canvas.width)}\n\n`;
   }
 
+  wgsl += `struct RandomData {\n    data: array<u32>\n}\n\n`;
+  wgsl += `@group(0) @binding(${
+    (buffers ? Object.keys(buffers).length : 0) +
+    (uniforms ? 1 : 0) +
+    (canvas ? 1 : 0)
+  }) var<storage, read> hpcjsRandom: RandomData;\n\n`;
+  wgsl += `${getRandomSource()}\n\n`;
+
   wgsl += `${getCplxSource()}\n\n`;
 
   const walkerState = {
@@ -651,7 +665,7 @@ export default function transpileKernelToGPU<
     memberExpressionChildType: 'unknown',
     insideArrayLiteral: false,
     addedPrelude: false,
-    prelude: '    let global_id = vec3<f32>(global_id_u32);\n',
+    prelude: `    let global_id = vec3<f32>(global_id_u32);\n    let hpcjsRandIndex = dot(global_id_u32, vec3<u32>(97073, 57641, 29269)) % (${randBufferSize});\n    hpcjsRandState = hpcjsRandom.data[hpcjsRandIndex];\n`,
     arrayLength: 0,
     arrayLengths: {},
     functionDeclarations: [],

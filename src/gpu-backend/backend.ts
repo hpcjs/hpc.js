@@ -1,6 +1,5 @@
 import {
   GPUBufferSpecToBuffer,
-  GPUBufferSizeToVec,
   GPUBufferSpec,
   GPUInterfaceConstructorParams,
   GPUKernel,
@@ -55,6 +54,8 @@ export default class GPUBackend<
   private renderPipeline?: GPURenderPipeline;
   private vertexBuffer?: GPUBuffer;
   private totalUniformOffset: number = 0;
+  private randomBuffer?: GPUBuffer;
+  private numRandSeeds: number;
 
   get isInitialized() {
     return this.initialized;
@@ -64,6 +65,7 @@ export default class GPUBackend<
     buffers = undefined,
     uniforms = undefined,
     canvas = undefined,
+    options = undefined,
   }: GPUInterfaceConstructorParams<
     TBufferName,
     TBuffers,
@@ -83,6 +85,7 @@ export default class GPUBackend<
             return res;
           }, {} as any);
     this.canvas = canvas;
+    this.numRandSeeds = options?.numRandSeeds ?? 1 << 16;
   }
 
   async initialize() {
@@ -255,6 +258,18 @@ export default class GPUBackend<
       this.pixelBuffer.unmap();
     }
 
+    this.randomBuffer = this.device.createBuffer({
+      size: this.numRandSeeds * 4,
+      usage: GPUBufferUsage.STORAGE,
+      mappedAtCreation: true,
+    });
+    const randomArrayBuffer = this.randomBuffer.getMappedRange();
+    const randomDataView = new Uint32Array(randomArrayBuffer);
+    for (let i = 0; i < this.numRandSeeds; i++) {
+      randomDataView[i] = Math.floor(Math.random() * (1 << 24));
+    }
+    this.randomBuffer.unmap();
+
     const bindGroupLayoutEntries = [] as GPUBindGroupLayoutEntry[];
     if (this.bufferSpecs) {
       for (let i = 0; i < this.bufferSpecs?.length; i++) {
@@ -282,6 +297,14 @@ export default class GPUBackend<
         visibility: GPUShaderStage.COMPUTE | GPUShaderStage.FRAGMENT,
         buffer: { type: 'storage' },
       });
+    bindGroupLayoutEntries.push({
+      binding:
+        (this.bufferSpecs ? this.bufferSpecs.length : 0) +
+        (this.uniforms ? 1 : 0) +
+        (this.canvas ? 1 : 0),
+      visibility: GPUShaderStage.COMPUTE,
+      buffer: { type: 'read-only-storage' },
+    });
     this.bindGroupLayout = this.device.createBindGroupLayout({
       entries: bindGroupLayoutEntries,
     });
@@ -315,6 +338,15 @@ export default class GPUBackend<
           buffer: this.pixelBuffer,
         },
       });
+    bindGroupEntries.push({
+      binding:
+        (this.bufferSpecs ? this.bufferSpecs.length : 0) +
+        (this.uniforms ? 1 : 0) +
+        (this.canvas ? 1 : 0),
+      resource: {
+        buffer: this.randomBuffer,
+      },
+    });
     this.bindGroup = this.device.createBindGroup({
       layout: this.bindGroupLayout,
       entries: bindGroupEntries,
@@ -409,7 +441,8 @@ export default class GPUBackend<
       kernel,
       this.buffers,
       this.uniforms,
-      this.canvas
+      this.canvas,
+      this.numRandSeeds
     );
 
     const shaderModule = this.device.createShaderModule({
