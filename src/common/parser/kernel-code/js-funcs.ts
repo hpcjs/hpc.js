@@ -1,35 +1,35 @@
 export const getJsSetPixelSource = (width: number, height: number) => {
-  return `function setPixelv1(x, y, r, g, b) {
+  return `function hpc__setPixelv1(x, y, r, g, b) {
     const index = (Math.round(${height} - y) * ${width} + Math.round(x)) * 4;
-    pixels[index + 0] = r;
-    pixels[index + 1] = g;
-    pixels[index + 2] = b;
+    hpc__pixels[index + 0] = r;
+    hpc__pixels[index + 1] = g;
+    hpc__pixels[index + 2] = b;
 }
 
-function setPixelv2(pos, r, g, b) {
+function hpc__setPixelv2(pos, r, g, b) {
     const index = (Math.round(${height} - pos.y) * ${width} + Math.round(pos.x)) * 4;
-    pixels[index + 0] = r;
-    pixels[index + 1] = g;
-    pixels[index + 2] = b;
+    hpc__pixels[index + 0] = r;
+    hpc__pixels[index + 1] = g;
+    hpc__pixels[index + 2] = b;
 }
 
-function setPixelv3(x, y, color) {
+function hpc__setPixelv3(x, y, color) {
     const index = (Math.round(${height} - y) * ${width} + Math.round(x)) * 4;
-    pixels[index + 0] = color.x;
-    pixels[index + 1] = color.y;
-    pixels[index + 2] = color.z;
+    hpc__pixels[index + 0] = color.x;
+    hpc__pixels[index + 1] = color.y;
+    hpc__pixels[index + 2] = color.z;
 }
 
-function setPixelv4(pos, color) {
+function hpc__setPixelv4(pos, color) {
     const index = (Math.round(${height} - pos.y) * ${width} + Math.round(pos.x)) * 4;
-    pixels[index + 0] = color.x;
-    pixels[index + 1] = color.y
-    pixels[index + 2] = color.z;
+    hpc__pixels[index + 0] = color.x;
+    hpc__pixels[index + 1] = color.y
+    hpc__pixels[index + 2] = color.z;
 }\n\n`;
 };
 
 export const getJsProxySource = (name: string, type: string) => {
-  return `const proxy_${name} = new Proxy(buffers.${name}.data, {
+  return `const hpc__bufferProxy_${name} = new Proxy(hpc__buffers.${name}.data, {
     get(target, index) {
         ${
           type === 'number'

@@ -560,15 +560,15 @@ const handlers = {
 
     const source =
       state.target === 'wgsl'
-        ? `fn ${name}(global_id: vec3<f32>, ${args
+        ? `fn ${name}(hpc__globalId: vec3<f32>, ${args
             .map(p => `param_${p.name}: ${tsToWgslType(p.type)}`)
             .join(', ')}) -> ${tsToWgslType(state.functionReturnType)} ${body}`
-        : `function ${name}(global_id, ${args
+        : `function ${name}(hpc__globalId, ${args
             .map(p => `param_${p.name}`)
             .join(', ')}) ${body}`;
     state.functionDeclarations.push({ name, args, returnType, source });
 
-    const formula = `${name}(global_id${args
+    const formula = `${name}(hpc__globalId${args
       .map((_, i) => `, $${i}`)
       .join('')})`;
     functions.standalone[name] = [
@@ -608,19 +608,19 @@ export function transpileKernelToWgsl<
   let transpiled = '';
 
   if (buffers) {
-    transpiled += 'struct Data_number {\n    data: array<f32>\n}\n\n';
-    transpiled += 'struct Data_vec2 {\n    data: array<vec2<f32>>\n}\n\n';
-    transpiled += 'struct Data_vec3 {\n    data: array<vec3<f32>>\n}\n\n';
-    transpiled += 'struct Data_vec4 {\n    data: array<vec4<f32>>\n}\n\n';
+    transpiled += 'struct hpc__Data_number {\n    data: array<f32>\n}\n\n';
+    transpiled += 'struct hpc__Data_vec2 {\n    data: array<vec2<f32>>\n}\n\n';
+    transpiled += 'struct hpc__Data_vec3 {\n    data: array<vec3<f32>>\n}\n\n';
+    transpiled += 'struct hpc__Data_vec4 {\n    data: array<vec4<f32>>\n}\n\n';
 
     for (const name in buffers) {
-      transpiled += `@group(0) @binding(${buffers[name].id}) var<storage, read_write> data_${name}: Data_${buffers[name].type};\n`;
+      transpiled += `@group(0) @binding(${buffers[name].id}) var<storage, read_write> hpc__data_${name}: hpc__Data_${buffers[name].type};\n`;
     }
     transpiled += '\n';
   }
 
   if (uniforms) {
-    transpiled += 'struct Uniforms {\n';
+    transpiled += 'struct hpc__Uniforms {\n';
     for (const name in uniforms) {
       const value = uniforms[name].value;
       const type =
@@ -639,25 +639,25 @@ export function transpileKernelToWgsl<
 
     transpiled += `}\n\n@group(0) @binding(${
       buffers ? Object.keys(buffers).length : 0
-    }) var<uniform> uniforms: Uniforms;\n\n`;
+    }) var<uniform> hpc__uniforms: hpc__Uniforms;\n\n`;
   }
 
   if (canvas) {
-    transpiled += `struct PixelData {\n    data: array<vec3<f32>>\n}\n\n`;
+    transpiled += `struct hpc__PixelData {\n    data: array<vec3<f32>>\n}\n\n`;
 
     transpiled += `@group(0) @binding(${
       (buffers ? Object.keys(buffers).length : 0) + (uniforms ? 1 : 0)
-    }) var<storage, read_write> pixels: PixelData;\n\n`;
+    }) var<storage, read_write> hpc__pixels: hpc__PixelData;\n\n`;
 
     transpiled += `${getSetPixelSource(canvas.width, canvas.height)}\n\n`;
   }
 
-  transpiled += `struct RandomData {\n    data: array<u32>\n}\n\n`;
+  transpiled += `struct hpc__RandomData {\n    data: array<u32>\n}\n\n`;
   transpiled += `@group(0) @binding(${
     (buffers ? Object.keys(buffers).length : 0) +
     (uniforms ? 1 : 0) +
     (canvas ? 1 : 0)
-  }) var<storage, read> hpcjsRandom: RandomData;\n\n`;
+  }) var<storage, read> hpc__random: hpc__RandomData;\n\n`;
   transpiled += `${getRandomSource()}\n\n`;
 
   transpiled += `${getCplxSource()}\n\n`;
@@ -730,7 +730,7 @@ function parseKernelSource<
   const prelude =
     target === 'js'
       ? ''
-      : `    let global_id = vec3<f32>(global_id_u32);\n    let hpcjsRandIndex = dot(global_id_u32, vec3<u32>(97073, 57641, 29269)) % (${randBufferSize});\n    hpcjsRandState = hpcjsRandom.data[hpcjsRandIndex];\n`;
+      : `    let hpc__globalId = vec3<f32>(hpc__globalIdU32);\n    let hpc__randIndex = dot(hpc__globalIdU32, vec3<u32>(97073, 57641, 29269)) % (${randBufferSize});\n    hpc__randState = hpc__random.data[hpc__randIndex];\n`;
 
   const walkerState = {
     currentExpression: '',
@@ -767,9 +767,9 @@ function parseKernelSource<
 
   if (target === 'wgsl')
     transpiled +=
-      '@compute @workgroup_size(1, 1)\nfn main(@builtin(global_invocation_id) global_id_u32: vec3<u32>) ';
+      '@compute @workgroup_size(1, 1)\nfn main(@builtin(global_invocation_id) hpc__globalIdU32: vec3<u32>) ';
   else
-    transpiled += `const global_id = vec3(0, 0, 0);\nfor (global_id.x = 0; global_id.x < dispatchSize.x; global_id.x++) for (global_id.y = 0; global_id.y < dispatchSize.y; global_id.y++) inner_dispatch_loop: for (global_id.z = 0; global_id.z < dispatchSize.z; global_id.z++) `;
+    transpiled += `const hpc__globalId = vec3(0, 0, 0);\nfor (hpc__globalId.x = 0; hpc__globalId.x < hpc__dispatchSize.x; hpc__globalId.x++) for (hpc__globalId.y = 0; hpc__globalId.y < hpc__dispatchSize.y; hpc__globalId.y++) inner_dispatch_loop: for (hpc__globalId.z = 0; hpc__globalId.z < hpc__dispatchSize.z; hpc__globalId.z++) `;
 
   transpiled += walkerState.currentExpression;
 

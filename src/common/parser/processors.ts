@@ -212,7 +212,7 @@ export function processSpecialVariable(state: WalkerState<string, string>) {
   }[] = [
     {
       regex: `${state.inputsVarName}[threadId]`,
-      formula: 'global_id',
+      formula: 'hpc__globalId',
       type: 'vec3',
     },
   ];
@@ -263,7 +263,8 @@ export function processSpecialVariable(state: WalkerState<string, string>) {
         return [true, args];
       };
 
-      const prefix = state.target === 'wgsl' ? 'data_' : 'proxy_';
+      const prefix =
+        state.target === 'wgsl' ? 'hpc__data_' : 'hpc__bufferProxy_';
       const suffix = state.target === 'wgsl' ? '.data' : '';
       let formula = `${prefix}${bufferName}${suffix}[`;
       for (let i = 0; i < buffer.size.length; i++) {
@@ -362,7 +363,7 @@ export function processSpecialVariable(state: WalkerState<string, string>) {
 
       specialVariables.push({
         regex: `${state.inputsVarName}[uniforms][${uniformName}]`,
-        formula: `uniforms.${uniformName}${
+        formula: `hpc__uniforms.${uniformName}${
           state.target === 'js' ? '.value' : ''
         }`,
         type,

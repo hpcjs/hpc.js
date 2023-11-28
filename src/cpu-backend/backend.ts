@@ -144,13 +144,13 @@ export default class CPUFallback<
       this.canvas
     );
     const compiled = new Function(
-      'buffers',
-      'uniforms',
-      'pixels',
+      'hpc__buffers',
+      'hpc__uniforms',
+      'hpc__pixels',
       'vec2',
       'vec3',
       'vec4',
-      'dispatchSize',
+      'hpc__dispatchSize',
       transpiledSrc
     );
     const runKernel = (x: number, y: number = 1, z: number = 1) => {

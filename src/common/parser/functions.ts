@@ -150,7 +150,7 @@ const functions = {
       {
         returnType: 'number',
         arguments: [],
-        gpuFormula: 'hpcjsRand()',
+        gpuFormula: 'hpc__rand()',
         cpuFormula: 'Math.random()',
       },
     ],
@@ -432,188 +432,188 @@ const functions = {
       {
         returnType: 'boolean',
         arguments: ['number', 'number'],
-        gpuFormula: '($0 == $1)',
-        cpuFormula: '($0 == $1)',
+        gpuFormula: '($0) == ($1)',
+        cpuFormula: '($0) == ($1)',
       },
       {
         returnType: 'boolean',
         arguments: ['vec2', 'vec2'],
-        gpuFormula: '($0 == $1)',
-        cpuFormula: '($0.equals($1))',
+        gpuFormula: '($0) == ($1)',
+        cpuFormula: '($0).equals($1)',
       },
       {
         returnType: 'boolean',
         arguments: ['vec3', 'vec3'],
-        gpuFormula: '($0 == $1)',
-        cpuFormula: '($0.equals($1))',
+        gpuFormula: '($0) == ($1)',
+        cpuFormula: '($0).equals($1)',
       },
       {
         returnType: 'boolean',
         arguments: ['vec4', 'vec4'],
-        gpuFormula: '($0 == $1)',
-        cpuFormula: '($0.equals($1))',
+        gpuFormula: '($0) == ($1)',
+        cpuFormula: '($0).equals($1)',
       },
     ],
     '!=': [
       {
         returnType: 'boolean',
         arguments: ['number', 'number'],
-        gpuFormula: '($0 != $1)',
-        cpuFormula: '($0 != $1)',
+        gpuFormula: '($0) != ($1)',
+        cpuFormula: '($0) != ($1)',
       },
       {
         returnType: 'boolean',
         arguments: ['vec2', 'vec2'],
-        gpuFormula: '($0 != $1)',
-        cpuFormula: '($0.notEquals($1))',
+        gpuFormula: '($0) != ($1)',
+        cpuFormula: '($0).notEquals($1)',
       },
       {
         returnType: 'boolean',
         arguments: ['vec3', 'vec3'],
-        gpuFormula: '($0 != $1)',
-        cpuFormula: '($0.notEquals($1))',
+        gpuFormula: '($0) != ($1)',
+        cpuFormula: '($0).notEquals($1)',
       },
       {
         returnType: 'boolean',
         arguments: ['vec4', 'vec4'],
-        gpuFormula: '($0 != $1)',
-        cpuFormula: '($0.notEquals($1))',
+        gpuFormula: '($0) != ($1)',
+        cpuFormula: '($0).notEquals($1)',
       },
     ],
     '===': [
       {
         returnType: 'boolean',
         arguments: ['number', 'number'],
-        gpuFormula: '($0 == $1)',
-        cpuFormula: '($0 == $1)',
+        gpuFormula: '($0) == ($1)',
+        cpuFormula: '($0) == ($1)',
       },
       {
         returnType: 'boolean',
         arguments: ['vec2', 'vec2'],
-        gpuFormula: '($0 == $1)',
-        cpuFormula: '($0.equals($1))',
+        gpuFormula: '($0) == ($1)',
+        cpuFormula: '($0).equals($1)',
       },
       {
         returnType: 'boolean',
         arguments: ['vec3', 'vec3'],
-        gpuFormula: '($0 == $1)',
-        cpuFormula: '($0.equals($1))',
+        gpuFormula: '($0) == ($1)',
+        cpuFormula: '($0).equals($1)',
       },
       {
         returnType: 'boolean',
         arguments: ['vec4', 'vec4'],
-        gpuFormula: '($0 == $1)',
-        cpuFormula: '($0.equals($1))',
+        gpuFormula: '($0) == ($1)',
+        cpuFormula: '($0).equals($1)',
       },
     ],
     '!==': [
       {
         returnType: 'boolean',
         arguments: ['number', 'number'],
-        gpuFormula: '($0 != $1)',
-        cpuFormula: '($0 != $1)',
+        gpuFormula: '($0) != ($1)',
+        cpuFormula: '($0) != ($1)',
       },
       {
         returnType: 'boolean',
         arguments: ['vec2', 'vec2'],
-        gpuFormula: '($0 != $1)',
-        cpuFormula: '($0.notEquals($1))',
+        gpuFormula: '($0) != ($1)',
+        cpuFormula: '($0).notEquals($1)',
       },
       {
         returnType: 'boolean',
         arguments: ['vec3', 'vec3'],
-        gpuFormula: '($0 != $1)',
-        cpuFormula: '($0.notEquals($1))',
+        gpuFormula: '($0) != ($1)',
+        cpuFormula: '($0).notEquals($1)',
       },
       {
         returnType: 'boolean',
         arguments: ['vec4', 'vec4'],
-        gpuFormula: '($0 != $1)',
-        cpuFormula: '($0.notEquals($1))',
+        gpuFormula: '($0) != ($1)',
+        cpuFormula: '($0).notEquals($1)',
       },
     ],
     '<': [
       {
         returnType: 'boolean',
         arguments: ['number', 'number'],
-        gpuFormula: '($0 < $1)',
-        cpuFormula: '($0 < $1)',
+        gpuFormula: '($0) < ($1)',
+        cpuFormula: '($0) < ($1)',
       },
     ],
     '<=': [
       {
         returnType: 'boolean',
         arguments: ['number', 'number'],
-        gpuFormula: '($0 <= $1)',
-        cpuFormula: '($0 <= $1)',
+        gpuFormula: '($0) <= ($1)',
+        cpuFormula: '($0) <= ($1)',
       },
     ],
     '>': [
       {
         returnType: 'boolean',
         arguments: ['number', 'number'],
-        gpuFormula: '($0 > $1)',
-        cpuFormula: '($0 > $1)',
+        gpuFormula: '($0) > ($1)',
+        cpuFormula: '($0) > ($1)',
       },
     ],
     '>=': [
       {
         returnType: 'boolean',
         arguments: ['number', 'number'],
-        gpuFormula: '($0 >= $1)',
-        cpuFormula: '($0 >= $1)',
+        gpuFormula: '($0) >= ($1)',
+        cpuFormula: '($0) >= ($1)',
       },
     ],
     '+': [
       {
         returnType: 'number',
         arguments: ['number', 'number'],
-        gpuFormula: '($0 + $1)',
-        cpuFormula: '($0 + $1)',
+        gpuFormula: '($0) + ($1)',
+        cpuFormula: '($0) + ($1)',
       },
       {
         returnType: 'number',
         arguments: ['number'],
-        gpuFormula: '($0)',
-        cpuFormula: '($0)',
+        gpuFormula: '$0',
+        cpuFormula: '$0',
       },
     ],
     '-': [
       {
         returnType: 'number',
         arguments: ['number', 'number'],
-        gpuFormula: '($0 - $1)',
-        cpuFormula: '($0 - $1)',
+        gpuFormula: '($0) - ($1)',
+        cpuFormula: '($0) - ($1)',
       },
       {
         returnType: 'number',
         arguments: ['number'],
-        gpuFormula: '(-$0)',
-        cpuFormula: '(-$0)',
+        gpuFormula: '-($0)',
+        cpuFormula: '-($0)',
       },
     ],
     '*': [
       {
         returnType: 'number',
         arguments: ['number', 'number'],
-        gpuFormula: '($0 * $1)',
-        cpuFormula: '($0 * $1)',
+        gpuFormula: '($0) * ($1)',
+        cpuFormula: '($0) * ($1)',
       },
     ],
     '/': [
       {
         returnType: 'number',
         arguments: ['number', 'number'],
-        gpuFormula: '($0 / $1)',
-        cpuFormula: '($0 / $1)',
+        gpuFormula: '($0) / ($1)',
+        cpuFormula: '($0) / ($1)',
       },
     ],
     '%': [
       {
         returnType: 'number',
         arguments: ['number', 'number'],
-        gpuFormula: '($0 % $1)',
-        cpuFormula: '($0 % $1)',
+        gpuFormula: '($0) % ($1)',
+        cpuFormula: '($0) % ($1)',
       },
     ],
     '**': [
@@ -628,16 +628,16 @@ const functions = {
       {
         returnType: 'boolean',
         arguments: ['boolean', 'boolean'],
-        gpuFormula: '($0 || $1)',
-        cpuFormula: '($0 || $1)',
+        gpuFormula: '($0) || ($1)',
+        cpuFormula: '($0) || ($1)',
       },
     ],
     '&&': [
       {
         returnType: 'boolean',
         arguments: ['boolean', 'boolean'],
-        gpuFormula: '($0 && $1)',
-        cpuFormula: '($0 && $1)',
+        gpuFormula: '($0) && ($1)',
+        cpuFormula: '($0) && ($1)',
       },
     ],
     '?:': [
@@ -645,33 +645,33 @@ const functions = {
         returnType: 'number',
         arguments: ['boolean', 'number', 'number'],
         gpuFormula: 'select($2, $1, $0)',
-        cpuFormula: '($0 ? $1 : $2)',
+        cpuFormula: '($0) ? ($1) : ($2)',
       },
       {
         returnType: 'vec2',
         arguments: ['boolean', 'vec2', 'vec2'],
         gpuFormula: 'select($2, $1, $0)',
-        cpuFormula: '($0 ? $1 : $2)',
+        cpuFormula: '($0) ? ($1) : ($2)',
       },
       {
         returnType: 'vec3',
         arguments: ['boolean', 'vec3', 'vec3'],
         gpuFormula: 'select($2, $1, $0)',
-        cpuFormula: '($0 ? $1 : $2)',
+        cpuFormula: '($0) ? ($1) : ($2)',
       },
       {
         returnType: 'vec4',
         arguments: ['boolean', 'vec4', 'vec4'],
         gpuFormula: 'select($2, $1, $0)',
-        cpuFormula: '($0 ? $1 : $2)',
+        cpuFormula: '($0) ? ($1) : ($2)',
       },
     ],
     '!': [
       {
         returnType: 'boolean',
         arguments: ['boolean'],
-        gpuFormula: '!$0',
-        cpuFormula: '!$0',
+        gpuFormula: '!($0)',
+        cpuFormula: '!($0)',
       },
     ],
   },
@@ -680,68 +680,68 @@ const functions = {
       {
         returnType: 'vec2',
         arguments: ['vec2'],
-        gpuFormula: '($0 + $1)',
-        cpuFormula: '($0.plus($1))',
+        gpuFormula: '($0) + ($1)',
+        cpuFormula: '($0).plus($1)',
       },
     ],
     minus: [
       {
         returnType: 'vec2',
         arguments: ['vec2'],
-        gpuFormula: '($0 - $1)',
-        cpuFormula: '($0.minus($1))',
+        gpuFormula: '($0) - ($1)',
+        cpuFormula: '($0).minus($1)',
       },
     ],
     times: [
       {
         returnType: 'vec2',
         arguments: ['vec2'],
-        gpuFormula: '($0 * $1)',
-        cpuFormula: '($0.times($1))',
+        gpuFormula: '($0) * ($1)',
+        cpuFormula: '($0).times($1)',
       },
       {
         returnType: 'vec2',
         arguments: ['number'],
-        gpuFormula: '($0 * $1)',
-        cpuFormula: '($0.times($1))',
+        gpuFormula: '($0) * ($1)',
+        cpuFormula: '($0).times($1)',
       },
     ],
     cplxTimes: [
       {
         returnType: 'vec2',
         arguments: ['vec2'],
-        gpuFormula: 'cplxTimes($0, $1)',
-        cpuFormula: '$0.cplxTimes($1)',
+        gpuFormula: 'hpc__cplxTimes($0, $1)',
+        cpuFormula: '($0).cplxTimes($1)',
       },
     ],
     div: [
       {
         returnType: 'vec2',
         arguments: ['vec2'],
-        gpuFormula: '($0 / $1)',
-        cpuFormula: '($0.div($1))',
+        gpuFormula: '($0) / ($1)',
+        cpuFormula: '($0).div($1)',
       },
       {
         returnType: 'vec2',
         arguments: ['number'],
-        gpuFormula: '($0 / $1)',
-        cpuFormula: '($0.div($1))',
+        gpuFormula: '($0) / ($1)',
+        cpuFormula: '($0).div($1)',
       },
     ],
     cplxDiv: [
       {
         returnType: 'vec2',
         arguments: ['vec2'],
-        gpuFormula: 'cplxDiv($0, $1)',
-        cpuFormula: '$0.cplxDiv($1)',
+        gpuFormula: 'hpc__cplxDiv($0, $1)',
+        cpuFormula: '($0).cplxDiv($1)',
       },
     ],
     cplxConj: [
       {
         returnType: 'vec2',
         arguments: [],
-        gpuFormula: 'cplxConj($0)',
-        cpuFormula: '$0.cplxConj()',
+        gpuFormula: 'hpc__cplxConj($0)',
+        cpuFormula: '($0).cplxConj()',
       },
     ],
     dot: [
@@ -749,15 +749,15 @@ const functions = {
         returnType: 'number',
         arguments: ['vec2'],
         gpuFormula: 'dot($0, $1)',
-        cpuFormula: '$0.dot($1)',
+        cpuFormula: '($0).dot($1)',
       },
     ],
     length: [
       {
         returnType: 'number',
         arguments: [],
-        gpuFormula: 'length(vec2<f32>($0))',
-        cpuFormula: '$0.length()',
+        gpuFormula: 'length($0)',
+        cpuFormula: '($0).length()',
       },
     ],
     normalized: [
@@ -765,7 +765,7 @@ const functions = {
         returnType: 'vec2',
         arguments: [],
         gpuFormula: 'normalize($0)',
-        cpuFormula: '$0.normalized()',
+        cpuFormula: '($0).normalized()',
       },
     ],
     dist: [
@@ -773,7 +773,7 @@ const functions = {
         returnType: 'number',
         arguments: ['vec2'],
         gpuFormula: 'distance($0, $1)',
-        cpuFormula: '$0.dist($1)',
+        cpuFormula: '($0).dist($1)',
       },
     ],
     abs: [
@@ -781,7 +781,7 @@ const functions = {
         returnType: 'vec2',
         arguments: [],
         gpuFormula: 'abs($0)',
-        cpuFormula: '$0.abs()',
+        cpuFormula: '($0).abs()',
       },
     ],
     acos: [
@@ -789,7 +789,7 @@ const functions = {
         returnType: 'vec2',
         arguments: [],
         gpuFormula: 'acos($0)',
-        cpuFormula: '$0.acos()',
+        cpuFormula: '($0).acos()',
       },
     ],
     acosh: [
@@ -797,7 +797,7 @@ const functions = {
         returnType: 'vec2',
         arguments: [],
         gpuFormula: 'acosh($0)',
-        cpuFormula: '$0.acosh()',
+        cpuFormula: '($0).acosh()',
       },
     ],
     asin: [
@@ -805,7 +805,7 @@ const functions = {
         returnType: 'vec2',
         arguments: [],
         gpuFormula: 'asin($0)',
-        cpuFormula: '$0.asin()',
+        cpuFormula: '($0).asin()',
       },
     ],
     asinh: [
@@ -813,7 +813,7 @@ const functions = {
         returnType: 'vec2',
         arguments: [],
         gpuFormula: 'asinh($0)',
-        cpuFormula: '$0.asinh()',
+        cpuFormula: '($0).asinh()',
       },
     ],
     atan: [
@@ -821,7 +821,7 @@ const functions = {
         returnType: 'vec2',
         arguments: [],
         gpuFormula: 'atan($0)',
-        cpuFormula: '$0.atan()',
+        cpuFormula: '($0).atan()',
       },
     ],
     atanh: [
@@ -829,7 +829,7 @@ const functions = {
         returnType: 'vec2',
         arguments: [],
         gpuFormula: 'atanh($0)',
-        cpuFormula: '$0.atanh()',
+        cpuFormula: '($0).atanh()',
       },
     ],
     atan2: [
@@ -837,7 +837,7 @@ const functions = {
         returnType: 'vec2',
         arguments: ['vec2'],
         gpuFormula: 'atan2($0, $1)',
-        cpuFormula: '$0.atan2($1)',
+        cpuFormula: '($0).atan2($1)',
       },
     ],
     ceil: [
@@ -845,7 +845,7 @@ const functions = {
         returnType: 'vec2',
         arguments: [],
         gpuFormula: 'ceil($0)',
-        cpuFormula: '$0.ceil()',
+        cpuFormula: '($0).ceil()',
       },
     ],
     cos: [
@@ -853,7 +853,7 @@ const functions = {
         returnType: 'vec2',
         arguments: [],
         gpuFormula: 'cos($0)',
-        cpuFormula: '$0.cos()',
+        cpuFormula: '($0).cos()',
       },
     ],
     cosh: [
@@ -861,7 +861,7 @@ const functions = {
         returnType: 'vec2',
         arguments: [],
         gpuFormula: 'cosh($0)',
-        cpuFormula: '$0.cosh()',
+        cpuFormula: '($0).cosh()',
       },
     ],
     exp: [
@@ -869,7 +869,7 @@ const functions = {
         returnType: 'vec2',
         arguments: [],
         gpuFormula: 'exp($0)',
-        cpuFormula: '$0.exp()',
+        cpuFormula: '($0).exp()',
       },
     ],
     floor: [
@@ -877,7 +877,7 @@ const functions = {
         returnType: 'vec2',
         arguments: [],
         gpuFormula: 'floor($0)',
-        cpuFormula: '$0.floor()',
+        cpuFormula: '($0).floor()',
       },
     ],
     log: [
@@ -885,7 +885,7 @@ const functions = {
         returnType: 'vec2',
         arguments: [],
         gpuFormula: 'log($0)',
-        cpuFormula: '$0.log()',
+        cpuFormula: '($0).log()',
       },
     ],
     log2: [
@@ -893,7 +893,7 @@ const functions = {
         returnType: 'vec2',
         arguments: [],
         gpuFormula: 'log2($0)',
-        cpuFormula: '$0.log2()',
+        cpuFormula: '($0).log2()',
       },
     ],
     max: [
@@ -901,7 +901,7 @@ const functions = {
         returnType: 'vec2',
         arguments: ['vec2'],
         gpuFormula: 'max($0, $1)',
-        cpuFormula: '$0.max($1)',
+        cpuFormula: '($0).max($1)',
       },
     ],
     min: [
@@ -909,7 +909,7 @@ const functions = {
         returnType: 'vec2',
         arguments: ['vec2'],
         gpuFormula: 'min($0, $1)',
-        cpuFormula: '$0.min($1)',
+        cpuFormula: '($0).min($1)',
       },
     ],
     pow: [
@@ -917,7 +917,7 @@ const functions = {
         returnType: 'vec2',
         arguments: ['vec2'],
         gpuFormula: 'pow($0, $1)',
-        cpuFormula: '$0.pow($1)',
+        cpuFormula: '($0).pow($1)',
       },
     ],
     round: [
@@ -925,7 +925,7 @@ const functions = {
         returnType: 'vec2',
         arguments: [],
         gpuFormula: 'round($0)',
-        cpuFormula: '$0.round()',
+        cpuFormula: '($0).round()',
       },
     ],
     sign: [
@@ -933,7 +933,7 @@ const functions = {
         returnType: 'vec2',
         arguments: [],
         gpuFormula: 'sign($0)',
-        cpuFormula: '$0.sign()',
+        cpuFormula: '($0).sign()',
       },
     ],
     sin: [
@@ -941,7 +941,7 @@ const functions = {
         returnType: 'vec2',
         arguments: [],
         gpuFormula: 'sin($0)',
-        cpuFormula: '$0.sin()',
+        cpuFormula: '($0).sin()',
       },
     ],
     sinh: [
@@ -949,7 +949,7 @@ const functions = {
         returnType: 'vec2',
         arguments: [],
         gpuFormula: 'sinh($0)',
-        cpuFormula: '$0.sinh()',
+        cpuFormula: '($0).sinh()',
       },
     ],
     sqrt: [
@@ -957,7 +957,7 @@ const functions = {
         returnType: 'vec2',
         arguments: [],
         gpuFormula: 'sqrt($0)',
-        cpuFormula: '$0.sqrt()',
+        cpuFormula: '($0).sqrt()',
       },
     ],
     tan: [
@@ -965,7 +965,7 @@ const functions = {
         returnType: 'vec2',
         arguments: [],
         gpuFormula: 'tan($0)',
-        cpuFormula: '$0.tan()',
+        cpuFormula: '($0).tan()',
       },
     ],
     tanh: [
@@ -973,7 +973,7 @@ const functions = {
         returnType: 'vec2',
         arguments: [],
         gpuFormula: 'tanh($0)',
-        cpuFormula: '$0.tanh()',
+        cpuFormula: '($0).tanh()',
       },
     ],
     trunc: [
@@ -981,7 +981,7 @@ const functions = {
         returnType: 'vec2',
         arguments: [],
         gpuFormula: 'trunc($0)',
-        cpuFormula: '$0.trunc()',
+        cpuFormula: '($0).trunc()',
       },
     ],
   },
@@ -990,44 +990,44 @@ const functions = {
       {
         returnType: 'vec3',
         arguments: ['vec3'],
-        gpuFormula: '($0 + $1)',
-        cpuFormula: '$0.plus($1)',
+        gpuFormula: '($0) + ($1)',
+        cpuFormula: '($0).plus($1)',
       },
     ],
     minus: [
       {
         returnType: 'vec3',
         arguments: ['vec3'],
-        gpuFormula: '($0 - $1)',
-        cpuFormula: '$0.minus($1)',
+        gpuFormula: '($0) - ($1)',
+        cpuFormula: '($0).minus($1)',
       },
     ],
     times: [
       {
         returnType: 'vec3',
         arguments: ['vec3'],
-        gpuFormula: '($0 * $1)',
-        cpuFormula: '$0.times($1)',
+        gpuFormula: '($0) * ($1)',
+        cpuFormula: '($0).times($1)',
       },
       {
         returnType: 'vec3',
         arguments: ['number'],
-        gpuFormula: '($0 * $1)',
-        cpuFormula: '$0.times($1)',
+        gpuFormula: '($0) * ($1)',
+        cpuFormula: '($0).times($1)',
       },
     ],
     div: [
       {
         returnType: 'vec3',
         arguments: ['vec3'],
-        gpuFormula: '($0 / $1)',
-        cpuFormula: '$0.div($1)',
+        gpuFormula: '($0) / ($1)',
+        cpuFormula: '($0).div($1)',
       },
       {
         returnType: 'vec3',
         arguments: ['number'],
-        gpuFormula: '($0 / $1)',
-        cpuFormula: '$0.div($1)',
+        gpuFormula: '($0) / ($1)',
+        cpuFormula: '($0).div($1)',
       },
     ],
     dot: [
@@ -1035,7 +1035,7 @@ const functions = {
         returnType: 'number',
         arguments: ['vec3'],
         gpuFormula: 'dot($0, $1)',
-        cpuFormula: '$0.dot($1)',
+        cpuFormula: '($0).dot($1)',
       },
     ],
     cross: [
@@ -1043,15 +1043,15 @@ const functions = {
         returnType: 'vec3',
         arguments: ['vec3'],
         gpuFormula: 'cross($0, $1)',
-        cpuFormula: '$0.cross($1)',
+        cpuFormula: '($0).cross($1)',
       },
     ],
     length: [
       {
         returnType: 'number',
         arguments: [],
-        gpuFormula: 'length(vec3<f32>($0))',
-        cpuFormula: '$0.length()',
+        gpuFormula: 'length($0)',
+        cpuFormula: '($0).length()',
       },
     ],
     normalized: [
@@ -1059,7 +1059,7 @@ const functions = {
         returnType: 'vec3',
         arguments: [],
         gpuFormula: 'normalize($0)',
-        cpuFormula: '$0.normalized()',
+        cpuFormula: '($0).normalized()',
       },
     ],
     dist: [
@@ -1067,7 +1067,7 @@ const functions = {
         returnType: 'number',
         arguments: ['vec3'],
         gpuFormula: 'distance($0, $1)',
-        cpuFormula: '$0.dist($1)',
+        cpuFormula: '($0).dist($1)',
       },
     ],
     abs: [
@@ -1075,7 +1075,7 @@ const functions = {
         returnType: 'vec3',
         arguments: [],
         gpuFormula: 'abs($0)',
-        cpuFormula: '$0.abs()',
+        cpuFormula: '($0).abs()',
       },
     ],
     acos: [
@@ -1083,7 +1083,7 @@ const functions = {
         returnType: 'vec3',
         arguments: [],
         gpuFormula: 'acos($0)',
-        cpuFormula: '$0.acos()',
+        cpuFormula: '($0).acos()',
       },
     ],
     acosh: [
@@ -1091,7 +1091,7 @@ const functions = {
         returnType: 'vec3',
         arguments: [],
         gpuFormula: 'acosh($0)',
-        cpuFormula: '$0.acosh()',
+        cpuFormula: '($0).acosh()',
       },
     ],
     asin: [
@@ -1099,7 +1099,7 @@ const functions = {
         returnType: 'vec3',
         arguments: [],
         gpuFormula: 'asin($0)',
-        cpuFormula: '$0.asin()',
+        cpuFormula: '($0).asin()',
       },
     ],
     asinh: [
@@ -1107,7 +1107,7 @@ const functions = {
         returnType: 'vec3',
         arguments: [],
         gpuFormula: 'asinh($0)',
-        cpuFormula: '$0.asinh()',
+        cpuFormula: '($0).asinh()',
       },
     ],
     atan: [
@@ -1115,7 +1115,7 @@ const functions = {
         returnType: 'vec3',
         arguments: [],
         gpuFormula: 'atan($0)',
-        cpuFormula: '$0.atan()',
+        cpuFormula: '($0).atan()',
       },
     ],
     atanh: [
@@ -1123,7 +1123,7 @@ const functions = {
         returnType: 'vec3',
         arguments: [],
         gpuFormula: 'atanh($0)',
-        cpuFormula: '$0.atanh()',
+        cpuFormula: '($0).atanh()',
       },
     ],
     atan2: [
@@ -1131,7 +1131,7 @@ const functions = {
         returnType: 'vec3',
         arguments: ['vec3'],
         gpuFormula: 'atan2($0, $1)',
-        cpuFormula: '$0.atan2($1)',
+        cpuFormula: '($0).atan2($1)',
       },
     ],
     ceil: [
@@ -1139,7 +1139,7 @@ const functions = {
         returnType: 'vec3',
         arguments: [],
         gpuFormula: 'ceil($0)',
-        cpuFormula: '$0.ceil()',
+        cpuFormula: '($0).ceil()',
       },
     ],
     cos: [
@@ -1147,7 +1147,7 @@ const functions = {
         returnType: 'vec3',
         arguments: [],
         gpuFormula: 'cos($0)',
-        cpuFormula: '$0.cos()',
+        cpuFormula: '($0).cos()',
       },
     ],
     cosh: [
@@ -1155,7 +1155,7 @@ const functions = {
         returnType: 'vec3',
         arguments: [],
         gpuFormula: 'cosh($0)',
-        cpuFormula: '$0.cosh()',
+        cpuFormula: '($0).cosh()',
       },
     ],
     exp: [
@@ -1163,7 +1163,7 @@ const functions = {
         returnType: 'vec3',
         arguments: [],
         gpuFormula: 'exp($0)',
-        cpuFormula: '$0.exp()',
+        cpuFormula: '($0).exp()',
       },
     ],
     floor: [
@@ -1171,7 +1171,7 @@ const functions = {
         returnType: 'vec3',
         arguments: [],
         gpuFormula: 'floor($0)',
-        cpuFormula: '$0.floor()',
+        cpuFormula: '($0).floor()',
       },
     ],
     log: [
@@ -1179,7 +1179,7 @@ const functions = {
         returnType: 'vec3',
         arguments: [],
         gpuFormula: 'log($0)',
-        cpuFormula: '$0.log()',
+        cpuFormula: '($0).log()',
       },
     ],
     log2: [
@@ -1187,7 +1187,7 @@ const functions = {
         returnType: 'vec3',
         arguments: [],
         gpuFormula: 'log2($0)',
-        cpuFormula: '$0.log2()',
+        cpuFormula: '($0).log2()',
       },
     ],
     max: [
@@ -1195,7 +1195,7 @@ const functions = {
         returnType: 'vec3',
         arguments: ['vec3'],
         gpuFormula: 'max($0, $1)',
-        cpuFormula: '$0.max($1)',
+        cpuFormula: '($0).max($1)',
       },
     ],
     min: [
@@ -1203,7 +1203,7 @@ const functions = {
         returnType: 'vec3',
         arguments: ['vec3'],
         gpuFormula: 'min($0, $1)',
-        cpuFormula: '$0.min($1)',
+        cpuFormula: '($0).min($1)',
       },
     ],
     pow: [
@@ -1211,7 +1211,7 @@ const functions = {
         returnType: 'vec3',
         arguments: ['vec3'],
         gpuFormula: 'pow($0, $1)',
-        cpuFormula: '$0.pow($1)',
+        cpuFormula: '($0).pow($1)',
       },
     ],
     round: [
@@ -1219,7 +1219,7 @@ const functions = {
         returnType: 'vec3',
         arguments: [],
         gpuFormula: 'round($0)',
-        cpuFormula: '$0.round()',
+        cpuFormula: '($0).round()',
       },
     ],
     sign: [
@@ -1227,7 +1227,7 @@ const functions = {
         returnType: 'vec3',
         arguments: [],
         gpuFormula: 'sign($0)',
-        cpuFormula: '$0.sign()',
+        cpuFormula: '($0).sign()',
       },
     ],
     sin: [
@@ -1235,7 +1235,7 @@ const functions = {
         returnType: 'vec3',
         arguments: [],
         gpuFormula: 'sin($0)',
-        cpuFormula: '$0.sin()',
+        cpuFormula: '($0).sin()',
       },
     ],
     sinh: [
@@ -1243,7 +1243,7 @@ const functions = {
         returnType: 'vec3',
         arguments: [],
         gpuFormula: 'sinh($0)',
-        cpuFormula: '$0.sinh()',
+        cpuFormula: '($0).sinh()',
       },
     ],
     sqrt: [
@@ -1251,7 +1251,7 @@ const functions = {
         returnType: 'vec3',
         arguments: [],
         gpuFormula: 'sqrt($0)',
-        cpuFormula: '$0.sqrt()',
+        cpuFormula: '($0).sqrt()',
       },
     ],
     tan: [
@@ -1259,7 +1259,7 @@ const functions = {
         returnType: 'vec3',
         arguments: [],
         gpuFormula: 'tan($0)',
-        cpuFormula: '$0.tan()',
+        cpuFormula: '($0).tan()',
       },
     ],
     tanh: [
@@ -1267,7 +1267,7 @@ const functions = {
         returnType: 'vec3',
         arguments: [],
         gpuFormula: 'tanh($0)',
-        cpuFormula: '$0.tanh()',
+        cpuFormula: '($0).tanh()',
       },
     ],
     trunc: [
@@ -1275,7 +1275,7 @@ const functions = {
         returnType: 'vec3',
         arguments: [],
         gpuFormula: 'trunc($0)',
-        cpuFormula: '$0.trunc()',
+        cpuFormula: '($0).trunc()',
       },
     ],
   },
@@ -1284,44 +1284,44 @@ const functions = {
       {
         returnType: 'vec4',
         arguments: ['vec4'],
-        gpuFormula: '($0 + $1)',
-        cpuFormula: '$0.plus($1)',
+        gpuFormula: '($0) + ($1)',
+        cpuFormula: '($0).plus($1)',
       },
     ],
     minus: [
       {
         returnType: 'vec4',
         arguments: ['vec4'],
-        gpuFormula: '($0 - $1)',
-        cpuFormula: '$0.minus($1)',
+        gpuFormula: '($0) - ($1)',
+        cpuFormula: '($0).minus($1)',
       },
     ],
     times: [
       {
         returnType: 'vec4',
         arguments: ['vec4'],
-        gpuFormula: '($0 * $1)',
-        cpuFormula: '$0.times($1)',
+        gpuFormula: '($0) * ($1)',
+        cpuFormula: '($0).times($1)',
       },
       {
         returnType: 'vec4',
         arguments: ['number'],
-        gpuFormula: '($0 * $1)',
-        cpuFormula: '$0.times($1)',
+        gpuFormula: '($0) * ($1)',
+        cpuFormula: '($0).times($1)',
       },
     ],
     div: [
       {
         returnType: 'vec4',
         arguments: ['vec4'],
-        gpuFormula: '($0 / $1)',
-        cpuFormula: '$0.div($1)',
+        gpuFormula: '($0) / ($1)',
+        cpuFormula: '($0).div($1)',
       },
       {
         returnType: 'vec4',
         arguments: ['number'],
-        gpuFormula: '($0 / $1)',
-        cpuFormula: '$0.div($1)',
+        gpuFormula: '($0) / ($1)',
+        cpuFormula: '($0).div($1)',
       },
     ],
     dot: [
@@ -1329,15 +1329,15 @@ const functions = {
         returnType: 'number',
         arguments: ['vec4'],
         gpuFormula: 'dot($0, $1)',
-        cpuFormula: '$0.dot($1)',
+        cpuFormula: '($0).dot($1)',
       },
     ],
     length: [
       {
         returnType: 'number',
         arguments: [],
-        gpuFormula: 'length(vec4<f32>($0))',
-        cpuFormula: '$0.length()',
+        gpuFormula: 'length($0)',
+        cpuFormula: '($0).length()',
       },
     ],
     normalized: [
@@ -1345,7 +1345,7 @@ const functions = {
         returnType: 'vec4',
         arguments: [],
         gpuFormula: 'normalize($0)',
-        cpuFormula: '$0.normalized()',
+        cpuFormula: '($0).normalized()',
       },
     ],
     dist: [
@@ -1353,7 +1353,7 @@ const functions = {
         returnType: 'number',
         arguments: ['vec4'],
         gpuFormula: 'distance($0, $1)',
-        cpuFormula: '$0.dist($1)',
+        cpuFormula: '($0).dist($1)',
       },
     ],
     abs: [
@@ -1361,7 +1361,7 @@ const functions = {
         returnType: 'vec4',
         arguments: [],
         gpuFormula: 'abs($0)',
-        cpuFormula: '$0.abs()',
+        cpuFormula: '($0).abs()',
       },
     ],
     acos: [
@@ -1369,7 +1369,7 @@ const functions = {
         returnType: 'vec4',
         arguments: [],
         gpuFormula: 'acos($0)',
-        cpuFormula: '$0.acos()',
+        cpuFormula: '($0).acos()',
       },
     ],
     acosh: [
@@ -1377,7 +1377,7 @@ const functions = {
         returnType: 'vec4',
         arguments: [],
         gpuFormula: 'acosh($0)',
-        cpuFormula: '$0.acosh()',
+        cpuFormula: '($0).acosh()',
       },
     ],
     asin: [
@@ -1385,7 +1385,7 @@ const functions = {
         returnType: 'vec4',
         arguments: [],
         gpuFormula: 'asin($0)',
-        cpuFormula: '$0.asin()',
+        cpuFormula: '($0).asin()',
       },
     ],
     asinh: [
@@ -1393,7 +1393,7 @@ const functions = {
         returnType: 'vec4',
         arguments: [],
         gpuFormula: 'asinh($0)',
-        cpuFormula: '$0.asinh()',
+        cpuFormula: '($0).asinh()',
       },
     ],
     atan: [
@@ -1401,7 +1401,7 @@ const functions = {
         returnType: 'vec4',
         arguments: [],
         gpuFormula: 'atan($0)',
-        cpuFormula: '$0.atan()',
+        cpuFormula: '($0).atan()',
       },
     ],
     atanh: [
@@ -1409,7 +1409,7 @@ const functions = {
         returnType: 'vec4',
         arguments: [],
         gpuFormula: 'atanh($0)',
-        cpuFormula: '$0.atanh()',
+        cpuFormula: '($0).atanh()',
       },
     ],
     atan2: [
@@ -1417,7 +1417,7 @@ const functions = {
         returnType: 'vec4',
         arguments: ['vec4'],
         gpuFormula: 'atan2($0, $1)',
-        cpuFormula: '$0.atan2($1)',
+        cpuFormula: '($0).atan2($1)',
       },
     ],
     ceil: [
@@ -1425,7 +1425,7 @@ const functions = {
         returnType: 'vec4',
         arguments: [],
         gpuFormula: 'ceil($0)',
-        cpuFormula: '$0.ceil()',
+        cpuFormula: '($0).ceil()',
       },
     ],
     cos: [
@@ -1433,7 +1433,7 @@ const functions = {
         returnType: 'vec4',
         arguments: [],
         gpuFormula: 'cos($0)',
-        cpuFormula: '$0.cos()',
+        cpuFormula: '($0).cos()',
       },
     ],
     cosh: [
@@ -1441,7 +1441,7 @@ const functions = {
         returnType: 'vec4',
         arguments: [],
         gpuFormula: 'cosh($0)',
-        cpuFormula: '$0.cosh()',
+        cpuFormula: '($0).cosh()',
       },
     ],
     exp: [
@@ -1449,7 +1449,7 @@ const functions = {
         returnType: 'vec4',
         arguments: [],
         gpuFormula: 'exp($0)',
-        cpuFormula: '$0.exp()',
+        cpuFormula: '($0).exp()',
       },
     ],
     floor: [
@@ -1457,7 +1457,7 @@ const functions = {
         returnType: 'vec4',
         arguments: [],
         gpuFormula: 'floor($0)',
-        cpuFormula: '$0.floor()',
+        cpuFormula: '($0).floor()',
       },
     ],
     log: [
@@ -1465,7 +1465,7 @@ const functions = {
         returnType: 'vec4',
         arguments: [],
         gpuFormula: 'log($0)',
-        cpuFormula: '$0.log()',
+        cpuFormula: '($0).log()',
       },
     ],
     log2: [
@@ -1473,7 +1473,7 @@ const functions = {
         returnType: 'vec4',
         arguments: [],
         gpuFormula: 'log2($0)',
-        cpuFormula: '$0.log2()',
+        cpuFormula: '($0).log2()',
       },
     ],
     max: [
@@ -1481,7 +1481,7 @@ const functions = {
         returnType: 'vec4',
         arguments: ['vec4'],
         gpuFormula: 'max($0, $1)',
-        cpuFormula: '$0.max($1)',
+        cpuFormula: '($0).max($1)',
       },
     ],
     min: [
@@ -1489,7 +1489,7 @@ const functions = {
         returnType: 'vec4',
         arguments: ['vec4'],
         gpuFormula: 'min($0, $1)',
-        cpuFormula: '$0.min($1)',
+        cpuFormula: '($0).min($1)',
       },
     ],
     pow: [
@@ -1497,7 +1497,7 @@ const functions = {
         returnType: 'vec4',
         arguments: ['vec4'],
         gpuFormula: 'pow($0, $1)',
-        cpuFormula: '$0.pow($1)',
+        cpuFormula: '($0).pow($1)',
       },
     ],
     round: [
@@ -1505,7 +1505,7 @@ const functions = {
         returnType: 'vec4',
         arguments: [],
         gpuFormula: 'round($0)',
-        cpuFormula: '$0.round()',
+        cpuFormula: '($0).round()',
       },
     ],
     sign: [
@@ -1513,7 +1513,7 @@ const functions = {
         returnType: 'vec4',
         arguments: [],
         gpuFormula: 'sign($0)',
-        cpuFormula: '$0.sign()',
+        cpuFormula: '($0).sign()',
       },
     ],
     sin: [
@@ -1521,7 +1521,7 @@ const functions = {
         returnType: 'vec4',
         arguments: [],
         gpuFormula: 'sin($0)',
-        cpuFormula: '$0.sin()',
+        cpuFormula: '($0).sin()',
       },
     ],
     sinh: [
@@ -1529,7 +1529,7 @@ const functions = {
         returnType: 'vec4',
         arguments: [],
         gpuFormula: 'sinh($0)',
-        cpuFormula: '$0.sinh()',
+        cpuFormula: '($0).sinh()',
       },
     ],
     sqrt: [
@@ -1537,7 +1537,7 @@ const functions = {
         returnType: 'vec4',
         arguments: [],
         gpuFormula: 'sqrt($0)',
-        cpuFormula: '$0.sqrt()',
+        cpuFormula: '($0).sqrt()',
       },
     ],
     tan: [
@@ -1545,7 +1545,7 @@ const functions = {
         returnType: 'vec4',
         arguments: [],
         gpuFormula: 'tan($0)',
-        cpuFormula: '$0.tan()',
+        cpuFormula: '($0).tan()',
       },
     ],
     tanh: [
@@ -1553,7 +1553,7 @@ const functions = {
         returnType: 'vec4',
         arguments: [],
         gpuFormula: 'tanh($0)',
-        cpuFormula: '$0.tanh()',
+        cpuFormula: '($0).tanh()',
       },
     ],
     trunc: [
@@ -1561,7 +1561,7 @@ const functions = {
         returnType: 'vec4',
         arguments: [],
         gpuFormula: 'trunc($0)',
-        cpuFormula: '$0.trunc()',
+        cpuFormula: '($0).trunc()',
       },
     ],
   },
@@ -1574,26 +1574,26 @@ const functions = {
       {
         returnType: 'void',
         arguments: ['number', 'number', 'number', 'number', 'number'],
-        gpuFormula: 'setPixelv1($1, $2, $3, $4, $5)',
-        cpuFormula: 'setPixelv1($1, $2, $3, $4, $5)',
+        gpuFormula: 'hpc__setPixelv1($1, $2, $3, $4, $5)',
+        cpuFormula: 'hpc__setPixelv1($1, $2, $3, $4, $5)',
       },
       {
         returnType: 'void',
         arguments: ['vec2', 'number', 'number', 'number'],
-        gpuFormula: 'setPixelv2($1, $2, $3, $4)',
-        cpuFormula: 'setPixelv2($1, $2, $3, $4)',
+        gpuFormula: 'hpc__setPixelv2($1, $2, $3, $4)',
+        cpuFormula: 'hpc__setPixelv2($1, $2, $3, $4)',
       },
       {
         returnType: 'void',
         arguments: ['number', 'number', 'vec3'],
-        gpuFormula: 'setPixelv3($1, $2, $3)',
-        cpuFormula: 'setPixelv3($1, $2, $3)',
+        gpuFormula: 'hpc__setPixelv3($1, $2, $3)',
+        cpuFormula: 'hpc__setPixelv3($1, $2, $3)',
       },
       {
         returnType: 'void',
         arguments: ['vec2', 'vec3'],
-        gpuFormula: 'setPixelv4($1, $2)',
-        cpuFormula: 'setPixelv4($1, $2)',
+        gpuFormula: 'hpc__setPixelv4($1, $2)',
+        cpuFormula: 'hpc__setPixelv4($1, $2)',
       },
     ],
   },
