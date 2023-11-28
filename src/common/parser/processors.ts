@@ -4,16 +4,16 @@ import { GPUVec3 } from '../../gpu-types/vec3';
 import { GPUVec4 } from '../../gpu-types/vec4';
 import {
   GPUExpressionWithType,
-  GPUWalkerState,
+  WalkerState,
   VariableType,
-} from '../../gpu-backend/types';
+} from './parser-types';
 import functions from './functions';
 
 export function processFunction(
   functionName: string,
   parentObject: GPUExpressionWithType | null,
   args: GPUExpressionWithType[],
-  state: GPUWalkerState<string, string>
+  state: WalkerState<string, string>
 ) {
   const parentObjectType = parentObject ? parentObject.type : 'standalone';
   const relevantFunctions = functions[parentObjectType];
@@ -96,7 +96,7 @@ export function processFunction(
   );
 }
 
-export function processExpressionFields(state: GPUWalkerState<string, string>) {
+export function processExpressionFields(state: WalkerState<string, string>) {
   if (state.memberExpressionParentType === 'unknown') {
     return;
   }
@@ -208,7 +208,7 @@ export function processExpressionFields(state: GPUWalkerState<string, string>) {
   }
 }
 
-export function processSpecialVariable(state: GPUWalkerState<string, string>) {
+export function processSpecialVariable(state: WalkerState<string, string>) {
   const specialVariables: {
     regex: RegExp | string | ((expr: string) => [boolean, string[]]);
     formula: string;
@@ -437,7 +437,7 @@ export function wrapIfSingleLine(text: string) {
   return text.includes('\n') ? text : `{ ${text}; }`;
 }
 
-export function processArrayAccess(state: GPUWalkerState<string, string>) {
+export function processArrayAccess(state: WalkerState<string, string>) {
   const arrayTypes = [
     'numberarray',
     'vec2array',

@@ -113,3 +113,15 @@ export type GPUBufferSizeToVec<TSize> = TSize extends [number]
   : TSize extends [number, number, number]
   ? { x: TSize[0]; y: TSize[1]; z: TSize[2] }
   : never;
+
+export type GPUBufferTypeToType<
+  TType extends 'number' | 'vec2' | 'vec3' | 'vec4'
+> = TType extends 'number'
+  ? number
+  : TType extends 'vec2'
+  ? GPUVec2
+  : TType extends 'vec3'
+  ? GPUVec3
+  : TType extends 'vec4'
+  ? GPUVec4
+  : never;

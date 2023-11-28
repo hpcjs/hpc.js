@@ -1,4 +1,4 @@
-import { VariableType } from '../../gpu-backend/types';
+import { VariableType } from './parser-types';
 
 const functions = {
   math: {

@@ -7,7 +7,8 @@ import {
   GPUUniformSpec,
   GPUBufferTypeStr,
   ExtractArrayType,
-} from '../common/types';
+  GPUBufferTypeToType,
+} from '../common/common-types';
 import { getDataType } from '../common/utils';
 import { GPUVec2 } from '../gpu-types/vec2';
 import { GPUVec3 } from '../gpu-types/vec3';
@@ -15,10 +16,9 @@ import { GPUVec4 } from '../gpu-types/vec4';
 import { transpileKernelToWgsl } from '../common/parser/parse-kernel';
 import {
   GPUBufferCollection,
-  GPUBufferTypeToType,
   GPUUniformCollection,
   GPUUniformInfo,
-} from './types';
+} from './gpu-types';
 import {
   getFragmentSource,
   getVertexSource,

@@ -1,14 +1,11 @@
 import * as acorn from 'acorn';
 import * as walk from 'acorn-walk';
-import { GPUKernelSource } from '../../common/types';
+import { GPUKernelSource } from '../common-types';
 import functions from './functions';
 import {
   GPUBufferCollection,
-  GPUExpressionWithType,
   GPUUniformCollection,
-  GPUWalkerState as WalkerState,
-  VariableType,
-} from '../../gpu-backend/types';
+} from '../../gpu-backend/gpu-types';
 import {
   getCplxSource,
   getRandomSource,
@@ -32,11 +29,14 @@ import {
 import {
   WalkerStateBufferCollection,
   WalkerStateUniformCollection,
-} from './types';
+  WalkerState,
+  VariableType,
+  GPUExpressionWithType,
+} from './parser-types';
 import {
   CPUBufferCollection,
   CPUUniformCollection,
-} from '../../cpu-backend/types';
+} from '../../cpu-backend/cpu-types';
 import { getJsProxySource, getJsSetPixelSource } from './js-kernel-code';
 
 // required since minification turns vec3

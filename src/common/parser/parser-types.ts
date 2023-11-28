@@ -1,42 +1,23 @@
-import {
-  WalkerStateBufferCollection,
-  WalkerStateUniformCollection,
-} from '../common/parser/types';
-import { GPUBufferSize } from '../common/types';
-import { GPUVec2 } from '../gpu-types/vec2';
-import { GPUVec3 } from '../gpu-types/vec3';
-import { GPUVec4 } from '../gpu-types/vec4';
+import { GPUVec2 } from '../../gpu-types/vec2';
+import { GPUVec3 } from '../../gpu-types/vec3';
+import { GPUVec4 } from '../../gpu-types/vec4';
+import { GPUBufferSize } from '../common-types';
 
-export type GPUBufferTypeToType<
-  TType extends 'number' | 'vec2' | 'vec3' | 'vec4'
-> = TType extends 'number'
-  ? number
-  : TType extends 'vec2'
-  ? GPUVec2
-  : TType extends 'vec3'
-  ? GPUVec3
-  : TType extends 'vec4'
-  ? GPUVec4
-  : never;
+export type WalkerStateBufferCollection<TName extends string> = {
+  [K in TName]: WalkerStateBuffer;
+};
 
-export type GPUBufferWithInfo = {
+export type WalkerStateBuffer = {
   size: GPUBufferSize;
-  resource: GPUBuffer;
-  id: number;
-  readBuffer?: GPUBuffer;
-  mapped: boolean;
   type: 'number' | 'vec2' | 'vec3' | 'vec4';
 };
-export type GPUUniformInfo = {
-  value: number | GPUVec2 | GPUVec3 | GPUVec4;
-  offset: number;
+
+export type WalkerStateUniformCollection<TName extends string> = {
+  [K in TName]: WalkerStateUniform;
 };
 
-export type GPUBufferCollection<TName extends string> = {
-  [K in TName]: GPUBufferWithInfo;
-};
-export type GPUUniformCollection<TName extends string> = {
-  [K in TName]: GPUUniformInfo;
+export type WalkerStateUniform = {
+  value: number | GPUVec2 | GPUVec3 | GPUVec4;
 };
 
 export type VariableType =
@@ -90,7 +71,7 @@ export type WGSLType<T extends VariableType> = T extends 'number'
   : T extends 'vec4'
   ? 'vec4<f32>'
   : never;
-export type GPUWalkerState<
+export type WalkerState<
   TBufferName extends string,
   TUniformName extends string
 > = {
