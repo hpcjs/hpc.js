@@ -9,7 +9,11 @@ import {
   GPUWalkerState as WalkerState,
   VariableType,
 } from '../../gpu-backend/types';
-import { getCplxSource, getRandomSource, getSetPixelSource } from './wgsl-code';
+import {
+  getCplxSource,
+  getRandomSource,
+  getSetPixelSource,
+} from './wgsl-kernel-code';
 import {
   processArrayAccess,
   processExpressionFields,
@@ -33,6 +37,7 @@ import {
   CPUBufferCollection,
   CPUUniformCollection,
 } from '../../cpu-backend/types';
+import { getJsProxySource, getJsSetPixelSource } from './js-kernel-code';
 
 // required since minification turns vec3
 // into  __WEBPACK_IMPORTED_MODULE__.vec3
@@ -683,67 +688,16 @@ export function transpileKernelToJs<
   >,
   buffers: CPUBufferCollection<TBufferName> | undefined,
   uniforms: CPUUniformCollection<TUniformName> | undefined,
-  canvas: HTMLCanvasElement | undefined,
-  pixels: Uint8ClampedArray | undefined
+  canvas: HTMLCanvasElement | undefined
 ) {
   let transpiled = '';
 
   for (const name in buffers) {
-    transpiled += `const proxy_${name} = new Proxy(buffers.${name}.data, {
-    get(target, index) {
-        ${
-          buffers[name].type === 'number'
-            ? 'return target[index];'
-            : buffers[name].type === 'vec2'
-            ? 'return vec2(target[index * 2], target[index * 2 + 1]);'
-            : buffers[name].type === 'vec3'
-            ? 'return vec3(target[index * 3], target[index * 3 + 1], target[index * 3 + 2]);'
-            : 'return vec4(target[index * 4], target[index * 4 + 1], target[index * 4 + 2], target[index * 4 + 3]);'
-        }
-    },
-    set(target, index, value) {
-        ${
-          buffers[name].type === 'number'
-            ? 'target[index] = value;'
-            : buffers[name].type === 'vec2'
-            ? 'target[index * 2] = value.x;\n        target[index * 2 + 1] = value.y;'
-            : buffers[name].type === 'vec3'
-            ? 'target[index * 3] = value.x;\n        target[index * 3 + 1] = value.y;\n        target[index * 3 + 2] = value.z;'
-            : 'target[index * 4] = value.x;\n        target[index * 4 + 1] = value.y;\n        target[index * 4 + 2] = value.z;\n        target[index * 4 + 3] = value.w;'
-        }
-        return true;
-    }
-});\n\n`;
+    transpiled += getJsProxySource(name, buffers[name].type);
   }
 
   if (canvas) {
-    transpiled += `function setPixelv1(x, y, r, g, b) {
-    const index = (Math.round(${canvas.height} - y) * ${canvas.width} + Math.round(x)) * 4;
-    pixels[index + 0] = r;
-    pixels[index + 1] = g;
-    pixels[index + 2] = b;
-}
-
-function setPixelv2(pos, r, g, b) {
-    const index = (Math.round(${canvas.height} - pos.y) * ${canvas.width} + Math.round(pos.x)) * 4;
-    pixels[index + 0] = r;
-    pixels[index + 1] = g;
-    pixels[index + 2] = b;
-}
-
-function setPixelv3(x, y, color) {
-    const index = (Math.round(${canvas.height} - y) * ${canvas.width} + Math.round(x)) * 4;
-    pixels[index + 0] = color.x;
-    pixels[index + 1] = color.y;
-    pixels[index + 2] = color.z;
-}
-
-function setPixelv4(pos, color) {
-    const index = (Math.round(${canvas.height} - pos.y) * ${canvas.width} + Math.round(pos.x)) * 4;
-    pixels[index + 0] = color.x;
-    pixels[index + 1] = color.y
-    pixels[index + 2] = color.z;
-}\n\n`;
+    transpiled += getJsSetPixelSource(canvas.width, canvas.height);
   }
 
   transpiled += parseKernelSource(func, buffers, uniforms, canvas, 1024, 'js');

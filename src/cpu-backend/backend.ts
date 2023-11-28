@@ -142,8 +142,7 @@ export default class CPUFallback<
       kernel,
       this.buffers,
       this.uniforms,
-      this.canvas,
-      this.pixels
+      this.canvas
     );
     const compiled = new Function(
       'buffers',

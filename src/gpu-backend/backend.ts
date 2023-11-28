@@ -19,7 +19,10 @@ import {
   GPUUniformCollection,
   GPUUniformInfo,
 } from './types';
-import { getFragmentSource, getVertexSource } from '../common/parser/wgsl-code';
+import {
+  getFragmentSource,
+  getVertexSource,
+} from '../common/parser/wgsl-kernel-code';
 
 export default class GPUBackend<
   TBufferName extends string,
