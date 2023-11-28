@@ -1,21 +1,21 @@
-export const getSetPixelSource = (width: number) => {
+export const getSetPixelSource = (width: number, height: number) => {
   return /* wgsl */ `fn setPixelv1(x: f32, y: f32, r: f32, g: f32, b: f32) {
-  let index = i32(y) * ${width} + i32(x);
+  let index = (${height} - i32(y)) * ${width} + i32(x);
   pixels.data[index] = vec3<f32>(r / 255, g / 255, b / 255);
 }
 
 fn setPixelv2(pos: vec2<f32>, r: f32, g: f32, b: f32) {
-  let index = i32(pos.y) * ${width} + i32(pos.x);
+  let index = (${height} - i32(pos.y)) * ${width} + i32(pos.x);
   pixels.data[index] = vec3<f32>(r / 255, g / 255, b / 255);
 }
 
 fn setPixelv3(x: f32, y: f32, color: vec3<f32>) {
-  let index = i32(y) * ${width} + i32(x);
+  let index = (${height} - i32(y)) * ${width} + i32(x);
   pixels.data[index] = color / 255;
 }
 
 fn setPixelv4(pos: vec2<f32>, color: vec3<f32>) {
-  let index = i32(pos.y) * ${width} + i32(pos.x);
+  let index = (${height} - i32(pos.y)) * ${width} + i32(pos.x);
   pixels.data[index] = color / 255;
 }`;
 };

@@ -1,4 +1,4 @@
-import { VariableType } from '../types';
+import { VariableType } from '../../gpu-backend/types';
 
 const functions = {
   math: {
@@ -6,189 +6,216 @@ const functions = {
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'abs($1)',
+        gpuFormula: 'abs($1)',
+        cpuFormula: 'Math.abs($1)',
       },
     ],
     acos: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'acos($1)',
+        gpuFormula: 'acos($1)',
+        cpuFormula: 'Math.acos($1)',
       },
     ],
     acosh: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'acosh($1)',
+        gpuFormula: 'acosh($1)',
+        cpuFormula: 'Math.acosh($1)',
       },
     ],
     asin: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'asin($1)',
+        gpuFormula: 'asin($1)',
+        cpuFormula: 'Math.asin($1)',
       },
     ],
     asinh: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'asinh($1)',
+        gpuFormula: 'asinh($1)',
+        cpuFormula: 'Math.asinh($1)',
       },
     ],
     atan: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'atan($1)',
+        gpuFormula: 'atan($1)',
+        cpuFormula: 'Math.atan($1)',
       },
     ],
     atanh: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'atanh($1)',
+        gpuFormula: 'atanh($1)',
+        cpuFormula: 'Math.atanh($1)',
       },
     ],
     atan2: [
       {
         returnType: 'number',
         arguments: ['number', 'number'],
-        formula: 'atan2($1, $2)',
+        gpuFormula: 'atan2($1, $2)',
+        cpuFormula: 'Math.atan2($1, $2)',
       },
     ],
     ceil: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'ceil($1)',
+        gpuFormula: 'ceil($1)',
+        cpuFormula: 'Math.ceil($1)',
       },
     ],
     cos: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'cos($1)',
+        gpuFormula: 'cos($1)',
+        cpuFormula: 'Math.cos($1)',
       },
     ],
     cosh: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'cosh($1)',
+        gpuFormula: 'cosh($1)',
+        cpuFormula: 'Math.cosh($1)',
       },
     ],
     exp: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'exp($1)',
+        gpuFormula: 'exp($1)',
+        cpuFormula: 'Math.exp($1)',
       },
     ],
     floor: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'floor($1)',
+        gpuFormula: 'floor($1)',
+        cpuFormula: 'Math.floor($1)',
       },
     ],
     log: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'log($1)',
+        gpuFormula: 'log($1)',
+        cpuFormula: 'Math.log($1)',
       },
     ],
     log2: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'log2($1)',
+        gpuFormula: 'log2($1)',
+        cpuFormula: 'Math.log2($1)',
       },
     ],
     max: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'max($1)',
+        gpuFormula: 'max($1)',
+        cpuFormula: 'Math.max($1)',
       },
     ],
     min: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'min($1)',
+        gpuFormula: 'min($1)',
+        cpuFormula: 'Math.min($1)',
       },
     ],
     pow: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'pow($1)',
+        gpuFormula: 'pow($1)',
+        cpuFormula: 'Math.pow($1)',
       },
     ],
     random: [
       {
         returnType: 'number',
         arguments: [],
-        formula: 'hpcjsRand()',
+        gpuFormula: 'hpcjsRand()',
+        cpuFormula: 'Math.random()',
       },
     ],
     round: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'round($1)',
+        gpuFormula: 'round($1)',
+        cpuFormula: 'Math.round($1)',
       },
     ],
     sign: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'sign($1)',
+        gpuFormula: 'sign($1)',
+        cpuFormula: 'Math.sign($1)',
       },
     ],
     sin: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'sin($1)',
+        gpuFormula: 'sin($1)',
+        cpuFormula: 'Math.sin($1)',
       },
     ],
     sinh: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'sinh($1)',
+        gpuFormula: 'sinh($1)',
+        cpuFormula: 'Math.sinh($1)',
       },
     ],
     sqrt: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'sqrt($1)',
+        gpuFormula: 'sqrt($1)',
+        cpuFormula: 'Math.sqrt($1)',
       },
     ],
     tan: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'tan($1)',
+        gpuFormula: 'tan($1)',
+        cpuFormula: 'Math.tan($1)',
       },
     ],
     tanh: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'tanh($1)',
+        gpuFormula: 'tanh($1)',
+        cpuFormula: 'Math.tanh($1)',
       },
     ],
     trunc: [
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: 'trunc($1)',
+        gpuFormula: 'trunc($1)',
+        cpuFormula: 'Math.trunc($1)',
       },
     ],
   },
@@ -197,341 +224,454 @@ const functions = {
       {
         returnType: 'number',
         arguments: ['numberarray'],
-        formula: 'f32($s)',
+        gpuFormula: 'f32($s)',
+        cpuFormula: '($s)',
       },
       {
         returnType: 'number',
         arguments: ['vec2array'],
-        formula: 'f32($s)',
+        gpuFormula: 'f32($s)',
+        cpuFormula: '($s)',
       },
       {
         returnType: 'number',
         arguments: ['vec3array'],
-        formula: 'f32($s)',
+        gpuFormula: 'f32($s)',
+        cpuFormula: '($s)',
       },
       {
         returnType: 'number',
         arguments: ['vec4array'],
-        formula: 'f32($s)',
+        gpuFormula: 'f32($s)',
+        cpuFormula: '($s)',
       },
       {
         returnType: 'number',
         arguments: ['booleanarray'],
-        formula: 'f32($s)',
+        gpuFormula: 'f32($s)',
+        cpuFormula: '($s)',
       },
       {
         returnType: 'number',
-        arguments: ['buffer1d'],
-        formula: 'f32($s)',
+        arguments: ['buffer1dnumber'],
+        gpuFormula: 'f32($s)',
+        cpuFormula: '($s)',
+      },
+      {
+        returnType: 'number',
+        arguments: ['buffer1dvec2'],
+        gpuFormula: 'f32($s)',
+        cpuFormula: '($s)',
+      },
+      {
+        returnType: 'number',
+        arguments: ['buffer1dvec3'],
+        gpuFormula: 'f32($s)',
+        cpuFormula: '($s)',
+      },
+      {
+        returnType: 'number',
+        arguments: ['buffer1dvec4'],
+        gpuFormula: 'f32($s)',
+        cpuFormula: '($s)',
       },
       {
         returnType: 'vec2',
-        arguments: ['buffer2d'],
-        formula: 'vec2<f32>($s)',
+        arguments: ['buffer2dnumber'],
+        gpuFormula: 'vec2<f32>($s)',
+        cpuFormula: 'vec2($s)',
+      },
+      {
+        returnType: 'vec2',
+        arguments: ['buffer2dvec2'],
+        gpuFormula: 'vec2<f32>($s)',
+        cpuFormula: 'vec2($s)',
+      },
+      {
+        returnType: 'vec2',
+        arguments: ['buffer2dvec3'],
+        gpuFormula: 'vec2<f32>($s)',
+        cpuFormula: 'vec2($s)',
+      },
+      {
+        returnType: 'vec2',
+        arguments: ['buffer2dvec4'],
+        gpuFormula: 'vec2<f32>($s)',
+        cpuFormula: 'vec2($s)',
       },
       {
         returnType: 'vec3',
-        arguments: ['buffer3d'],
-        formula: 'vec3<f32>($s)',
+        arguments: ['buffer3dnumber'],
+        gpuFormula: 'vec3<f32>($s)',
+        cpuFormula: 'vec3($s)',
+      },
+      {
+        returnType: 'vec3',
+        arguments: ['buffer3dvec2'],
+        gpuFormula: 'vec3<f32>($s)',
+        cpuFormula: 'vec3($s)',
+      },
+      {
+        returnType: 'vec3',
+        arguments: ['buffer3dvec3'],
+        gpuFormula: 'vec3<f32>($s)',
+        cpuFormula: 'vec3($s)',
+      },
+      {
+        returnType: 'vec3',
+        arguments: ['buffer3dvec4'],
+        gpuFormula: 'vec3<f32>($s)',
+        cpuFormula: 'vec3($s)',
       },
     ],
     array: [
       {
         returnType: 'numberarray',
         arguments: ['number', 'number'],
-        formula: 'array<f32, $0>($r)',
+        gpuFormula: 'array<f32, $0>($r)',
+        cpuFormula: '(new Array($0)).fill($r)',
       },
       {
         returnType: 'numberarray',
         arguments: ['numberarrayliteral'],
-        formula: 'array<f32, $s>($0)',
+        gpuFormula: 'array<f32, $s>($0)',
+        cpuFormula: '[$0]',
       },
       {
         returnType: 'vec2array',
         arguments: ['number', 'vec2'],
-        formula: 'array<vec2<f32>, $0>($r)',
+        gpuFormula: 'array<vec2<f32>, $0>($r)',
+        cpuFormula: '(new Array($0)).fill($r)',
       },
       {
         returnType: 'vec2array',
         arguments: ['vec2arrayliteral'],
-        formula: 'array<vec2<f32>, $s>($0)',
+        gpuFormula: 'array<vec2<f32>, $s>($0)',
+        cpuFormula: '[$0]',
       },
       {
         returnType: 'vec3array',
         arguments: ['number', 'vec3'],
-        formula: 'array<vec3<f32>, $0>($r)',
+        gpuFormula: 'array<vec3<f32>, $0>($r)',
+        cpuFormula: '(new Array($0)).fill($r)',
       },
       {
         returnType: 'vec3array',
         arguments: ['vec3arrayliteral'],
-        formula: 'array<vec3<f32>, $s>($0)',
+        gpuFormula: 'array<vec3<f32>, $s>($0)',
+        cpuFormula: '[$0]',
       },
       {
         returnType: 'vec4array',
         arguments: ['number', 'vec4'],
-        formula: 'array<vec4<f32>, $0>($r)',
+        gpuFormula: 'array<vec4<f32>, $0>($r)',
+        cpuFormula: '(new Array($0)).fill($r)',
       },
       {
         returnType: 'vec4array',
         arguments: ['vec4arrayliteral'],
-        formula: 'array<vec4<f32>, $s>($0)',
+        gpuFormula: 'array<vec4<f32>, $s>($0)',
+        cpuFormula: '[$0]',
       },
       {
         returnType: 'booleanarray',
         arguments: ['number', 'boolean'],
-        formula: 'array<bool, $0>($r)',
+        gpuFormula: 'array<bool, $0>($r)',
+        cpuFormula: '(new Array($0)).fill($r)',
       },
       {
         returnType: 'booleanarray',
         arguments: ['booleanarrayliteral'],
-        formula: 'array<bool, $s>($0)',
+        gpuFormula: 'array<bool, $s>($0)',
+        cpuFormula: '[$0]',
       },
     ],
     vec2: [
       {
         returnType: 'vec2',
         arguments: ['number', 'number'],
-        formula: 'vec2<f32>($0, $1)',
+        gpuFormula: 'vec2<f32>($0, $1)',
+        cpuFormula: 'vec2($0, $1)',
       },
       {
         returnType: 'vec2',
         arguments: ['number'],
-        formula: 'vec2<f32>($0)',
+        gpuFormula: 'vec2<f32>($0)',
+        cpuFormula: 'vec2($0)',
       },
     ],
     vec3: [
       {
         returnType: 'vec3',
         arguments: ['number', 'number', 'number'],
-        formula: 'vec3<f32>($0, $1, $2)',
+        gpuFormula: 'vec3<f32>($0, $1, $2)',
+        cpuFormula: 'vec3($0, $1, $2)',
       },
       {
         returnType: 'vec3',
         arguments: ['number'],
-        formula: 'vec3<f32>($0)',
+        gpuFormula: 'vec3<f32>($0)',
+        cpuFormula: 'vec3($0)',
       },
     ],
     vec4: [
       {
         returnType: 'vec4',
         arguments: ['number', 'number', 'number', 'number'],
-        formula: 'vec4<f32>($0, $1, $2, $3)',
+        gpuFormula: 'vec4<f32>($0, $1, $2, $3)',
+        cpuFormula: 'vec4($0, $1, $2, $3)',
       },
       {
         returnType: 'vec4',
         arguments: ['number'],
-        formula: 'vec4<f32>($0)',
+        gpuFormula: 'vec4<f32>($0)',
+        cpuFormula: 'vec4($0)',
       },
     ],
     '==': [
       {
         returnType: 'boolean',
         arguments: ['number', 'number'],
-        formula: '($0 == $1)',
+        gpuFormula: '($0 == $1)',
+        cpuFormula: '($0 == $1)',
       },
       {
         returnType: 'boolean',
         arguments: ['vec2', 'vec2'],
-        formula: '($0 == $1)',
+        gpuFormula: '($0 == $1)',
+        cpuFormula: '($0.equals($1))',
       },
       {
         returnType: 'boolean',
         arguments: ['vec3', 'vec3'],
-        formula: '($0 == $1)',
+        gpuFormula: '($0 == $1)',
+        cpuFormula: '($0.equals($1))',
       },
       {
         returnType: 'boolean',
         arguments: ['vec4', 'vec4'],
-        formula: '($0 == $1)',
+        gpuFormula: '($0 == $1)',
+        cpuFormula: '($0.equals($1))',
       },
     ],
     '!=': [
       {
         returnType: 'boolean',
         arguments: ['number', 'number'],
-        formula: '($0 != $1)',
+        gpuFormula: '($0 != $1)',
+        cpuFormula: '($0 != $1)',
       },
       {
         returnType: 'boolean',
         arguments: ['vec2', 'vec2'],
-        formula: '($0 != $1)',
+        gpuFormula: '($0 != $1)',
+        cpuFormula: '($0.notEquals($1))',
       },
       {
         returnType: 'boolean',
         arguments: ['vec3', 'vec3'],
-        formula: '($0 != $1)',
+        gpuFormula: '($0 != $1)',
+        cpuFormula: '($0.notEquals($1))',
       },
       {
         returnType: 'boolean',
         arguments: ['vec4', 'vec4'],
-        formula: '($0 != $1)',
+        gpuFormula: '($0 != $1)',
+        cpuFormula: '($0.notEquals($1))',
       },
     ],
     '===': [
       {
         returnType: 'boolean',
         arguments: ['number', 'number'],
-        formula: '($0 == $1)',
+        gpuFormula: '($0 == $1)',
+        cpuFormula: '($0 == $1)',
       },
       {
         returnType: 'boolean',
         arguments: ['vec2', 'vec2'],
-        formula: '($0 == $1)',
+        gpuFormula: '($0 == $1)',
+        cpuFormula: '($0.equals($1))',
       },
       {
         returnType: 'boolean',
         arguments: ['vec3', 'vec3'],
-        formula: '($0 == $1)',
+        gpuFormula: '($0 == $1)',
+        cpuFormula: '($0.equals($1))',
       },
       {
         returnType: 'boolean',
         arguments: ['vec4', 'vec4'],
-        formula: '($0 == $1)',
+        gpuFormula: '($0 == $1)',
+        cpuFormula: '($0.equals($1))',
       },
     ],
     '!==': [
       {
         returnType: 'boolean',
         arguments: ['number', 'number'],
-        formula: '($0 != $1)',
+        gpuFormula: '($0 != $1)',
+        cpuFormula: '($0 != $1)',
       },
       {
         returnType: 'boolean',
         arguments: ['vec2', 'vec2'],
-        formula: '($0 != $1)',
+        gpuFormula: '($0 != $1)',
+        cpuFormula: '($0.notEquals($1))',
       },
       {
         returnType: 'boolean',
         arguments: ['vec3', 'vec3'],
-        formula: '($0 != $1)',
+        gpuFormula: '($0 != $1)',
+        cpuFormula: '($0.notEquals($1))',
       },
       {
         returnType: 'boolean',
         arguments: ['vec4', 'vec4'],
-        formula: '($0 != $1)',
+        gpuFormula: '($0 != $1)',
+        cpuFormula: '($0.notEquals($1))',
       },
     ],
     '<': [
       {
         returnType: 'boolean',
         arguments: ['number', 'number'],
-        formula: '($0 < $1)',
+        gpuFormula: '($0 < $1)',
+        cpuFormula: '($0 < $1)',
       },
     ],
     '<=': [
       {
         returnType: 'boolean',
         arguments: ['number', 'number'],
-        formula: '($0 <= $1)',
+        gpuFormula: '($0 <= $1)',
+        cpuFormula: '($0 <= $1)',
       },
     ],
     '>': [
       {
         returnType: 'boolean',
         arguments: ['number', 'number'],
-        formula: '($0 > $1)',
+        gpuFormula: '($0 > $1)',
+        cpuFormula: '($0 > $1)',
       },
     ],
     '>=': [
       {
         returnType: 'boolean',
         arguments: ['number', 'number'],
-        formula: '($0 >= $1)',
+        gpuFormula: '($0 >= $1)',
+        cpuFormula: '($0 >= $1)',
       },
     ],
     '+': [
       {
         returnType: 'number',
         arguments: ['number', 'number'],
-        formula: '($0 + $1)',
+        gpuFormula: '($0 + $1)',
+        cpuFormula: '($0 + $1)',
       },
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: '($0)',
+        gpuFormula: '($0)',
+        cpuFormula: '($0)',
       },
     ],
     '-': [
       {
         returnType: 'number',
         arguments: ['number', 'number'],
-        formula: '($0 - $1)',
+        gpuFormula: '($0 - $1)',
+        cpuFormula: '($0 - $1)',
       },
       {
         returnType: 'number',
         arguments: ['number'],
-        formula: '(-$0)',
+        gpuFormula: '(-$0)',
+        cpuFormula: '(-$0)',
       },
     ],
     '*': [
       {
         returnType: 'number',
         arguments: ['number', 'number'],
-        formula: '($0 * $1)',
+        gpuFormula: '($0 * $1)',
+        cpuFormula: '($0 * $1)',
       },
     ],
     '/': [
       {
         returnType: 'number',
         arguments: ['number', 'number'],
-        formula: '($0 / $1)',
+        gpuFormula: '($0 / $1)',
+        cpuFormula: '($0 / $1)',
       },
     ],
     '%': [
       {
         returnType: 'number',
         arguments: ['number', 'number'],
-        formula: '($0 % $1)',
+        gpuFormula: '($0 % $1)',
+        cpuFormula: '($0 % $1)',
       },
     ],
     '**': [
       {
         returnType: 'number',
         arguments: ['number', 'number'],
-        formula: 'pow($0, $1)',
+        gpuFormula: 'pow($0, $1)',
+        cpuFormula: 'Math.pow($0, $1)',
       },
     ],
     '||': [
       {
         returnType: 'boolean',
         arguments: ['boolean', 'boolean'],
-        formula: '($0 || $1)',
+        gpuFormula: '($0 || $1)',
+        cpuFormula: '($0 || $1)',
       },
     ],
     '&&': [
       {
         returnType: 'boolean',
         arguments: ['boolean', 'boolean'],
-        formula: '($0 && $1)',
+        gpuFormula: '($0 && $1)',
+        cpuFormula: '($0 && $1)',
       },
     ],
     '?:': [
       {
         returnType: 'number',
         arguments: ['boolean', 'number', 'number'],
-        formula: 'select($2, $1, $0)',
+        gpuFormula: 'select($2, $1, $0)',
+        cpuFormula: '($0 ? $1 : $2)',
       },
       {
         returnType: 'vec2',
         arguments: ['boolean', 'vec2', 'vec2'],
-        formula: 'select($2, $1, $0)',
+        gpuFormula: 'select($2, $1, $0)',
+        cpuFormula: '($0 ? $1 : $2)',
       },
       {
         returnType: 'vec3',
         arguments: ['boolean', 'vec3', 'vec3'],
-        formula: 'select($2, $1, $0)',
+        gpuFormula: 'select($2, $1, $0)',
+        cpuFormula: '($0 ? $1 : $2)',
       },
       {
         returnType: 'vec4',
         arguments: ['boolean', 'vec4', 'vec4'],
-        formula: 'select($2, $1, $0)',
+        gpuFormula: 'select($2, $1, $0)',
+        cpuFormula: '($0 ? $1 : $2)',
       },
     ],
     '!': [
       {
         returnType: 'boolean',
         arguments: ['boolean'],
-        formula: '!$0',
+        gpuFormula: '!$0',
+        cpuFormula: '!$0',
       },
     ],
   },
@@ -540,269 +680,308 @@ const functions = {
       {
         returnType: 'vec2',
         arguments: ['vec2'],
-        formula: '($0 + $1)',
+        gpuFormula: '($0 + $1)',
+        cpuFormula: '($0.plus($1))',
       },
     ],
     minus: [
       {
         returnType: 'vec2',
         arguments: ['vec2'],
-        formula: '($0 - $1)',
+        gpuFormula: '($0 - $1)',
+        cpuFormula: '($0.minus($1))',
       },
     ],
     times: [
       {
         returnType: 'vec2',
         arguments: ['vec2'],
-        formula: '($0 * $1)',
+        gpuFormula: '($0 * $1)',
+        cpuFormula: '($0.times($1))',
       },
       {
         returnType: 'vec2',
         arguments: ['number'],
-        formula: '($0 * $1)',
+        gpuFormula: '($0 * $1)',
+        cpuFormula: '($0.times($1))',
       },
     ],
     cplxTimes: [
       {
         returnType: 'vec2',
         arguments: ['vec2'],
-        formula: 'cplxTimes($0, $1)',
+        gpuFormula: 'cplxTimes($0, $1)',
+        cpuFormula: '$0.cplxTimes($1)',
       },
     ],
     div: [
       {
         returnType: 'vec2',
         arguments: ['vec2'],
-        formula: '($0 / $1)',
+        gpuFormula: '($0 / $1)',
+        cpuFormula: '($0.div($1))',
       },
       {
         returnType: 'vec2',
         arguments: ['number'],
-        formula: '($0 / $1)',
+        gpuFormula: '($0 / $1)',
+        cpuFormula: '($0.div($1))',
       },
     ],
     cplxDiv: [
       {
         returnType: 'vec2',
         arguments: ['vec2'],
-        formula: 'cplxDiv($0, $1)',
+        gpuFormula: 'cplxDiv($0, $1)',
+        cpuFormula: '$0.cplxDiv($1)',
       },
     ],
     cplxConj: [
       {
         returnType: 'vec2',
         arguments: [],
-        formula: 'cplxConj($0)',
+        gpuFormula: 'cplxConj($0)',
+        cpuFormula: '$0.cplxConj()',
       },
     ],
     dot: [
       {
         returnType: 'number',
         arguments: ['vec2'],
-        formula: 'dot($0, $1)',
+        gpuFormula: 'dot($0, $1)',
+        cpuFormula: '$0.dot($1)',
       },
     ],
     length: [
       {
         returnType: 'number',
         arguments: [],
-        formula: 'length(vec2<f32>($0))',
+        gpuFormula: 'length(vec2<f32>($0))',
+        cpuFormula: '$0.length()',
       },
     ],
     normalized: [
       {
         returnType: 'vec2',
         arguments: [],
-        formula: 'normalize($0)',
+        gpuFormula: 'normalize($0)',
+        cpuFormula: '$0.normalized()',
       },
     ],
     dist: [
       {
         returnType: 'number',
         arguments: ['vec2'],
-        formula: 'distance($0, $1)',
+        gpuFormula: 'distance($0, $1)',
+        cpuFormula: '$0.dist($1)',
       },
     ],
     abs: [
       {
         returnType: 'vec2',
         arguments: [],
-        formula: 'abs($0)',
+        gpuFormula: 'abs($0)',
+        cpuFormula: '$0.abs()',
       },
     ],
     acos: [
       {
         returnType: 'vec2',
         arguments: [],
-        formula: 'acos($0)',
+        gpuFormula: 'acos($0)',
+        cpuFormula: '$0.acos()',
       },
     ],
     acosh: [
       {
         returnType: 'vec2',
         arguments: [],
-        formula: 'acosh($0)',
+        gpuFormula: 'acosh($0)',
+        cpuFormula: '$0.acosh()',
       },
     ],
     asin: [
       {
         returnType: 'vec2',
         arguments: [],
-        formula: 'asin($0)',
+        gpuFormula: 'asin($0)',
+        cpuFormula: '$0.asin()',
       },
     ],
     asinh: [
       {
         returnType: 'vec2',
         arguments: [],
-        formula: 'asinh($0)',
+        gpuFormula: 'asinh($0)',
+        cpuFormula: '$0.asinh()',
       },
     ],
     atan: [
       {
         returnType: 'vec2',
         arguments: [],
-        formula: 'atan($0)',
+        gpuFormula: 'atan($0)',
+        cpuFormula: '$0.atan()',
       },
     ],
     atanh: [
       {
         returnType: 'vec2',
         arguments: [],
-        formula: 'atanh($0)',
+        gpuFormula: 'atanh($0)',
+        cpuFormula: '$0.atanh()',
       },
     ],
     atan2: [
       {
         returnType: 'vec2',
         arguments: ['vec2'],
-        formula: 'atan2($0, $1)',
+        gpuFormula: 'atan2($0, $1)',
+        cpuFormula: '$0.atan2($1)',
       },
     ],
     ceil: [
       {
         returnType: 'vec2',
         arguments: [],
-        formula: 'ceil($0)',
+        gpuFormula: 'ceil($0)',
+        cpuFormula: '$0.ceil()',
       },
     ],
     cos: [
       {
         returnType: 'vec2',
         arguments: [],
-        formula: 'cos($0)',
+        gpuFormula: 'cos($0)',
+        cpuFormula: '$0.cos()',
       },
     ],
     cosh: [
       {
         returnType: 'vec2',
         arguments: [],
-        formula: 'cosh($0)',
+        gpuFormula: 'cosh($0)',
+        cpuFormula: '$0.cosh()',
       },
     ],
     exp: [
       {
         returnType: 'vec2',
         arguments: [],
-        formula: 'exp($0)',
+        gpuFormula: 'exp($0)',
+        cpuFormula: '$0.exp()',
       },
     ],
     floor: [
       {
         returnType: 'vec2',
         arguments: [],
-        formula: 'floor($0)',
+        gpuFormula: 'floor($0)',
+        cpuFormula: '$0.floor()',
       },
     ],
     log: [
       {
         returnType: 'vec2',
         arguments: [],
-        formula: 'log($0)',
+        gpuFormula: 'log($0)',
+        cpuFormula: '$0.log()',
       },
     ],
     log2: [
       {
         returnType: 'vec2',
         arguments: [],
-        formula: 'log2($0)',
+        gpuFormula: 'log2($0)',
+        cpuFormula: '$0.log2()',
       },
     ],
     max: [
       {
         returnType: 'vec2',
         arguments: ['vec2'],
-        formula: 'max($0, $1)',
+        gpuFormula: 'max($0, $1)',
+        cpuFormula: '$0.max($1)',
       },
     ],
     min: [
       {
         returnType: 'vec2',
         arguments: ['vec2'],
-        formula: 'min($0, $1)',
+        gpuFormula: 'min($0, $1)',
+        cpuFormula: '$0.min($1)',
       },
     ],
     pow: [
       {
         returnType: 'vec2',
         arguments: ['vec2'],
-        formula: 'pow($0, $1)',
+        gpuFormula: 'pow($0, $1)',
+        cpuFormula: '$0.pow($1)',
       },
     ],
     round: [
       {
         returnType: 'vec2',
         arguments: [],
-        formula: 'round($0)',
+        gpuFormula: 'round($0)',
+        cpuFormula: '$0.round()',
       },
     ],
     sign: [
       {
         returnType: 'vec2',
         arguments: [],
-        formula: 'sign($0)',
+        gpuFormula: 'sign($0)',
+        cpuFormula: '$0.sign()',
       },
     ],
     sin: [
       {
         returnType: 'vec2',
         arguments: [],
-        formula: 'sin($0)',
+        gpuFormula: 'sin($0)',
+        cpuFormula: '$0.sin()',
       },
     ],
     sinh: [
       {
         returnType: 'vec2',
         arguments: [],
-        formula: 'sinh($0)',
+        gpuFormula: 'sinh($0)',
+        cpuFormula: '$0.sinh()',
       },
     ],
     sqrt: [
       {
         returnType: 'vec2',
         arguments: [],
-        formula: 'sqrt($0)',
+        gpuFormula: 'sqrt($0)',
+        cpuFormula: '$0.sqrt()',
       },
     ],
     tan: [
       {
         returnType: 'vec2',
         arguments: [],
-        formula: 'tan($0)',
+        gpuFormula: 'tan($0)',
+        cpuFormula: '$0.tan()',
       },
     ],
     tanh: [
       {
         returnType: 'vec2',
         arguments: [],
-        formula: 'tanh($0)',
+        gpuFormula: 'tanh($0)',
+        cpuFormula: '$0.tanh()',
       },
     ],
     trunc: [
       {
         returnType: 'vec2',
         arguments: [],
-        formula: 'trunc($0)',
+        gpuFormula: 'trunc($0)',
+        cpuFormula: '$0.trunc()',
       },
     ],
   },
@@ -811,255 +990,292 @@ const functions = {
       {
         returnType: 'vec3',
         arguments: ['vec3'],
-        formula: '($0 + $1)',
+        gpuFormula: '($0 + $1)',
+        cpuFormula: '$0.plus($1)',
       },
     ],
     minus: [
       {
         returnType: 'vec3',
         arguments: ['vec3'],
-        formula: '($0 - $1)',
+        gpuFormula: '($0 - $1)',
+        cpuFormula: '$0.minus($1)',
       },
     ],
     times: [
       {
         returnType: 'vec3',
         arguments: ['vec3'],
-        formula: '($0 * $1)',
+        gpuFormula: '($0 * $1)',
+        cpuFormula: '$0.times($1)',
       },
       {
         returnType: 'vec3',
         arguments: ['number'],
-        formula: '($0 * $1)',
+        gpuFormula: '($0 * $1)',
+        cpuFormula: '$0.times($1)',
       },
     ],
     div: [
       {
         returnType: 'vec3',
         arguments: ['vec3'],
-        formula: '($0 / $1)',
+        gpuFormula: '($0 / $1)',
+        cpuFormula: '$0.div($1)',
       },
       {
         returnType: 'vec3',
         arguments: ['number'],
-        formula: '($0 / $1)',
+        gpuFormula: '($0 / $1)',
+        cpuFormula: '$0.div($1)',
       },
     ],
     dot: [
       {
         returnType: 'number',
         arguments: ['vec3'],
-        formula: 'dot($0, $1)',
+        gpuFormula: 'dot($0, $1)',
+        cpuFormula: '$0.dot($1)',
       },
     ],
     cross: [
       {
         returnType: 'vec3',
         arguments: ['vec3'],
-        formula: 'cross($0, $1)',
+        gpuFormula: 'cross($0, $1)',
+        cpuFormula: '$0.cross($1)',
       },
     ],
     length: [
       {
         returnType: 'number',
         arguments: [],
-        formula: 'length(vec3<f32>($0))',
+        gpuFormula: 'length(vec3<f32>($0))',
+        cpuFormula: '$0.length()',
       },
     ],
     normalized: [
       {
         returnType: 'vec3',
         arguments: [],
-        formula: 'normalize($0)',
+        gpuFormula: 'normalize($0)',
+        cpuFormula: '$0.normalized()',
       },
     ],
     dist: [
       {
         returnType: 'number',
         arguments: ['vec3'],
-        formula: 'distance($0, $1)',
+        gpuFormula: 'distance($0, $1)',
+        cpuFormula: '$0.dist($1)',
       },
     ],
     abs: [
       {
         returnType: 'vec3',
         arguments: [],
-        formula: 'abs($0)',
+        gpuFormula: 'abs($0)',
+        cpuFormula: '$0.abs()',
       },
     ],
     acos: [
       {
         returnType: 'vec3',
         arguments: [],
-        formula: 'acos($0)',
+        gpuFormula: 'acos($0)',
+        cpuFormula: '$0.acos()',
       },
     ],
     acosh: [
       {
         returnType: 'vec3',
         arguments: [],
-        formula: 'acosh($0)',
+        gpuFormula: 'acosh($0)',
+        cpuFormula: '$0.acosh()',
       },
     ],
     asin: [
       {
         returnType: 'vec3',
         arguments: [],
-        formula: 'asin($0)',
+        gpuFormula: 'asin($0)',
+        cpuFormula: '$0.asin()',
       },
     ],
     asinh: [
       {
         returnType: 'vec3',
         arguments: [],
-        formula: 'asinh($0)',
+        gpuFormula: 'asinh($0)',
+        cpuFormula: '$0.asinh()',
       },
     ],
     atan: [
       {
         returnType: 'vec3',
         arguments: [],
-        formula: 'atan($0)',
+        gpuFormula: 'atan($0)',
+        cpuFormula: '$0.atan()',
       },
     ],
     atanh: [
       {
         returnType: 'vec3',
         arguments: [],
-        formula: 'atanh($0)',
+        gpuFormula: 'atanh($0)',
+        cpuFormula: '$0.atanh()',
       },
     ],
     atan2: [
       {
         returnType: 'vec3',
         arguments: ['vec3'],
-        formula: 'atan2($0, $1)',
+        gpuFormula: 'atan2($0, $1)',
+        cpuFormula: '$0.atan2($1)',
       },
     ],
     ceil: [
       {
         returnType: 'vec3',
         arguments: [],
-        formula: 'ceil($0)',
+        gpuFormula: 'ceil($0)',
+        cpuFormula: '$0.ceil()',
       },
     ],
     cos: [
       {
         returnType: 'vec3',
         arguments: [],
-        formula: 'cos($0)',
+        gpuFormula: 'cos($0)',
+        cpuFormula: '$0.cos()',
       },
     ],
     cosh: [
       {
         returnType: 'vec3',
         arguments: [],
-        formula: 'cosh($0)',
+        gpuFormula: 'cosh($0)',
+        cpuFormula: '$0.cosh()',
       },
     ],
     exp: [
       {
         returnType: 'vec3',
         arguments: [],
-        formula: 'exp($0)',
+        gpuFormula: 'exp($0)',
+        cpuFormula: '$0.exp()',
       },
     ],
     floor: [
       {
         returnType: 'vec3',
         arguments: [],
-        formula: 'floor($0)',
+        gpuFormula: 'floor($0)',
+        cpuFormula: '$0.floor()',
       },
     ],
     log: [
       {
         returnType: 'vec3',
         arguments: [],
-        formula: 'log($0)',
+        gpuFormula: 'log($0)',
+        cpuFormula: '$0.log()',
       },
     ],
     log2: [
       {
         returnType: 'vec3',
         arguments: [],
-        formula: 'log2($0)',
+        gpuFormula: 'log2($0)',
+        cpuFormula: '$0.log2()',
       },
     ],
     max: [
       {
         returnType: 'vec3',
         arguments: ['vec3'],
-        formula: 'max($0, $1)',
+        gpuFormula: 'max($0, $1)',
+        cpuFormula: '$0.max($1)',
       },
     ],
     min: [
       {
         returnType: 'vec3',
         arguments: ['vec3'],
-        formula: 'min($0, $1)',
+        gpuFormula: 'min($0, $1)',
+        cpuFormula: '$0.min($1)',
       },
     ],
     pow: [
       {
         returnType: 'vec3',
         arguments: ['vec3'],
-        formula: 'pow($0, $1)',
+        gpuFormula: 'pow($0, $1)',
+        cpuFormula: '$0.pow($1)',
       },
     ],
     round: [
       {
         returnType: 'vec3',
         arguments: [],
-        formula: 'round($0)',
+        gpuFormula: 'round($0)',
+        cpuFormula: '$0.round()',
       },
     ],
     sign: [
       {
         returnType: 'vec3',
         arguments: [],
-        formula: 'sign($0)',
+        gpuFormula: 'sign($0)',
+        cpuFormula: '$0.sign()',
       },
     ],
     sin: [
       {
         returnType: 'vec3',
         arguments: [],
-        formula: 'sin($0)',
+        gpuFormula: 'sin($0)',
+        cpuFormula: '$0.sin()',
       },
     ],
     sinh: [
       {
         returnType: 'vec3',
         arguments: [],
-        formula: 'sinh($0)',
+        gpuFormula: 'sinh($0)',
+        cpuFormula: '$0.sinh()',
       },
     ],
     sqrt: [
       {
         returnType: 'vec3',
         arguments: [],
-        formula: 'sqrt($0)',
+        gpuFormula: 'sqrt($0)',
+        cpuFormula: '$0.sqrt()',
       },
     ],
     tan: [
       {
         returnType: 'vec3',
         arguments: [],
-        formula: 'tan($0)',
+        gpuFormula: 'tan($0)',
+        cpuFormula: '$0.tan()',
       },
     ],
     tanh: [
       {
         returnType: 'vec3',
         arguments: [],
-        formula: 'tanh($0)',
+        gpuFormula: 'tanh($0)',
+        cpuFormula: '$0.tanh()',
       },
     ],
     trunc: [
       {
         returnType: 'vec3',
         arguments: [],
-        formula: 'trunc($0)',
+        gpuFormula: 'trunc($0)',
+        cpuFormula: '$0.trunc()',
       },
     ],
   },
@@ -1068,248 +1284,284 @@ const functions = {
       {
         returnType: 'vec4',
         arguments: ['vec4'],
-        formula: '($0 + $1)',
+        gpuFormula: '($0 + $1)',
+        cpuFormula: '$0.plus($1)',
       },
     ],
     minus: [
       {
         returnType: 'vec4',
         arguments: ['vec4'],
-        formula: '($0 - $1)',
+        gpuFormula: '($0 - $1)',
+        cpuFormula: '$0.minus($1)',
       },
     ],
     times: [
       {
         returnType: 'vec4',
         arguments: ['vec4'],
-        formula: '($0 * $1)',
+        gpuFormula: '($0 * $1)',
+        cpuFormula: '$0.times($1)',
       },
       {
         returnType: 'vec4',
         arguments: ['number'],
-        formula: '($0 * $1)',
+        gpuFormula: '($0 * $1)',
+        cpuFormula: '$0.times($1)',
       },
     ],
     div: [
       {
         returnType: 'vec4',
         arguments: ['vec4'],
-        formula: '($0 / $1)',
+        gpuFormula: '($0 / $1)',
+        cpuFormula: '$0.div($1)',
       },
       {
         returnType: 'vec4',
         arguments: ['number'],
-        formula: '($0 / $1)',
+        gpuFormula: '($0 / $1)',
+        cpuFormula: '$0.div($1)',
       },
     ],
     dot: [
       {
         returnType: 'number',
         arguments: ['vec4'],
-        formula: 'dot($0, $1)',
+        gpuFormula: 'dot($0, $1)',
+        cpuFormula: '$0.dot($1)',
       },
     ],
     length: [
       {
         returnType: 'number',
         arguments: [],
-        formula: 'length(vec4<f32>($0))',
+        gpuFormula: 'length(vec4<f32>($0))',
+        cpuFormula: '$0.length()',
       },
     ],
     normalized: [
       {
         returnType: 'vec4',
         arguments: [],
-        formula: 'normalize($0)',
+        gpuFormula: 'normalize($0)',
+        cpuFormula: '$0.normalized()',
       },
     ],
     dist: [
       {
         returnType: 'number',
         arguments: ['vec4'],
-        formula: 'distance($0, $1)',
+        gpuFormula: 'distance($0, $1)',
+        cpuFormula: '$0.dist($1)',
       },
     ],
     abs: [
       {
         returnType: 'vec4',
         arguments: [],
-        formula: 'abs($0)',
+        gpuFormula: 'abs($0)',
+        cpuFormula: '$0.abs()',
       },
     ],
     acos: [
       {
         returnType: 'vec4',
         arguments: [],
-        formula: 'acos($0)',
+        gpuFormula: 'acos($0)',
+        cpuFormula: '$0.acos()',
       },
     ],
     acosh: [
       {
         returnType: 'vec4',
         arguments: [],
-        formula: 'acosh($0)',
+        gpuFormula: 'acosh($0)',
+        cpuFormula: '$0.acosh()',
       },
     ],
     asin: [
       {
         returnType: 'vec4',
         arguments: [],
-        formula: 'asin($0)',
+        gpuFormula: 'asin($0)',
+        cpuFormula: '$0.asin()',
       },
     ],
     asinh: [
       {
         returnType: 'vec4',
         arguments: [],
-        formula: 'asinh($0)',
+        gpuFormula: 'asinh($0)',
+        cpuFormula: '$0.asinh()',
       },
     ],
     atan: [
       {
         returnType: 'vec4',
         arguments: [],
-        formula: 'atan($0)',
+        gpuFormula: 'atan($0)',
+        cpuFormula: '$0.atan()',
       },
     ],
     atanh: [
       {
         returnType: 'vec4',
         arguments: [],
-        formula: 'atanh($0)',
+        gpuFormula: 'atanh($0)',
+        cpuFormula: '$0.atanh()',
       },
     ],
     atan2: [
       {
         returnType: 'vec4',
         arguments: ['vec4'],
-        formula: 'atan2($0, $1)',
+        gpuFormula: 'atan2($0, $1)',
+        cpuFormula: '$0.atan2($1)',
       },
     ],
     ceil: [
       {
         returnType: 'vec4',
         arguments: [],
-        formula: 'ceil($0)',
+        gpuFormula: 'ceil($0)',
+        cpuFormula: '$0.ceil()',
       },
     ],
     cos: [
       {
         returnType: 'vec4',
         arguments: [],
-        formula: 'cos($0)',
+        gpuFormula: 'cos($0)',
+        cpuFormula: '$0.cos()',
       },
     ],
     cosh: [
       {
         returnType: 'vec4',
         arguments: [],
-        formula: 'cosh($0)',
+        gpuFormula: 'cosh($0)',
+        cpuFormula: '$0.cosh()',
       },
     ],
     exp: [
       {
         returnType: 'vec4',
         arguments: [],
-        formula: 'exp($0)',
+        gpuFormula: 'exp($0)',
+        cpuFormula: '$0.exp()',
       },
     ],
     floor: [
       {
         returnType: 'vec4',
         arguments: [],
-        formula: 'floor($0)',
+        gpuFormula: 'floor($0)',
+        cpuFormula: '$0.floor()',
       },
     ],
     log: [
       {
         returnType: 'vec4',
         arguments: [],
-        formula: 'log($0)',
+        gpuFormula: 'log($0)',
+        cpuFormula: '$0.log()',
       },
     ],
     log2: [
       {
         returnType: 'vec4',
         arguments: [],
-        formula: 'log2($0)',
+        gpuFormula: 'log2($0)',
+        cpuFormula: '$0.log2()',
       },
     ],
     max: [
       {
         returnType: 'vec4',
         arguments: ['vec4'],
-        formula: 'max($0, $1)',
+        gpuFormula: 'max($0, $1)',
+        cpuFormula: '$0.max($1)',
       },
     ],
     min: [
       {
         returnType: 'vec4',
         arguments: ['vec4'],
-        formula: 'min($0, $1)',
+        gpuFormula: 'min($0, $1)',
+        cpuFormula: '$0.min($1)',
       },
     ],
     pow: [
       {
         returnType: 'vec4',
         arguments: ['vec4'],
-        formula: 'pow($0, $1)',
+        gpuFormula: 'pow($0, $1)',
+        cpuFormula: '$0.pow($1)',
       },
     ],
     round: [
       {
         returnType: 'vec4',
         arguments: [],
-        formula: 'round($0)',
+        gpuFormula: 'round($0)',
+        cpuFormula: '$0.round()',
       },
     ],
     sign: [
       {
         returnType: 'vec4',
         arguments: [],
-        formula: 'sign($0)',
+        gpuFormula: 'sign($0)',
+        cpuFormula: '$0.sign()',
       },
     ],
     sin: [
       {
         returnType: 'vec4',
         arguments: [],
-        formula: 'sin($0)',
+        gpuFormula: 'sin($0)',
+        cpuFormula: '$0.sin()',
       },
     ],
     sinh: [
       {
         returnType: 'vec4',
         arguments: [],
-        formula: 'sinh($0)',
+        gpuFormula: 'sinh($0)',
+        cpuFormula: '$0.sinh()',
       },
     ],
     sqrt: [
       {
         returnType: 'vec4',
         arguments: [],
-        formula: 'sqrt($0)',
+        gpuFormula: 'sqrt($0)',
+        cpuFormula: '$0.sqrt()',
       },
     ],
     tan: [
       {
         returnType: 'vec4',
         arguments: [],
-        formula: 'tan($0)',
+        gpuFormula: 'tan($0)',
+        cpuFormula: '$0.tan()',
       },
     ],
     tanh: [
       {
         returnType: 'vec4',
         arguments: [],
-        formula: 'tanh($0)',
+        gpuFormula: 'tanh($0)',
+        cpuFormula: '$0.tanh()',
       },
     ],
     trunc: [
       {
         returnType: 'vec4',
         arguments: [],
-        formula: 'trunc($0)',
+        gpuFormula: 'trunc($0)',
+        cpuFormula: '$0.trunc()',
       },
     ],
   },
@@ -1322,22 +1574,26 @@ const functions = {
       {
         returnType: 'void',
         arguments: ['number', 'number', 'number', 'number', 'number'],
-        formula: 'setPixelv1($1, $2, $3, $4, $5)',
+        gpuFormula: 'setPixelv1($1, $2, $3, $4, $5)',
+        cpuFormula: 'setPixelv1($1, $2, $3, $4, $5)',
       },
       {
         returnType: 'void',
         arguments: ['vec2', 'number', 'number', 'number'],
-        formula: 'setPixelv2($1, $2, $3, $4)',
+        gpuFormula: 'setPixelv2($1, $2, $3, $4)',
+        cpuFormula: 'setPixelv2($1, $2, $3, $4)',
       },
       {
         returnType: 'void',
         arguments: ['number', 'number', 'vec3'],
-        formula: 'setPixelv3($1, $2, $3)',
+        gpuFormula: 'setPixelv3($1, $2, $3)',
+        cpuFormula: 'setPixelv3($1, $2, $3)',
       },
       {
         returnType: 'void',
         arguments: ['vec2', 'vec3'],
-        formula: 'setPixelv4($1, $2)',
+        gpuFormula: 'setPixelv4($1, $2)',
+        cpuFormula: 'setPixelv4($1, $2)',
       },
     ],
   },
@@ -1379,7 +1635,8 @@ const functions = {
     [key: string]: {
       returnType: VariableType;
       arguments: VariableType[];
-      formula: string;
+      gpuFormula: string;
+      cpuFormula: string;
     }[];
   };
 };

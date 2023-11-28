@@ -2,6 +2,7 @@ import { VariableType } from '../gpu-backend/types';
 import { GPUVec2 } from '../gpu-types/vec2';
 import { GPUVec3 } from '../gpu-types/vec3';
 import { GPUVec4 } from '../gpu-types/vec4';
+import { GPUBufferTypeStr } from './types';
 
 export function tsToWgslType(type: VariableType) {
   switch (type) {
@@ -113,4 +114,14 @@ export function IsES5DefaultParamNode(node: any) {
     node.consequent.property.type === 'Literal' &&
     typeof node.consequent.property.value === 'number'
   );
+}
+
+export function strideFromType(type: GPUBufferTypeStr) {
+  if (type === 'number') {
+    return 1;
+  } else if (type === 'vec2') {
+    return 2;
+  } else {
+    return 4;
+  }
 }

@@ -1,3 +1,4 @@
+import { transpileKernelToJs } from '../common/parser/parse-kernel';
 import {
   ExtractArrayType,
   GPUBufferSizeToVec,
@@ -9,11 +10,12 @@ import {
   GPUKernelSource,
   GPUUniformSpec,
 } from '../common/types';
+import { strideFromType } from '../common/utils';
 import { GPUBufferTypeToType } from '../gpu-backend/types';
-import { GPUVec2 } from '../gpu-types/vec2';
-import { GPUVec3 } from '../gpu-types/vec3';
-import { GPUVec4 } from '../gpu-types/vec4';
-import transpileKernelToCPU from './parse-kernel';
+import { GPUVec2, vec2 } from '../gpu-types/vec2';
+import { GPUVec3, vec3 } from '../gpu-types/vec3';
+import { GPUVec4, vec4 } from '../gpu-types/vec4';
+// import transpileKernelToCPU from './parse-kernel';
 import { CPUBufferCollection, CPUUniformCollection } from './types';
 
 export default class CPUFallback<
@@ -59,17 +61,54 @@ export default class CPUFallback<
     if (buffers) {
       this.buffers = {} as CPUBufferCollection<TBufferName>;
 
-      // for (const buffer of buffers) {
-      //   const data = new Float32Array(buffer.size.reduce((a, b) => a * b, 1));
-      //   if (buffer.initialData) {
-      //     data.set(buffer.initialData.flat(3));
-      //   }
+      for (const buffer of buffers) {
+        let type: GPUBufferTypeStr;
+        let flattened: (number | GPUVec2 | GPUVec3 | GPUVec4)[] = [];
 
-      //   this.buffers[buffer.name] = {
-      //     size: buffer.size,
-      //     resource: data,
-      //   };
-      // }
+        if (buffer.type) {
+          type = buffer.type;
+        } else if (buffer.initialData) {
+          flattened = buffer.initialData.flat(3);
+          type =
+            typeof flattened[0] === 'number' ? 'number' : flattened[0].type;
+        } else {
+          type = 'number';
+        }
+
+        const numComponents = strideFromType(type);
+        const data = new Float32Array(
+          numComponents * buffer.size.reduce((a, b) => a * b, 1)
+        );
+
+        if (buffer.initialData) {
+          if (flattened.length === 0) flattened = buffer.initialData.flat(3);
+          if (type === 'number') {
+            data.set(flattened as number[]);
+          } else {
+            for (let i = 0; i < flattened.length; i++) {
+              if (type === 'vec2') {
+                data[2 * i + 0] = (flattened[i] as GPUVec2).x;
+                data[2 * i + 1] = (flattened[i] as GPUVec2).y;
+              } else if (type === 'vec3') {
+                data[4 * i + 0] = (flattened[i] as GPUVec3).x;
+                data[4 * i + 1] = (flattened[i] as GPUVec3).y;
+                data[4 * i + 2] = (flattened[i] as GPUVec3).z;
+              } else if (type === 'vec4') {
+                data[4 * i + 0] = (flattened[i] as GPUVec4).x;
+                data[4 * i + 1] = (flattened[i] as GPUVec4).y;
+                data[4 * i + 2] = (flattened[i] as GPUVec4).z;
+                data[4 * i + 3] = (flattened[i] as GPUVec4).w;
+              }
+            }
+          }
+        }
+
+        this.buffers[buffer.name] = {
+          size: buffer.size,
+          type: type,
+          data: data,
+        };
+      }
     }
 
     if (uniforms) {
@@ -77,7 +116,7 @@ export default class CPUFallback<
 
       for (const uniform in uniforms) {
         // @ts-ignore
-        this.uniforms[uniform] = uniforms[uniform];
+        this.uniforms[uniform] = { value: uniforms[uniform] };
       }
     }
 
@@ -85,16 +124,13 @@ export default class CPUFallback<
       this.canvas = canvas;
       this.context = canvas.getContext('2d')!;
       this.pixels = new Uint8ClampedArray(canvas.width * canvas.height * 4);
+      for (let i = 3; i < this.pixels.length; i += 4) {
+        this.pixels[i] = 255;
+      }
     }
 
     this.initialized = true;
   }
-
-  // setData(name: string, data: Float32Array) {
-  //   if (!this.device) throw new Error('GPUInterface not initialized');
-
-  //   this.device.queue.writeBuffer(this.gpuBuffers[name].buffer, 0, data);
-  // }
 
   async createKernel(
     kernel: GPUKernelSource<
@@ -102,13 +138,34 @@ export default class CPUFallback<
       TGPUKernelUniformsInterface
     >
   ): Promise<GPUKernel> {
-    const runKernel = transpileKernelToCPU(
+    const transpiledSrc = transpileKernelToJs(
       kernel,
       this.buffers,
       this.uniforms,
       this.canvas,
       this.pixels
     );
+    const compiled = new Function(
+      'buffers',
+      'uniforms',
+      'pixels',
+      'vec2',
+      'vec3',
+      'vec4',
+      'dispatchSize',
+      transpiledSrc
+    );
+    const runKernel = (x: number, y: number = 1, z: number = 1) => {
+      compiled(
+        this.buffers,
+        this.uniforms,
+        this.pixels,
+        vec2,
+        vec3,
+        vec4,
+        new GPUVec3(x, y, z)
+      );
+    };
 
     return { run: runKernel };
   }
@@ -119,26 +176,26 @@ export default class CPUFallback<
     const srcBuffer = this.buffers[src];
     const dstBuffer = this.buffers[dst];
 
-    if (srcBuffer.resource.length != dstBuffer.resource.length)
+    if (srcBuffer.data.length != dstBuffer.data.length)
       throw new Error('Buffer size mismatch');
 
-    dstBuffer.resource.set(srcBuffer.resource);
+    dstBuffer.data.set(srcBuffer.data);
   }
 
   async readBuffer(name: TBuffers['name']): Promise<Float32Array> {
     if (!this.buffers) throw new Error('No buffers defined');
 
     const buffer = this.buffers[name];
-    return buffer.resource;
+    return buffer.data;
   }
 
   setUniforms(uniforms: Partial<TUniforms>) {
     if (!this.uniforms) throw new Error('No uniforms defined');
 
     for (const uniform of Object.keys(uniforms)) {
-      // @ts-ignore
-      this.uniforms[uniform as TUniformName] =
-        uniforms[uniform as TUniformName]!;
+      this.uniforms[uniform as TUniformName] = {
+        value: uniforms[uniform as TUniformName]!,
+      };
     }
   }
 

@@ -12,14 +12,14 @@ import { getDataType } from '../common/utils';
 import { GPUVec2 } from '../gpu-types/vec2';
 import { GPUVec3 } from '../gpu-types/vec3';
 import { GPUVec4 } from '../gpu-types/vec4';
-import transpileKernelToGPU from './parser/parse-kernel';
+import { transpileKernelToWgsl } from '../common/parser/parse-kernel';
 import {
   GPUBufferCollection,
   GPUBufferTypeToType,
   GPUUniformCollection,
   GPUUniformInfo,
 } from './types';
-import { getFragmentSource, getVertexSource } from './wgsl-code';
+import { getFragmentSource, getVertexSource } from '../common/parser/wgsl-code';
 
 export default class GPUBackend<
   TBufferName extends string,
@@ -436,7 +436,7 @@ export default class GPUBackend<
     if (!this.device || !this.bindGroupLayout)
       throw new Error('GPUInterface not initialized');
 
-    const shaderSource = transpileKernelToGPU(
+    const shaderSource = transpileKernelToWgsl(
       kernel,
       this.buffers,
       this.uniforms,

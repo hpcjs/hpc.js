@@ -1,3 +1,7 @@
+import {
+  WalkerStateBufferCollection,
+  WalkerStateUniformCollection,
+} from '../common/parser/types';
 import { GPUBufferSize } from '../common/types';
 import { GPUVec2 } from '../gpu-types/vec2';
 import { GPUVec3 } from '../gpu-types/vec3';
@@ -91,8 +95,8 @@ export type GPUWalkerState<
   TUniformName extends string
 > = {
   currentExpression: string;
-  buffers?: GPUBufferCollection<TBufferName>;
-  uniforms?: GPUUniformCollection<TUniformName>;
+  buffers?: WalkerStateBufferCollection<TBufferName>;
+  uniforms?: WalkerStateUniformCollection<TUniformName>;
   canvas?: HTMLCanvasElement;
   inputsVarName: string;
   variableTypes: { [key: string]: VariableType };
@@ -110,6 +114,7 @@ export type GPUWalkerState<
   functionDeclarations: GPUFunctionDeclaration[];
   functionReturnType: VariableType;
   insideFunctionDeclaration: boolean;
+  target: 'wgsl' | 'js';
 };
 
 export type GPUExpressionWithType = {

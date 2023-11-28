@@ -15,6 +15,14 @@ export class GPUVec3 {
     this.z = z;
   }
 
+  equals(other: GPUVec3) {
+    return this.x === other.x && this.y === other.y && this.z === other.z;
+  }
+
+  notEquals(other: GPUVec3) {
+    return this.x !== other.x || this.y !== other.y || this.z !== other.z;
+  }
+
   plus(other: GPUVec3) {
     return new GPUVec3(this.x + other.x, this.y + other.y, this.z + other.z);
   }

@@ -6,14 +6,10 @@ import {
   GPUBufferCollection,
   GPUExpressionWithType,
   GPUUniformCollection,
-  GPUWalkerState,
+  GPUWalkerState as WalkerState,
   VariableType,
-} from '../types';
-import {
-  getCplxSource,
-  getRandomSource,
-  getSetPixelSource,
-} from '../wgsl-code';
+} from '../../gpu-backend/types';
+import { getCplxSource, getRandomSource, getSetPixelSource } from './wgsl-code';
 import {
   processArrayAccess,
   processExpressionFields,
@@ -29,6 +25,14 @@ import {
   tsToWgslType,
   typeLiteralToType,
 } from '../../common/utils';
+import {
+  WalkerStateBufferCollection,
+  WalkerStateUniformCollection,
+} from './types';
+import {
+  CPUBufferCollection,
+  CPUUniformCollection,
+} from '../../cpu-backend/types';
 
 // required since minification turns vec3
 // into  __WEBPACK_IMPORTED_MODULE__.vec3
@@ -42,7 +46,7 @@ const memberExpressionSkipTriggers = {
 } as const;
 
 const handlers = {
-  BlockStatement(node: any, state: GPUWalkerState<string, string>, c: any) {
+  BlockStatement(node: any, state: WalkerState<string, string>, c: any) {
     let statement = '{\n';
 
     if (!state.addedPrelude) {
@@ -68,28 +72,27 @@ const handlers = {
     statement += '}';
     state.currentExpression = statement;
   },
-  ExpressionStatement(
-    node: any,
-    state: GPUWalkerState<string, string>,
-    c: any
-  ) {
+  ExpressionStatement(node: any, state: WalkerState<string, string>, c: any) {
     c(node.expression, state);
   },
-  AssignmentExpression(
-    node: any,
-    state: GPUWalkerState<string, string>,
-    c: any
-  ) {
+  AssignmentExpression(node: any, state: WalkerState<string, string>, c: any) {
     let expression = '';
 
     c(node.left, state);
     expression += state.currentExpression;
+    const leftExpressionType = state.expressionType;
 
     c(node.right, state);
     expression += ` ${node.operator} ${state.currentExpression}`;
     state.currentExpression = expression;
+
+    if (leftExpressionType != state.expressionType) {
+      throw new Error(
+        `Cannot assign ${state.expressionType} to ${leftExpressionType}`
+      );
+    }
   },
-  MemberExpression(node: any, state: GPUWalkerState<string, string>, c: any) {
+  MemberExpression(node: any, state: WalkerState<string, string>, c: any) {
     // solves minification issues
     if (
       node.object.type === 'Identifier' &&
@@ -149,7 +152,7 @@ const handlers = {
       );
     }
   },
-  Identifier(node: any, state: GPUWalkerState<string, string>) {
+  Identifier(node: any, state: WalkerState<string, string>) {
     state.currentExpression = node.name;
 
     // skip identifiers that are part of member expressions
@@ -170,27 +173,30 @@ const handlers = {
 
     throw new Error(`Unknown variable '${node.name}'`);
   },
-  Literal(node: any, state: GPUWalkerState<string, string>) {
+  Literal(node: any, state: WalkerState<string, string>) {
     state.currentExpression = `${node.value}`;
     state.expressionType = 'number';
   },
-  VariableDeclaration(
-    node: any,
-    state: GPUWalkerState<string, string>,
-    c: any
-  ) {
+  VariableDeclaration(node: any, state: WalkerState<string, string>, c: any) {
     let declarations = '';
 
-    const kind = node.kind === 'const' ? 'let' : 'var';
+    const mutability =
+      node.kind === 'const'
+        ? state.target === 'wgsl'
+          ? 'let'
+          : 'const'
+        : state.target === 'wgsl'
+        ? 'var'
+        : 'let';
 
     for (const declaration of node.declarations) {
       c(declaration, state);
-      declarations += `${kind} ${state.currentExpression};\n`;
+      declarations += `${mutability} ${state.currentExpression};\n`;
     }
 
     state.currentExpression = declarations.slice(0, -2);
   },
-  VariableDeclarator(node: any, state: GPUWalkerState<string, string>, c: any) {
+  VariableDeclarator(node: any, state: WalkerState<string, string>, c: any) {
     let declaration = '';
 
     state.skipIdentifier = true;
@@ -201,7 +207,10 @@ const handlers = {
     c(node.init, state);
     state.variableTypes[node.id.name] = state.expressionType;
 
-    const explicitType = state.expressionType === 'number' ? ': f32' : '';
+    const explicitType =
+      state.expressionType === 'number' && state.target === 'wgsl'
+        ? ': f32'
+        : '';
     declaration += `${explicitType} = ${state.currentExpression}`;
     state.currentExpression = declaration;
 
@@ -234,7 +243,7 @@ const handlers = {
       );
     }
   },
-  ForStatement(node: any, state: GPUWalkerState<string, string>, c: any) {
+  ForStatement(node: any, state: WalkerState<string, string>, c: any) {
     let forStatement = '';
 
     c(node.init, state);
@@ -250,7 +259,7 @@ const handlers = {
     forStatement += wrapIfSingleLine(state.currentExpression);
     state.currentExpression = forStatement;
   },
-  BinaryExpression(node: any, state: GPUWalkerState<string, string>, c: any) {
+  BinaryExpression(node: any, state: WalkerState<string, string>, c: any) {
     c(node.left, state);
     const var1 = state.currentExpression;
     const type1 = state.expressionType;
@@ -269,7 +278,7 @@ const handlers = {
       state
     );
   },
-  UpdateExpression(node: any, state: GPUWalkerState<string, string>, c: any) {
+  UpdateExpression(node: any, state: WalkerState<string, string>, c: any) {
     let expression = '';
 
     c(node.argument, state);
@@ -283,7 +292,7 @@ const handlers = {
 
     state.currentExpression = expression;
   },
-  WhileStatement(node: any, state: GPUWalkerState<string, string>, c: any) {
+  WhileStatement(node: any, state: WalkerState<string, string>, c: any) {
     let whileStatement = '';
 
     c(node.test, state);
@@ -293,7 +302,7 @@ const handlers = {
     whileStatement += wrapIfSingleLine(state.currentExpression);
     state.currentExpression = whileStatement;
   },
-  IfStatement(node: any, state: GPUWalkerState<string, string>, c: any) {
+  IfStatement(node: any, state: WalkerState<string, string>, c: any) {
     let ifStatement = '';
 
     c(node.test, state);
@@ -310,7 +319,7 @@ const handlers = {
 
     state.currentExpression = ifStatement;
   },
-  LogicalExpression(node: any, state: GPUWalkerState<string, string>, c: any) {
+  LogicalExpression(node: any, state: WalkerState<string, string>, c: any) {
     c(node.left, state);
     const var1 = state.currentExpression;
     const type1 = state.expressionType;
@@ -329,7 +338,7 @@ const handlers = {
       state
     );
   },
-  ReturnStatement(node: any, state: GPUWalkerState<string, string>, c: any) {
+  ReturnStatement(node: any, state: WalkerState<string, string>, c: any) {
     let returnStatement = 'return';
     let returnType = 'void' as VariableType;
 
@@ -356,12 +365,12 @@ const handlers = {
 
     state.functionReturnType = returnType;
     state.currentExpression = returnStatement;
+
+    if (state.target === 'js' && !state.insideFunctionDeclaration) {
+      state.currentExpression = 'break inner_dispatch_loop';
+    }
   },
-  ConditionalExpression(
-    node: any,
-    state: GPUWalkerState<string, string>,
-    c: any
-  ) {
+  ConditionalExpression(node: any, state: WalkerState<string, string>, c: any) {
     c(node.test, state);
     const var1 = state.currentExpression;
     const type1 = state.expressionType;
@@ -385,7 +394,7 @@ const handlers = {
       state
     );
   },
-  CallExpression(node: any, state: GPUWalkerState<string, string>, c: any) {
+  CallExpression(node: any, state: WalkerState<string, string>, c: any) {
     const args: GPUExpressionWithType[] = [];
     for (const arg of node.arguments) {
       c(arg, state);
@@ -409,14 +418,14 @@ const handlers = {
       processFunction(state.currentExpression, null, args, state);
     }
   },
-  UnaryExpression(node: any, state: GPUWalkerState<string, string>, c: any) {
+  UnaryExpression(node: any, state: WalkerState<string, string>, c: any) {
     c(node.argument, state);
     const var1 = state.currentExpression;
     const type1 = state.expressionType;
 
     processFunction(node.operator, null, [{ name: var1, type: type1 }], state);
   },
-  ArrayExpression(node: any, state: GPUWalkerState<string, string>, c: any) {
+  ArrayExpression(node: any, state: WalkerState<string, string>, c: any) {
     if (state.insideArrayLiteral) {
       throw new Error('Nested array literals are not allowed');
     }
@@ -450,17 +459,13 @@ const handlers = {
     state.insideArrayLiteral = false;
     state.arrayLength = node.elements.length;
   },
-  BreakStatement(node: any, state: GPUWalkerState<string, string>, c: any) {
+  BreakStatement(node: any, state: WalkerState<string, string>, c: any) {
     state.currentExpression = 'break';
   },
-  ContinueStatement(node: any, state: GPUWalkerState<string, string>, c: any) {
+  ContinueStatement(node: any, state: WalkerState<string, string>, c: any) {
     state.currentExpression = 'continue';
   },
-  FunctionDeclaration(
-    node: any,
-    state: GPUWalkerState<string, string>,
-    c: any
-  ) {
+  FunctionDeclaration(node: any, state: WalkerState<string, string>, c: any) {
     if (state.insideFunctionDeclaration) {
       throw new Error('Nested function declarations are not allowed');
     }
@@ -533,7 +538,12 @@ const handlers = {
 
     const originalPrelude = state.prelude;
     state.prelude = args
-      .map(arg => `    var ${arg.name} = param_${arg.name};\n`)
+      .map(
+        arg =>
+          `    ${state.target === 'wgsl' ? 'var' : 'let'} ${arg.name} = param_${
+            arg.name
+          };\n`
+      )
       .join('');
     state.functionReturnType = 'unknown';
     c(node.body, state);
@@ -543,9 +553,14 @@ const handlers = {
     }
     const returnType = state.functionReturnType;
 
-    const source = `fn ${name}(global_id: vec3<f32>, ${args
-      .map(p => `param_${p.name}: ${tsToWgslType(p.type)}`)
-      .join(', ')}) -> ${tsToWgslType(state.functionReturnType)} ${body}`;
+    const source =
+      state.target === 'wgsl'
+        ? `fn ${name}(global_id: vec3<f32>, ${args
+            .map(p => `param_${p.name}: ${tsToWgslType(p.type)}`)
+            .join(', ')}) -> ${tsToWgslType(state.functionReturnType)} ${body}`
+        : `function ${name}(global_id, ${args
+            .map(p => `param_${p.name}`)
+            .join(', ')}) ${body}`;
     state.functionDeclarations.push({ name, args, returnType, source });
 
     const formula = `${name}(global_id${args
@@ -554,7 +569,8 @@ const handlers = {
     functions.standalone[name] = [
       {
         arguments: args.map(arg => arg.type),
-        formula,
+        gpuFormula: formula,
+        cpuFormula: formula,
         returnType,
       },
     ];
@@ -569,7 +585,7 @@ const handlers = {
   },
 };
 
-export default function transpileKernelToGPU<
+export function transpileKernelToWgsl<
   TGPUKernelBuffersInterface,
   TGPUKernelUniformsInterface,
   TBufferName extends string,
@@ -582,13 +598,8 @@ export default function transpileKernelToGPU<
   buffers: GPUBufferCollection<TBufferName> | undefined,
   uniforms: GPUUniformCollection<TUniformName> | undefined,
   canvas: HTMLCanvasElement | undefined,
-  randBufferSize: number
+  numRandSeeds: number
 ) {
-  const src = func.toString();
-  const ast = acorn.parse(src, { ecmaVersion: 2022, locations: true }) as any;
-  const funcBody = ast.body[0].expression.body;
-  const inputsVarName = ast.body[0].expression.params[0].name;
-
   let wgsl = '';
 
   if (buffers) {
@@ -633,7 +644,7 @@ export default function transpileKernelToGPU<
       (buffers ? Object.keys(buffers).length : 0) + (uniforms ? 1 : 0)
     }) var<storage, read_write> pixels: PixelData;\n\n`;
 
-    wgsl += `${getSetPixelSource(canvas.width)}\n\n`;
+    wgsl += `${getSetPixelSource(canvas.width, canvas.height)}\n\n`;
   }
 
   wgsl += `struct RandomData {\n    data: array<u32>\n}\n\n`;
@@ -645,6 +656,127 @@ export default function transpileKernelToGPU<
   wgsl += `${getRandomSource()}\n\n`;
 
   wgsl += `${getCplxSource()}\n\n`;
+
+  wgsl += parseKernelSource(
+    func,
+    buffers,
+    uniforms,
+    canvas,
+    numRandSeeds,
+    'wgsl'
+  );
+
+  console.log(wgsl);
+
+  return wgsl;
+}
+
+export function transpileKernelToJs<
+  TGPUKernelBuffersInterface,
+  TGPUKernelUniformsInterface,
+  TBufferName extends string,
+  TUniformName extends string
+>(
+  func: GPUKernelSource<
+    TGPUKernelBuffersInterface,
+    TGPUKernelUniformsInterface
+  >,
+  buffers: CPUBufferCollection<TBufferName> | undefined,
+  uniforms: CPUUniformCollection<TUniformName> | undefined,
+  canvas: HTMLCanvasElement | undefined,
+  pixels: Uint8ClampedArray | undefined
+) {
+  let transpiled = '';
+
+  for (const name in buffers) {
+    transpiled += `const proxy_${name} = new Proxy(buffers.${name}.data, {
+    get(target, index) {
+        ${
+          buffers[name].type === 'number'
+            ? 'return target[index];'
+            : buffers[name].type === 'vec2'
+            ? 'return vec2(target[index * 2], target[index * 2 + 1]);'
+            : buffers[name].type === 'vec3'
+            ? 'return vec3(target[index * 3], target[index * 3 + 1], target[index * 3 + 2]);'
+            : 'return vec4(target[index * 4], target[index * 4 + 1], target[index * 4 + 2], target[index * 4 + 3]);'
+        }
+    },
+    set(target, index, value) {
+        ${
+          buffers[name].type === 'number'
+            ? 'target[index] = value;'
+            : buffers[name].type === 'vec2'
+            ? 'target[index * 2] = value.x;\n        target[index * 2 + 1] = value.y;'
+            : buffers[name].type === 'vec3'
+            ? 'target[index * 3] = value.x;\n        target[index * 3 + 1] = value.y;\n        target[index * 3 + 2] = value.z;'
+            : 'target[index * 4] = value.x;\n        target[index * 4 + 1] = value.y;\n        target[index * 4 + 2] = value.z;\n        target[index * 4 + 3] = value.w;'
+        }
+        return true;
+    }
+});\n\n`;
+  }
+
+  if (canvas) {
+    transpiled += `function setPixelv1(x, y, r, g, b) {
+    const index = (Math.round(${canvas.height} - y) * ${canvas.width} + Math.round(x)) * 4;
+    pixels[index + 0] = r;
+    pixels[index + 1] = g;
+    pixels[index + 2] = b;
+}
+
+function setPixelv2(pos, r, g, b) {
+    const index = (Math.round(${canvas.height} - pos.y) * ${canvas.width} + Math.round(pos.x)) * 4;
+    pixels[index + 0] = r;
+    pixels[index + 1] = g;
+    pixels[index + 2] = b;
+}
+
+function setPixelv3(x, y, color) {
+    const index = (Math.round(${canvas.height} - y) * ${canvas.width} + Math.round(x)) * 4;
+    pixels[index + 0] = color.x;
+    pixels[index + 1] = color.y;
+    pixels[index + 2] = color.z;
+}
+
+function setPixelv4(pos, color) {
+    const index = (Math.round(${canvas.height} - pos.y) * ${canvas.width} + Math.round(pos.x)) * 4;
+    pixels[index + 0] = color.x;
+    pixels[index + 1] = color.y
+    pixels[index + 2] = color.z;
+}\n\n`;
+  }
+
+  transpiled += parseKernelSource(func, buffers, uniforms, canvas, 1024, 'js');
+  console.log(transpiled);
+
+  return transpiled;
+}
+
+function parseKernelSource<
+  TGPUKernelBuffersInterface,
+  TGPUKernelUniformsInterface,
+  TBufferName extends string,
+  TUniformName extends string
+>(
+  func: GPUKernelSource<
+    TGPUKernelBuffersInterface,
+    TGPUKernelUniformsInterface
+  >,
+  buffers: WalkerStateBufferCollection<TBufferName> | undefined,
+  uniforms: WalkerStateUniformCollection<TUniformName> | undefined,
+  canvas: HTMLCanvasElement | undefined,
+  randBufferSize: number,
+  target: 'wgsl' | 'js'
+) {
+  const src = func.toString();
+  const ast = acorn.parse(src, { ecmaVersion: 2022, locations: true }) as any;
+  const funcBody = ast.body[0].expression.body;
+  const inputsVarName = ast.body[0].expression.params[0].name;
+
+  const prelude =
+    target === 'js'
+      ? ''
+      : `    let global_id = vec3<f32>(global_id_u32);\n    let hpcjsRandIndex = dot(global_id_u32, vec3<u32>(97073, 57641, 29269)) % (${randBufferSize});\n    hpcjsRandState = hpcjsRandom.data[hpcjsRandIndex];\n`;
 
   const walkerState = {
     currentExpression: '',
@@ -665,21 +797,27 @@ export default function transpileKernelToGPU<
     memberExpressionChildType: 'unknown',
     insideArrayLiteral: false,
     addedPrelude: false,
-    prelude: `    let global_id = vec3<f32>(global_id_u32);\n    let hpcjsRandIndex = dot(global_id_u32, vec3<u32>(97073, 57641, 29269)) % (${randBufferSize});\n    hpcjsRandState = hpcjsRandom.data[hpcjsRandIndex];\n`,
+    prelude: prelude,
     arrayLength: 0,
     arrayLengths: {},
     functionDeclarations: [],
     functionReturnType: 'unknown',
     insideFunctionDeclaration: false,
-  } as GPUWalkerState<TBufferName, TUniformName>;
+    target: target,
+  } as WalkerState<TBufferName, TUniformName>;
   walk.recursive(funcBody, walkerState, handlers);
 
-  wgsl += walkerState.functionDeclarations.map(f => `${f.source}\n\n`).join('');
+  let transpiled = walkerState.functionDeclarations
+    .map(f => `${f.source}\n\n`)
+    .join('');
 
-  wgsl +=
-    '@compute @workgroup_size(1, 1)\nfn main(@builtin(global_invocation_id) global_id_u32: vec3<u32>) ';
-  wgsl += walkerState.currentExpression;
+  if (target === 'wgsl')
+    transpiled +=
+      '@compute @workgroup_size(1, 1)\nfn main(@builtin(global_invocation_id) global_id_u32: vec3<u32>) ';
+  else
+    transpiled += `const global_id = vec3(0, 0, 0);\nfor (global_id.x = 0; global_id.x < dispatchSize.x; global_id.x++) for (global_id.y = 0; global_id.y < dispatchSize.y; global_id.y++) inner_dispatch_loop: for (global_id.z = 0; global_id.z < dispatchSize.z; global_id.z++) `;
 
-  console.log(wgsl);
-  return wgsl;
+  transpiled += walkerState.currentExpression;
+
+  return transpiled;
 }

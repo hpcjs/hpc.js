@@ -13,6 +13,14 @@ export class GPUVec2 {
     this.y = y;
   }
 
+  equals(other: GPUVec2) {
+    return this.x === other.x && this.y === other.y;
+  }
+
+  notEquals(other: GPUVec2) {
+    return this.x !== other.x || this.y !== other.y;
+  }
+
   plus(other: GPUVec2) {
     return new GPUVec2(this.x + other.x, this.y + other.y);
   }

@@ -2,7 +2,11 @@ import { findMatchingBracket } from '../../common/utils';
 import { GPUVec2 } from '../../gpu-types/vec2';
 import { GPUVec3 } from '../../gpu-types/vec3';
 import { GPUVec4 } from '../../gpu-types/vec4';
-import { GPUExpressionWithType, GPUWalkerState, VariableType } from '../types';
+import {
+  GPUExpressionWithType,
+  GPUWalkerState,
+  VariableType,
+} from '../../gpu-backend/types';
 import functions from './functions';
 
 export function processFunction(
@@ -35,7 +39,7 @@ export function processFunction(
       continue;
     }
 
-    let formula = func.formula;
+    let formula = state.target === 'wgsl' ? func.gpuFormula : func.cpuFormula;
     let expressions = [];
     if (parentObject) {
       expressions.push(parentObject);
@@ -58,7 +62,7 @@ export function processFunction(
         '$r',
         `${expressions[1]}, `.repeat(parseInt(expressions[0].name)).slice(0, -2)
       );
-    } else if (state.buffers && /^buffer[123]d$/.test(expressions[0].type)) {
+    } else if (state.buffers && /^buffer[123]d/.test(expressions[0].type)) {
       const bufferNames = Object.keys(state.buffers);
       const bufferRegex = new RegExp(
         String.raw`^${state.inputsVarName}\[buffers\]\[(${bufferNames.join(
@@ -263,12 +267,15 @@ export function processSpecialVariable(state: GPUWalkerState<string, string>) {
         return [true, args];
       };
 
-      let formula = `data_${bufferName}.data[`;
+      const prefix = state.target === 'wgsl' ? 'data_' : 'proxy_';
+      const suffix = state.target === 'wgsl' ? '.data' : '';
+      let formula = `${prefix}${bufferName}${suffix}[`;
       for (let i = 0; i < buffer.size.length; i++) {
         if (i > 0) {
           formula += ' + ';
         }
-        formula += `i32($${i})`;
+        if (state.target === 'wgsl') formula += `i32($${i})`;
+        else formula += `Math.floor($${i})`;
         for (let j = 0; j < i; j++) {
           formula += ` * ${buffer.size[j]}`;
         }
@@ -359,13 +366,18 @@ export function processSpecialVariable(state: GPUWalkerState<string, string>) {
 
       specialVariables.push({
         regex: `${state.inputsVarName}[uniforms][${uniformName}]`,
-        formula: `uniforms.${uniformName}`,
+        formula: `uniforms.${uniformName}${
+          state.target === 'js' ? '.value' : ''
+        }`,
         type,
       });
     }
   }
 
   if (state.canvas) {
+    const canvasSizeFormulaVec2 =
+      state.target === 'wgsl' ? 'vec2<f32>' : 'vec2';
+
     specialVariables.push({
       regex: `${state.inputsVarName}[canvas]`,
       formula: `${state.inputsVarName}[canvas]`,
@@ -373,7 +385,7 @@ export function processSpecialVariable(state: GPUWalkerState<string, string>) {
     });
     specialVariables.push({
       regex: `${state.inputsVarName}[canvas][size]`,
-      formula: `vec2<f32>(${state.canvas.width}, ${state.canvas.height})`,
+      formula: `${canvasSizeFormulaVec2}(${state.canvas.width}, ${state.canvas.height})`,
       type: 'vec2',
     });
     specialVariables.push({
@@ -443,7 +455,9 @@ export function processArrayAccess(state: GPUWalkerState<string, string>) {
     );
   }
 
-  state.currentExpression = `${state.memberExpressionParentName}[i32(${state.memberExpressionChildName})]`;
+  state.currentExpression = `${state.memberExpressionParentName}[${
+    state.target === 'wgsl' ? 'i32' : 'Math.floor'
+  }(${state.memberExpressionChildName})]`;
   state.expressionType = state.memberExpressionParentType.replace(
     'array',
     ''
