@@ -1,8 +1,8 @@
 import { GPUVec2 } from '../gpu-types/vec2';
 import { GPUVec3 } from '../gpu-types/vec3';
 import { GPUVec4 } from '../gpu-types/vec4';
-import { GPUBufferTypeStr } from './common-types';
-import { VariableType } from './parser/parser-types';
+import { GPUBufferTypeStr } from './types';
+import { VariableType } from './parser/types';
 
 export function tsToWgslType(type: VariableType) {
   switch (type) {

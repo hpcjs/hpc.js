@@ -8,7 +8,7 @@ import {
   GPUBufferTypeStr,
   ExtractArrayType,
   GPUBufferTypeToType,
-} from '../common/common-types';
+} from '../common/types';
 import { getDataType } from '../common/utils';
 import { GPUVec2 } from '../gpu-types/vec2';
 import { GPUVec3 } from '../gpu-types/vec3';
@@ -18,11 +18,11 @@ import {
   GPUBufferCollection,
   GPUUniformCollection,
   GPUUniformInfo,
-} from './gpu-types';
+} from './types';
 import {
   getFragmentSource,
   getVertexSource,
-} from '../common/parser/wgsl-kernel-code';
+} from '../common/parser/kernel-code/wgsl-graphics';
 
 export default class GPUBackend<
   TBufferName extends string,

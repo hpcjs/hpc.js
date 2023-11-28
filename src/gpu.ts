@@ -7,10 +7,10 @@ import {
   GPUKernel,
   GPUKernelSource,
   GPUUniformSpec,
-} from './common/common-types';
+} from './common/types';
 import CPUFallback from './cpu-backend/backend';
 import GPUBackend from './gpu-backend/backend';
-import { GPUBufferTypeToType } from './common/common-types';
+import { GPUBufferTypeToType } from './common/types';
 
 type CombinedBackend<
   TBufferName extends string,

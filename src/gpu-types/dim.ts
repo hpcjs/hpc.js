@@ -3,7 +3,7 @@ import {
   GPUBuffer2D,
   GPUBuffer3D,
   GPUBufferType,
-} from '../common/common-types';
+} from '../common/types';
 import { GPUArray } from './array';
 import { GPUVec2 } from './vec2';
 import { GPUVec3 } from './vec3';

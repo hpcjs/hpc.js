@@ -1,4 +1,4 @@
-import { GPUBufferSize } from '../common/common-types';
+import { GPUBufferSize } from '../common/types';
 import { GPUVec2 } from '../gpu-types/vec2';
 import { GPUVec3 } from '../gpu-types/vec3';
 import { GPUVec4 } from '../gpu-types/vec4';

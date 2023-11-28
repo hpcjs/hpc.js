@@ -1,16 +1,16 @@
 import * as acorn from 'acorn';
 import * as walk from 'acorn-walk';
-import { GPUKernelSource } from '../common-types';
+import { GPUKernelSource } from '../types';
 import functions from './functions';
 import {
   GPUBufferCollection,
   GPUUniformCollection,
-} from '../../gpu-backend/gpu-types';
+} from '../../gpu-backend/types';
 import {
   getCplxSource,
   getRandomSource,
   getSetPixelSource,
-} from './wgsl-kernel-code';
+} from './kernel-code/wgsl-funcs';
 import {
   processArrayAccess,
   processExpressionFields,
@@ -32,12 +32,12 @@ import {
   WalkerState,
   VariableType,
   GPUExpressionWithType,
-} from './parser-types';
+} from './types';
 import {
   CPUBufferCollection,
   CPUUniformCollection,
-} from '../../cpu-backend/cpu-types';
-import { getJsProxySource, getJsSetPixelSource } from './js-kernel-code';
+} from '../../cpu-backend/types';
+import { getJsProxySource, getJsSetPixelSource } from './kernel-code/js-funcs';
 
 // required since minification turns vec3
 // into  __WEBPACK_IMPORTED_MODULE__.vec3
@@ -605,22 +605,22 @@ export function transpileKernelToWgsl<
   canvas: HTMLCanvasElement | undefined,
   numRandSeeds: number
 ) {
-  let wgsl = '';
+  let transpiled = '';
 
   if (buffers) {
-    wgsl += 'struct Data_number {\n    data: array<f32>\n}\n\n';
-    wgsl += 'struct Data_vec2 {\n    data: array<vec2<f32>>\n}\n\n';
-    wgsl += 'struct Data_vec3 {\n    data: array<vec3<f32>>\n}\n\n';
-    wgsl += 'struct Data_vec4 {\n    data: array<vec4<f32>>\n}\n\n';
+    transpiled += 'struct Data_number {\n    data: array<f32>\n}\n\n';
+    transpiled += 'struct Data_vec2 {\n    data: array<vec2<f32>>\n}\n\n';
+    transpiled += 'struct Data_vec3 {\n    data: array<vec3<f32>>\n}\n\n';
+    transpiled += 'struct Data_vec4 {\n    data: array<vec4<f32>>\n}\n\n';
 
     for (const name in buffers) {
-      wgsl += `@group(0) @binding(${buffers[name].id}) var<storage, read_write> data_${name}: Data_${buffers[name].type};\n`;
+      transpiled += `@group(0) @binding(${buffers[name].id}) var<storage, read_write> data_${name}: Data_${buffers[name].type};\n`;
     }
-    wgsl += '\n';
+    transpiled += '\n';
   }
 
   if (uniforms) {
-    wgsl += 'struct Uniforms {\n';
+    transpiled += 'struct Uniforms {\n';
     for (const name in uniforms) {
       const value = uniforms[name].value;
       const type =
@@ -634,35 +634,35 @@ export function transpileKernelToWgsl<
           ? 'vec4<f32>'
           : 'unknown';
 
-      wgsl += `    @align(16) ${name}: ${type},\n`;
+      transpiled += `    @align(16) ${name}: ${type},\n`;
     }
 
-    wgsl += `}\n\n@group(0) @binding(${
+    transpiled += `}\n\n@group(0) @binding(${
       buffers ? Object.keys(buffers).length : 0
     }) var<uniform> uniforms: Uniforms;\n\n`;
   }
 
   if (canvas) {
-    wgsl += `struct PixelData {\n    data: array<vec3<f32>>\n}\n\n`;
+    transpiled += `struct PixelData {\n    data: array<vec3<f32>>\n}\n\n`;
 
-    wgsl += `@group(0) @binding(${
+    transpiled += `@group(0) @binding(${
       (buffers ? Object.keys(buffers).length : 0) + (uniforms ? 1 : 0)
     }) var<storage, read_write> pixels: PixelData;\n\n`;
 
-    wgsl += `${getSetPixelSource(canvas.width, canvas.height)}\n\n`;
+    transpiled += `${getSetPixelSource(canvas.width, canvas.height)}\n\n`;
   }
 
-  wgsl += `struct RandomData {\n    data: array<u32>\n}\n\n`;
-  wgsl += `@group(0) @binding(${
+  transpiled += `struct RandomData {\n    data: array<u32>\n}\n\n`;
+  transpiled += `@group(0) @binding(${
     (buffers ? Object.keys(buffers).length : 0) +
     (uniforms ? 1 : 0) +
     (canvas ? 1 : 0)
   }) var<storage, read> hpcjsRandom: RandomData;\n\n`;
-  wgsl += `${getRandomSource()}\n\n`;
+  transpiled += `${getRandomSource()}\n\n`;
 
-  wgsl += `${getCplxSource()}\n\n`;
+  transpiled += `${getCplxSource()}\n\n`;
 
-  wgsl += parseKernelSource(
+  transpiled += parseKernelSource(
     func,
     buffers,
     uniforms,
@@ -671,9 +671,9 @@ export function transpileKernelToWgsl<
     'wgsl'
   );
 
-  console.log(wgsl);
+  console.log(transpiled);
 
-  return wgsl;
+  return transpiled;
 }
 
 export function transpileKernelToJs<

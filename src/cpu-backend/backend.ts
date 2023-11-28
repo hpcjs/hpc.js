@@ -9,13 +9,13 @@ import {
   GPUKernelSource,
   GPUUniformSpec,
   GPUBufferTypeToType,
-} from '../common/common-types';
+} from '../common/types';
 import { strideFromType } from '../common/utils';
 import { GPUVec2, vec2 } from '../gpu-types/vec2';
 import { GPUVec3, vec3 } from '../gpu-types/vec3';
 import { GPUVec4, vec4 } from '../gpu-types/vec4';
 // import transpileKernelToCPU from './parse-kernel';
-import { CPUBufferCollection, CPUUniformCollection } from './cpu-types';
+import { CPUBufferCollection, CPUUniformCollection } from './types';
 
 export default class CPUFallback<
   TBufferName extends string,

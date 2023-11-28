@@ -1,4 +1,4 @@
-import { VariableType } from './parser-types';
+import { VariableType } from './types';
 
 const functions = {
   math: {

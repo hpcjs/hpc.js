@@ -1,7 +1,7 @@
 import { GPUVec2 } from '../../gpu-types/vec2';
 import { GPUVec3 } from '../../gpu-types/vec3';
 import { GPUVec4 } from '../../gpu-types/vec4';
-import { GPUBufferSize } from '../common-types';
+import { GPUBufferSize } from '../types';
 
 export type WalkerStateBufferCollection<TName extends string> = {
   [K in TName]: WalkerStateBuffer;

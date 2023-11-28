@@ -2,11 +2,7 @@ import { findMatchingBracket } from '../../common/utils';
 import { GPUVec2 } from '../../gpu-types/vec2';
 import { GPUVec3 } from '../../gpu-types/vec3';
 import { GPUVec4 } from '../../gpu-types/vec4';
-import {
-  GPUExpressionWithType,
-  WalkerState,
-  VariableType,
-} from './parser-types';
+import { GPUExpressionWithType, WalkerState, VariableType } from './types';
 import functions from './functions';
 
 export function processFunction(
