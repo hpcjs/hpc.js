@@ -196,6 +196,11 @@ const handlers = {
 
     for (const declaration of node.declarations) {
       c(declaration, state);
+      if (state.currentExpression.startsWith('hpc__')) {
+        throw new Error(
+          'Identifiers starting with hpc__ are reserved for internal use'
+        );
+      }
       declarations += `${mutability} ${state.currentExpression};\n`;
     }
 
@@ -540,14 +545,19 @@ const handlers = {
     c(node.id, state);
     state.skipIdentifier = false;
     const name = state.currentExpression;
+    if (name.startsWith('hpc__')) {
+      throw new Error(
+        'Identifiers starting with hpc__ are reserved for internal use'
+      );
+    }
 
     const originalPrelude = state.prelude;
     state.prelude = args
       .map(
         arg =>
-          `    ${state.target === 'wgsl' ? 'var' : 'let'} ${arg.name} = param_${
+          `    ${state.target === 'wgsl' ? 'var' : 'let'} ${
             arg.name
-          };\n`
+          } = hpc__param_${arg.name};\n`
       )
       .join('');
     state.functionReturnType = 'unknown';
@@ -561,10 +571,10 @@ const handlers = {
     const source =
       state.target === 'wgsl'
         ? `fn ${name}(hpc__globalId: vec3<f32>, ${args
-            .map(p => `param_${p.name}: ${tsToWgslType(p.type)}`)
+            .map(p => `hpc__param_${p.name}: ${tsToWgslType(p.type)}`)
             .join(', ')}) -> ${tsToWgslType(state.functionReturnType)} ${body}`
         : `function ${name}(hpc__globalId, ${args
-            .map(p => `param_${p.name}`)
+            .map(p => `hpc__param_${p.name}`)
             .join(', ')}) ${body}`;
     state.functionDeclarations.push({ name, args, returnType, source });
 
