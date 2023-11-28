@@ -165,7 +165,7 @@ export default class CPUFallback<
       );
     };
 
-    return { run: runKernel };
+    return { run: runKernel, source: transpiledSrc };
   }
 
   copyBuffer(src: TBuffers['name'], dst: TBuffers['name']) {

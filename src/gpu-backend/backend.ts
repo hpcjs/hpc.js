@@ -494,7 +494,7 @@ export default class GPUBackend<
       this.device.queue.submit([gpuCommands]);
     };
 
-    return { run: runKernel };
+    return { run: runKernel, source: shaderSource };
   }
 
   copyBuffer(src: TBuffers['name'], dst: TBuffers['name']) {

@@ -53,6 +53,7 @@ export type GPUKernelSource<
 ) => void;
 export type GPUKernel = {
   run: (x: number, y?: number, z?: number) => void;
+  source: string;
 };
 
 export type GPUInterfaceConstructorParams<

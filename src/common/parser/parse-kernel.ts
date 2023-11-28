@@ -671,8 +671,6 @@ export function transpileKernelToWgsl<
     'wgsl'
   );
 
-  console.log(transpiled);
-
   return transpiled;
 }
 
@@ -701,7 +699,6 @@ export function transpileKernelToJs<
   }
 
   transpiled += parseKernelSource(func, buffers, uniforms, canvas, 1024, 'js');
-  console.log(transpiled);
 
   return transpiled;
 }
